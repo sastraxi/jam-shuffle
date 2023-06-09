@@ -23,7 +23,6 @@ type SpotifyMeResponse = {
   uri: string
 }
 
-
 import './App.css'
 import Category from './components/Category'
 import SettingsArea from './components/SettingsArea'

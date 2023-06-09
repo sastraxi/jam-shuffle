@@ -12,11 +12,17 @@ const SINGLE_IDEAS = [
     "Tension and release"
 ]
 
-const REROLLS = ['idea'] as const
+type RerollValues = typeof SINGLE_IDEAS[number];
 
-type RerollValues = typeof REROLLS[number];
-
-const makeChoice = () => randomChoice(SINGLE_IDEAS) as RerollValues
+// TODO: turn into template
+const makeChoice = (lastChoice: RerollValues | undefined = undefined) => {
+    if (SINGLE_IDEAS.length === 1) return SINGLE_IDEAS[0]
+    let nextChoice: RerollValues | undefined = lastChoice
+    while (nextChoice === lastChoice) {
+        nextChoice = randomChoice(SINGLE_IDEAS) as RerollValues
+    }
+    return nextChoice
+}
 
 const SingleIdea = ({ seed }: {
     seed?: number 
@@ -26,9 +32,9 @@ const SingleIdea = ({ seed }: {
     useCallback(() => {
         if (seed != storedSeed) {
             setStoredSeed(seed)
-            setIdea(makeChoice())
+            setIdea(makeChoice(idea))
         }
-    }, [seed, storedSeed])
+    }, [seed, storedSeed, idea])
 
     return (
         <BasePrompt name="Single idea">
@@ -37,7 +43,7 @@ const SingleIdea = ({ seed }: {
             </h1>
             <div>
                 <IconButton type="undo" size="18px" disabled />
-                <IconButton type="shuffle" size="18px" onClick={() => setIdea(makeChoice())} />
+                <IconButton type="shuffle" size="18px" onClick={() => setIdea(makeChoice(idea))} />
             </div>
         </BasePrompt>
     )

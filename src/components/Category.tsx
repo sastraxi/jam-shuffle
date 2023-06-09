@@ -22,9 +22,11 @@ const Category = ({
             <h3>Category</h3>
             <h2>
                 <IconButton type="undo" onClick={onClickUndo} disabled={!canUndo} />
+                <span className="spacer" />
                 <a className="category" onClick={onClickCategory}>
                     {category}
                 </a>
+                <span className="spacer" />
                 <IconButton type="shuffle" onClick={onClickShuffle} />
             </h2>
         </div>

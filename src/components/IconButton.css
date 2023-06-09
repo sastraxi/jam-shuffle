@@ -5,16 +5,13 @@ button.iconButton {
     border: none;
     background: transparent;
     transition: all 0.2s;
+    cursor: pointer;
 }
-    button.iconButton:hover {
+    button.iconButton:not([disabled]):hover {
         background-color: white;
         color: #213547;
         margin: 0 0.5em;
         padding: 0.6em 0.6em;
-    }
-    
-    button.iconButton + button.iconButton {
-        margin-left: 0;
     }
 
     button > img {
@@ -28,10 +25,14 @@ button.iconButton {
 
         /* to remove flash, figure out:
            mask: url(logo.svg) no-repeat center; */
-        button.iconButton:hover > img {
+        button.iconButton:not([disabled]):hover > img {
             filter: invert(1);
         }
 
-        button.iconButton[disabled] > img {
-            opacity: 0.3;
+        button.iconButton:disabled {
+            cursor: not-allowed;
         }
+
+            button.iconButton:disabled > img {
+                opacity: 0.3;
+            }
