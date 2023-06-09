@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import BasePrompt from './BasePrompt'
-import { randomChoice } from '../util'
+import { createMakeChoice } from '../util'
 import IconButton from '../components/IconButton'
 
 const SINGLE_IDEAS = [
@@ -14,27 +14,21 @@ const SINGLE_IDEAS = [
 
 type RerollValues = typeof SINGLE_IDEAS[number];
 
-// TODO: turn into template
-const makeChoice = (lastChoice: RerollValues | undefined = undefined) => {
-    if (SINGLE_IDEAS.length === 1) return SINGLE_IDEAS[0]
-    let nextChoice: RerollValues | undefined = lastChoice
-    while (nextChoice === lastChoice) {
-        nextChoice = randomChoice(SINGLE_IDEAS) as RerollValues
-    }
-    return nextChoice
-}
+const makeChoice = createMakeChoice(SINGLE_IDEAS)
 
-const SingleIdea = ({ seed }: {
-    seed?: number 
-}) => {
+const SingleIdea = () => {
+    const [lastIdea, setLastIdea] = useState<RerollValues | undefined>(undefined)
     const [idea, setIdea] = useState<RerollValues | undefined>(makeChoice())
-    const [storedSeed, setStoredSeed] = useState<number | undefined>(seed)
-    useCallback(() => {
-        if (seed != storedSeed) {
-            setStoredSeed(seed)
-            setIdea(makeChoice(idea))
-        }
-    }, [seed, storedSeed, idea])
+
+    const swapIdea = () => {
+        setIdea(lastIdea)
+        setLastIdea(idea)
+    }
+
+    const shuffleIdea = () => {
+        setIdea(makeChoice(idea))
+        setLastIdea(idea)
+    }
 
     return (
         <BasePrompt name="Single idea">
@@ -42,8 +36,8 @@ const SingleIdea = ({ seed }: {
                 <a>{idea}</a>
             </h1>
             <div>
-                <IconButton type="undo" size="18px" disabled />
-                <IconButton type="shuffle" size="18px" onClick={() => setIdea(makeChoice(idea))} />
+                <IconButton type="undo" size="18px" onClick={swapIdea} disabled={!lastIdea} />
+                <IconButton type="shuffle" size="18px" onClick={shuffleIdea} />
             </div>
         </BasePrompt>
     )
