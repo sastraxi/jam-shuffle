@@ -3,11 +3,3 @@
   padding: 2rem;
   text-align: center;
 }
-
-hr {
-  display: block;
-  background-color: rgb(182, 244, 244);
-  height: 2px;
-  border: none;
-  margin: 3.5em 2em;
-}

@@ -3,8 +3,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color: #213547;
-  background-color: #ffffff;
+  background-color: #213547;
+  color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -15,7 +15,7 @@
 
 a {
   font-weight: 500;
-  color: #213547;
+  color: white;
   text-decoration: underline;
   text-decoration-style: dotted;
   transition: all 0.2s;
@@ -26,8 +26,8 @@ a {
 a:hover {
   padding: 0.15em 0.4em;
   margin: -0.15em -0.4em;
-  background-color: #213547;
-  color: white;
+  background-color: white;
+  color: #213547;
 }
 
 body {
