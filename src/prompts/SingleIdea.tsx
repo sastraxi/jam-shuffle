@@ -35,7 +35,10 @@ const SingleIdea = ({ seed }: {
             <h1>
                 <a>{idea}</a>
             </h1>
-            <IconButton type="shuffle" size="18px" onClick={() => setIdea(makeChoice())} />
+            <div>
+                <IconButton type="undo" size="18px" disabled />
+                <IconButton type="shuffle" size="18px" onClick={() => setIdea(makeChoice())} />
+            </div>
         </BasePrompt>
     )
 }

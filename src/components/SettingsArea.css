@@ -3,3 +3,6 @@ div.settingsContainer {
     top: 24px;
     right: 24px;
 }
+span.user {
+    margin-right: 0.5em;
+}

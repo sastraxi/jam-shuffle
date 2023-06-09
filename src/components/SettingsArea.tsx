@@ -13,8 +13,8 @@ const SettingsArea = ({
 }) => {
     return (
         <div className="settingsContainer">
-            { name && <IconButton type="logout" onClick={onLogout} /> }
             { name && <span className="user">{name}</span> }
+            { name && <IconButton type="logout" onClick={onLogout} /> }
             <IconButton type="settings" onClick={onClick} />
         </div>
     )

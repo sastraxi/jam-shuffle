@@ -1,9 +1,21 @@
 button.iconButton {
     vertical-align: middle;
     margin: 0 0.5em;
+    padding: 0.6em 0.6em;
     border: none;
     background: transparent;
+    transition: all 0.2s;
 }
+    button.iconButton:hover {
+        background-color: white;
+        color: #213547;
+        margin: 0 0.5em;
+        padding: 0.6em 0.6em;
+    }
+    
+    button.iconButton + button.iconButton {
+        margin-left: 0;
+    }
 
     button > img {
         vertical-align: -0.4em;
@@ -11,8 +23,15 @@ button.iconButton {
         opacity: 0.7;
         width: 2em;
         height: 2em;
+        filter: invert(0);
     }
 
-        button[disabled] > img {
+        /* to remove flash, figure out:
+           mask: url(logo.svg) no-repeat center; */
+        button.iconButton:hover > img {
+            filter: invert(1);
+        }
+
+        button.iconButton[disabled] > img {
             opacity: 0.3;
         }
