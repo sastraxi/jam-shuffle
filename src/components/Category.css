@@ -1,0 +1,22 @@
+div.categoryContainer {
+    user-select: none;
+}
+
+    div.categoryContainer > h3 {
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-weight: 300;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    div.categoryContainer > h2 {
+        text-transform: capitalize;
+        font-size: 32px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+        div.categoryContainer > h2 a {
+            cursor: pointer;
+        }

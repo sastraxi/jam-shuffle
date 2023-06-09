@@ -1,0 +1,13 @@
+.prompt-main {
+    min-height: 50vh;
+    max-width: 80vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10vh;
+    flex-direction: column;
+}
+
+    .prompt-main h1 {
+        font-size: 64px;
+    }

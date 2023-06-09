@@ -1,0 +1,18 @@
+button.iconButton {
+    vertical-align: middle;
+    margin: 0 0.5em;
+    border: none;
+    background: transparent;
+}
+
+    button > img {
+        vertical-align: -0.4em;
+        margin: 0;
+        opacity: 0.7;
+        width: 2em;
+        height: 2em;
+    }
+
+        button[disabled] > img {
+            opacity: 0.3;
+        }
