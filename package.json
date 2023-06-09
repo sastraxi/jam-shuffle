@@ -30,5 +30,6 @@
     "typescript": "^5.0.2",
     "vite": "^4.3.9",
     "vite-plugin-mkcert": "^1.15.0"
-  }
+  },
+  "packageManager": "yarn@3.6.0"
 }
