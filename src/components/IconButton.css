@@ -1,6 +1,6 @@
 button.iconButton {
     vertical-align: middle;
-    margin: 0 0.5em;
+    margin: 0 0.7em;
     padding: 0.6em 0.6em;
     border: none;
     background: transparent;
@@ -10,9 +10,21 @@ button.iconButton {
     button.iconButton:not([disabled]):hover {
         background-color: white;
         color: #213547;
-        margin: 0 0.5em;
+        margin: 0 0.7em;
         padding: 0.6em 0.6em;
     }
+
+    button > span {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 16px;
+        vertical-align: 2px;
+        margin: 0 0.7em;
+    }
+
+        button.iconButton:not([disabled]):hover > span {
+            color: #213547;
+            
+        }
 
     button > img {
         vertical-align: -0.4em;
@@ -20,7 +32,6 @@ button.iconButton {
         opacity: 0.7;
         width: 2em;
         height: 2em;
-        filter: invert(0);
     }
 
         /* to remove flash, figure out:

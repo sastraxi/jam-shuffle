@@ -2,7 +2,6 @@ import React from 'react'
 import './BasePrompt.css'
 
 export type PropTypes = {
-    name: string,
     children: React.ReactNode
 }
 

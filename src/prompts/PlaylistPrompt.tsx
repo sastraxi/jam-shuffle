@@ -2,21 +2,33 @@ import React, { useState } from 'react'
 import BasePrompt from '../core/BasePrompt'
 import { createMakeChoice } from '../util'
 import IconButton from '../components/IconButton'
+import { useQuery } from '@tanstack/react-query'
+import { AuthSession } from '@supabase/supabase-js'
+import { SpotifyMyPlaylists } from '../types/spotify'
 
-const SINGLE_IDEAS = [
-    "Everyone does coordinated stops",
-    "Something funky",
-    "Smooth jazz vibes",
-    "Adolescent punk",
-    "Beautiful and atmospheric",
-    "Tension and release"
-]
+const PlaylistPrompt = ({
+  playlistId,
+  session
+}: {
+  playlistId: string
+  session: AuthSession
+}) => {
 
-type RerollValues = typeof SINGLE_IDEAS[number];
+    const getUserPlaylists = async () => {
+        const res = await fetch('https://api.spotify.com/v1/me/playlists', {
+          headers: { "Authorization": `Bearer ${session.provider_token}` }
+        })
+        return res.json() as Promise<SpotifyMyPlaylists>
+    }
+    
+    const q = useQuery({
+      queryKey: ["userPlaylists"],
+      enabled: !!session.provider_token,
+      queryFn: getUserPlaylists,
+    })
 
-const makeChoice = createMakeChoice(SINGLE_IDEAS)
+    const [makeChoice, setMakeChoice] = useState<ReturnType<typeof createMakeChoice> | undefined>(undefined)
 
-const SingleIdea = () => {
     const [lastIdea, setLastIdea] = useState<RerollValues | undefined>(undefined)
     const [idea, setIdea] = useState<RerollValues | undefined>(makeChoice())
 
@@ -43,4 +55,4 @@ const SingleIdea = () => {
     )
 }
 
-export default SingleIdea
+export default PlaylistPrompt

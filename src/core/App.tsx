@@ -6,27 +6,11 @@ import { ThemeSupa } from '@supabase/auth-ui-shared'
 
 import { useQuery } from "@tanstack/react-query";
 
-type SpotifyMeResponse = {
-  display_name: string
-  email?: string
-  external_urls: {
-    spotify: string
-  }
-  href: string
-  id: string
-  images: Array<{
-    width: number | null
-    height: number | null
-    url: string
-  }>
-  type: "user"
-  uri: string
-}
-
 import './App.css'
-import Category from './components/Category'
-import SettingsArea from './components/SettingsArea'
-import Prompt from './prompts/SingleIdea'
+import Category from '../components/Category'
+import { SpotifyMe } from '../types/spotify';
+import SingleIdea from '../prompts/SingleIdea';
+import Settings from './Settings';
 
 // Create a single supabase client for interacting with your database
 const PUBLIC_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtYmhjZ2ZueWtwdHZpZHJ6em9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODYxMTM1NDQsImV4cCI6MjAwMTY4OTU0NH0.wli6p3Lx-99RAvTUz5qCD23JM1OTMB6NUiUAFlk2TkU"
@@ -42,17 +26,17 @@ const App = () => {
   const getUserProfile = async () => {
     if (!session) return null
     const res = await fetch('https://api.spotify.com/v1/me', {
-      headers: { "Authorization": `Bearer ${session.provider_token}`}
+      headers: { "Authorization": `Bearer ${session.provider_token}` }
     })
     return res.json()
   }
 
-  const { isLoading, error, data, isFetching } = useQuery<SpotifyMeResponse>({
+  const { isLoading, error, data, isFetching } = useQuery<SpotifyMe>({
     queryKey: ["userProfile"],
     enabled: !!session && !!session.provider_token,
     queryFn: getUserProfile,
   })
-  
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
@@ -79,11 +63,11 @@ const App = () => {
 
   return (
     <>
-      <SettingsArea name={data?.display_name} onLogout={signout} />
+      <Settings name={data?.display_name} onLogout={signout} session={session} />
       <Category
         category="single idea"
       />
-      <Prompt />
+      <SingleIdea />
     </>
   )
 }

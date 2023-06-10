@@ -19,16 +19,19 @@ const IconButton = ({
     onClick,
     type,
     size = "12px",
-    disabled = false
+    disabled = false,
+    children
 }: {
     onClick?: () => unknown,
     type: IconType,
     size?: string,
     disabled?: boolean
+    children?: React.ReactNode
 }) => {
     return (
         <button className="iconButton" disabled={disabled} onClick={onClick} style={{ fontSize: size }}>
             <img src={iconFromType(type)} />
+            {children && <span>{children}</span>}
         </button>
     )
 }
