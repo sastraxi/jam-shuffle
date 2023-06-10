@@ -3,16 +3,21 @@ import IconButton from '../components/IconButton'
 import { useQuery } from '@tanstack/react-query'
 import { AuthSession } from '@supabase/supabase-js'
 import { SpotifyMyPlaylists } from '../types/spotify'
+import SelectionGrid, { GridItem } from '../components/SelectionGrid'
 
 type url = string
 
 const PlaylistSelector = ({
-  session
+  session,
+  selectedIds,
+  setSelectedIds,
 }: {
-  session: AuthSession
+  session: AuthSession,
+  selectedIds: Set<string>,
+  setSelectedIds: (selectedIds: Set<string>) => unknown
 }) => {
     const getUserPlaylists = async () => {
-        const res = await fetch('https://api.spotify.com/v1/me/playlists', {
+        const res = await fetch('https://api.spotify.com/v1/me/playlists?limit=50', {
           headers: { "Authorization": `Bearer ${session.provider_token}` }
         })
         return res.json() as Promise<SpotifyMyPlaylists>
@@ -24,11 +29,30 @@ const PlaylistSelector = ({
       queryFn: getUserPlaylists,
     })
 
+    if (!data) return null;
+    
+    const playlists: Array<GridItem> = data.items.map(playlist => ({
+      id: playlist.id,
+      caption: playlist.name,
+      imageUrl: playlist.images[0].url,
+    }))
+
+    const onSelectItem = (item: GridItem, isNowSelected: boolean) => {
+      const newSelection = new Set(selectedIds)
+      if (isNowSelected) {
+        newSelection.add(item.id)
+      } else {
+        newSelection.delete(item.id)
+      }
+      setSelectedIds(newSelection)
+    }
+
     return (
-      <ul>
-        { data && data.items.map(playlist =>
-            <li key={playlist.id}>{playlist.name}</li>) }
-      </ul>
+      <SelectionGrid
+        items={playlists}
+        selectedIds={selectedIds}
+        onSelect={onSelectItem}
+      />
     )
 }
 

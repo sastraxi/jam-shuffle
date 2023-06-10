@@ -15,16 +15,38 @@ const Settings = ({
     session: AuthSession
 }) => {
     const [isActive, setActive] = useState<boolean>(false)
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+    const menuIcon = isActive ? 'close' : 'settings'
+
+    const onClickMenuButton = () => {
+        if (!isActive) {
+            setActive(true)
+            return
+        }
+        setActive(false)
+        // TODO: sync selected items back to supabase
+    }
+
     return (
-        <div className="settingsContainer">
-            {name && <span className="user">{name}</span>}
-            {name && <IconButton type="logout" onClick={onLogout} />}
-            <IconButton type="settings" onClick={() => setActive(true)} />
+        <>
             {isActive &&
-                <MenuContainer title="Settings" onClose={() => setActive(false)}>
-                    <PlaylistSelector session={session} />
+                <MenuContainer>
+                    <h2>Shuffle prompts</h2>
+                    <p>Choose which built-in prompts can show up when you shuffle.</p>
+                    <h2>Spotify playlists</h2>
+                    <p>Selected playlists will show up as prompt categories.</p>
+                    <PlaylistSelector
+                        session={session}
+                        selectedIds={selectedIds}
+                        setSelectedIds={setSelectedIds}
+                    />
                 </MenuContainer>}
-        </div>
+            <div className="settingsContainer">
+                {name && <span className="user">{name}</span>}
+                <IconButton type="logout" onClick={onLogout} />
+                <IconButton type={menuIcon} onClick={onClickMenuButton} />
+            </div>
+        </>
     )
 }
 

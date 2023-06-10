@@ -3,42 +3,42 @@ div.menuContainer {
     position: fixed;
     left: 0;
     right: 0;
-    top: 0;
+    top: 90px;
     bottom: 0;
     z-index: 999;
-    background: rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(8px);
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    background: black;
+    padding: 2em;
+    overflow-y: auto;
 }
 
-
-    /* ma */
-    div.menuContainer > div {
-        display: flex;
-        flex-direction: column;
-        background-color: rgba(18, 24, 32, 0.95);
-        backdrop-filter: blur(6px);
-        box-shadow: #121820 0px 0px 8px, #121820 0px 0px 20px,  #121820 0px 0px 16px;
-        color: white;
-        width: 100vw;
-        min-height: none;
-        max-height: 80vh;
+    div.menuContainer::after {
+        content: "";
+        display: block;
+        position: fixed;
+        top: 75px;
+        right: 38px;
+        width: 0;
+        height: 0;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-bottom: 15px solid black;
+        font-size: 0;
+        line-height: 0;
     }
 
-        div.menuContainer > div > * {
-            color: white;
-        }
+    div.menuContainer > * {
+        color: white;
+        text-align: left;
+    }
 
-        div.menuContainer > div > .titleArea {
-            margin: 2em;
-        }
+    div.menuContainer h1,
+    div.menuContainer h2,
+    div.menuContainer h3 {
+        margin: 0;
+    }
 
-        div.menuContainer > div > .main {
-            margin: 2em;
-        }
-        
-        div.menuContainer > div > .buttons {
-            margin: 2em;
-        }
+    div.menuContainer > .main {
+        margin: 1em 0;
+    }

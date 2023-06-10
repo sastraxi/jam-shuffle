@@ -33,7 +33,6 @@ const App = () => {
 
   const { isLoading, error, data, isFetching } = useQuery<SpotifyMe>({
     queryKey: ["userProfile"],
-    enabled: !!session && !!session.provider_token,
     queryFn: getUserProfile,
   })
 
