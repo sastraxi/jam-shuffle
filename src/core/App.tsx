@@ -25,19 +25,26 @@ const App = () => {
 
   const getUserProfile = async () => {
     if (!session) return null
+    if (!session.provider_token) {
+      // FIXME: are we supposed to save the provider_token / refresh token ourselves and re-add to session?
+      signout()
+      throw new Error("No provider_token in session")
+    }
     const res = await fetch('https://api.spotify.com/v1/me', {
       headers: { "Authorization": `Bearer ${session.provider_token}` }
     })
+    if (!res.ok) throw res.json()
     return res.json()
   }
 
-  const { isLoading, error, data, isFetching } = useQuery<SpotifyMe>({
+  const { isLoading, error, data, isFetching, isError } = useQuery<SpotifyMe>({
     queryKey: ["userProfile"],
     enabled: !!session?.user,
     queryFn: getUserProfile,
   })
 
   useEffect(() => {
+    console.log('useEffect')
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('initial', session)
       setSession(session)

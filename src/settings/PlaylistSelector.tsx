@@ -25,7 +25,7 @@ const PlaylistSelector = ({
       queryFn: getUserPlaylists,
     })
 
-    if (!data) return null;
+    if (!data) return null
     
     const playlists: Array<GridItem> = data.items.map(playlist => ({
       id: playlist.id,
