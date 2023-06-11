@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import BasePrompt from '../core/BasePrompt'
 import { createMakeChoice } from '../util'
 import IconButton from '../components/IconButton'
-import { PromptState } from './types'
 import { SINGLE_IDEAS } from '../ideas'
 
 export type SingleIdeaChoices = {
@@ -11,14 +10,9 @@ export type SingleIdeaChoices = {
 
 const makeChoice = createMakeChoice(SINGLE_IDEAS)
 
-const SingleIdea: React.FunctionComponent<PromptState> = () => {
+const SingleIdea: React.FunctionComponent = () => {
     const [lastIdea, setLastIdea] = useState<string | undefined>(undefined)
     const [idea, setIdea] = useState<string | undefined>(makeChoice())
-
-    const swapIdea = () => {
-        setIdea(lastIdea)
-        setLastIdea(idea)
-    }
 
     const shuffleIdea = () => {
         setIdea(makeChoice(idea))
@@ -31,8 +25,7 @@ const SingleIdea: React.FunctionComponent<PromptState> = () => {
                 <a>{idea}</a>
             </h1>
             <div>
-                <IconButton type="undo" size="18px" onClick={swapIdea} disabled={!lastIdea} />
-                <IconButton type="shuffle" size="18px" onClick={shuffleIdea} />
+                <IconButton type="shuffle" size="24px" onClick={shuffleIdea} />
             </div>
         </BasePrompt>
     )

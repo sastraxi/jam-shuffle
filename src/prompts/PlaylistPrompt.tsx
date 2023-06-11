@@ -7,32 +7,22 @@ import { AuthSession } from '@supabase/supabase-js'
 import { SpotifyMyPlaylists } from '../types/spotify'
 import { PromptState } from './types'
 
-export type PlaylistChoices = {
-  songId: string
-}
+const PlaylistPrompt: React.FunctionComponent = () => {
 
-const PlaylistPrompt: React.FunctionComponent<PromptState<PlaylistChoices>> = ({
-  prompt: { subtype },
-  choices: { songId },
-}) => {
-
-    const getUserPlaylists = async () => {
-        const res = await fetch('https://api.spotify.com/v1/me/playlists', {
+    const getPlaylist = async () => {
+        const res = await fetch('https://api.spotify.com/v1/playlists/{playlist_id}', {
           headers: { "Authorization": `Bearer ${session.provider_token}` }
         })
         return res.json() as Promise<SpotifyMyPlaylists>
     }
     
     const q = useQuery({
-      queryKey: ["userPlaylists"],
+      queryKey: ["userPlaylists", ],
       enabled: !!session.provider_token,
       queryFn: getUserPlaylists,
     })
 
     const [makeChoice, setMakeChoice] = useState<ReturnType<typeof createMakeChoice> | undefined>(undefined)
-
-    const [lastIdea, setLastIdea] = useState<RerollValues | undefined>(undefined)
-    const [idea, setIdea] = useState<RerollValues | undefined>(makeChoice())
 
     const swapIdea = () => {
         setIdea(lastIdea)

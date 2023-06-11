@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { Auth } from '@supabase/auth-ui-react'
+import { Auth, SignIn } from '@supabase/auth-ui-react'
 import { Session, createClient } from '@supabase/supabase-js'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 
@@ -11,6 +11,8 @@ import CategorySelector from './CategorySelector'
 import { SpotifyMe } from '../types/spotify';
 import SingleIdea from '../prompts/SingleIdea';
 import Settings from '../settings/Settings';
+import { useCategory } from '../state/app';
+import PlaylistPrompt from '../prompts/PlaylistPrompt';
 
 // Create a single supabase client for interacting with your database
 const PUBLIC_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtYmhjZ2ZueWtwdHZpZHJ6em9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODYxMTM1NDQsImV4cCI6MjAwMTY4OTU0NH0.wli6p3Lx-99RAvTUz5qCD23JM1OTMB6NUiUAFlk2TkU"
@@ -57,6 +59,8 @@ const App = () => {
     return () => subscription.unsubscribe()
   }, [])
 
+  const category = useCategory()
+
   if (!session) {
     return (<Auth
       providers={["spotify"]}
@@ -71,7 +75,8 @@ const App = () => {
     <>
       <Settings name={data?.display_name} onLogout={signout} session={session} />
       <CategorySelector />
-      <SingleIdea />
+      { category.type === "single idea" && <SingleIdea /> }
+      { category.type === "playlist" && "todo playlist" }
     </>
   )
 }
