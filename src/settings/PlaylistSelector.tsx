@@ -4,13 +4,14 @@ import { AuthSession } from '@supabase/supabase-js'
 import { SpotifyMyPlaylists } from '../types/spotify'
 import SelectionGrid, { GridItem } from './SelectionGrid'
 import { useUserPreferences } from '../state/user-prefs'
+import { SavedPlaylist } from '../state/types'
 
 const PlaylistSelector = ({
   session,
 }: {
   session: AuthSession,
 }) => {
-    const { playlistIds, addPlaylistId, removePlaylistId } = useUserPreferences()
+    const { playlists, addPlaylist, removePlaylist } = useUserPreferences()
 
     const getUserPlaylists = async () => {
         const res = await fetch('https://api.spotify.com/v1/me/playlists?limit=50', {
@@ -27,24 +28,25 @@ const PlaylistSelector = ({
 
     if (!data) return null
     
-    const playlists: Array<GridItem> = data.items.map(playlist => ({
+    const allPlaylists: Array<GridItem> = data.items.map(playlist => ({
       id: playlist.id,
       caption: playlist.name,
       imageUrl: playlist.images[0].url,
     }))
 
     const onSelectItem = (item: GridItem, isNowSelected: boolean) => {
+      const playlist: SavedPlaylist = { id: item.id, name: item.caption }
       if (isNowSelected) {
-        addPlaylistId(item.id)
+        addPlaylist(playlist)
       } else {
-        removePlaylistId(item.id)
+        removePlaylist(playlist)
       }
     }
 
     return (
       <SelectionGrid
-        items={playlists}
-        selectedIds={playlistIds}
+        items={allPlaylists}
+        selectedIds={new Set(Array.from(playlists).map(p => p.id))}
         onSelect={onSelectItem}
       />
     )

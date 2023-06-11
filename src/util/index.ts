@@ -10,6 +10,7 @@ export function createMakeChoice<T>(domain: Array<T>) {
         while (nextChoice === lastChoice) {
             nextChoice = randomChoice(domain) as Values
         }
+        if (nextChoice === undefined) throw new Error("makeChoice wasn't able to find a choice")
         return nextChoice
     }
     return makeChoice

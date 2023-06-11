@@ -3,22 +3,7 @@ import BasePrompt from '../core/BasePrompt'
 import { createMakeChoice } from '../util'
 import IconButton from '../components/IconButton'
 import { PromptState } from './types'
-
-export const SINGLE_IDEAS = [
-    "Coordinated stops",
-    "Something funky",
-    "Smooth jazz feel",
-    "Adolescent punk",
-    "Beautiful and atmospheric",
-    "Tension and release",
-    "Something syncopated",
-    "A love song",
-    "12-bar blues",
-    "A weird rhythm",
-    "Palm-muted guitar",
-    "Walking bassline",
-    "Something your past self would love",
-].sort()
+import { SINGLE_IDEAS } from '../ideas'
 
 export type SingleIdeaChoices = {
     idea: string
@@ -26,7 +11,7 @@ export type SingleIdeaChoices = {
 
 const makeChoice = createMakeChoice(SINGLE_IDEAS)
 
-const SingleIdea: React.FunctionComponent<PromptState<SingleIdeaChoices>> = () => {
+const SingleIdea: React.FunctionComponent<PromptState> = () => {
     const [lastIdea, setLastIdea] = useState<string | undefined>(undefined)
     const [idea, setIdea] = useState<string | undefined>(makeChoice())
 

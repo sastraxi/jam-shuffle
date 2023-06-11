@@ -1,5 +1,10 @@
-export type PromptIdentifier = {
+export type Category = {
     type: PromptType
+
+    /**
+     * Automatically created from the prompt type otherwise
+     */
+    displayName?: string
 
     /**
      * Some prompts have secondary identifiers. We do this when we want to
@@ -20,8 +25,8 @@ export type PromptIdentifier = {
 export type PromptChoices = Record<string, string>
 
 export type PromptState<C extends PromptChoices = Record<string, string>> = {
-    prompt: PromptIdentifier,
-    choices: C,
+    category: Category,
+    choices?: C,
 }
 
 export type PromptType =

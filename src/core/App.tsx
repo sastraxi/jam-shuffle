@@ -7,7 +7,7 @@ import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { useQuery } from "@tanstack/react-query";
 
 import './App.css'
-import Category from './Category'
+import CategorySelector from './CategorySelector'
 import { SpotifyMe } from '../types/spotify';
 import SingleIdea from '../prompts/SingleIdea';
 import Settings from '../settings/Settings';
@@ -70,7 +70,7 @@ const App = () => {
   return (
     <>
       <Settings name={data?.display_name} onLogout={signout} session={session} />
-      <Category category="single idea" />
+      <CategorySelector />
       <SingleIdea />
     </>
   )
