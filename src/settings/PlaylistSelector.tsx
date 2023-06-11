@@ -3,18 +3,15 @@ import { useQuery } from '@tanstack/react-query'
 import { AuthSession } from '@supabase/supabase-js'
 import { SpotifyMyPlaylists } from '../types/spotify'
 import SelectionGrid, { GridItem } from './SelectionGrid'
-
-type url = string
+import { useUserPreferences } from '../state/user-prefs'
 
 const PlaylistSelector = ({
   session,
-  selectedIds,
-  setSelectedIds,
 }: {
   session: AuthSession,
-  selectedIds: Set<string>,
-  setSelectedIds: (selectedIds: Set<string>) => unknown
 }) => {
+    const { playlistIds, addPlaylistId, removePlaylistId } = useUserPreferences()
+
     const getUserPlaylists = async () => {
         const res = await fetch('https://api.spotify.com/v1/me/playlists?limit=50', {
           headers: { "Authorization": `Bearer ${session.provider_token}` }
@@ -37,19 +34,17 @@ const PlaylistSelector = ({
     }))
 
     const onSelectItem = (item: GridItem, isNowSelected: boolean) => {
-      const newSelection = new Set(selectedIds)
       if (isNowSelected) {
-        newSelection.add(item.id)
+        addPlaylistId(item.id)
       } else {
-        newSelection.delete(item.id)
+        removePlaylistId(item.id)
       }
-      setSelectedIds(newSelection)
     }
 
     return (
       <SelectionGrid
         items={playlists}
-        selectedIds={selectedIds}
+        selectedIds={playlistIds}
         onSelect={onSelectItem}
       />
     )

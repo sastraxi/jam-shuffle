@@ -15,7 +15,6 @@ const Settings = ({
     session: AuthSession
 }) => {
     const [isActive, setActive] = useState<boolean>(false)
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
     const menuIcon = isActive ? 'close' : 'settings'
 
     const onClickMenuButton = () => {
@@ -37,8 +36,6 @@ const Settings = ({
                     <p>Selected playlists will show up as prompt categories.</p>
                     <PlaylistSelector
                         session={session}
-                        selectedIds={selectedIds}
-                        setSelectedIds={setSelectedIds}
                     />
                 </MenuContainer>}
             <div className="settingsContainer">
