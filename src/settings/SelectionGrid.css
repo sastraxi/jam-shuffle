@@ -3,6 +3,7 @@ div.selectionGrid {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    margin-right: -8px;
 }
 
     div.selectionGrid > div.gridItem {

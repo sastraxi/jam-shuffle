@@ -13,7 +13,8 @@ div.menuContainer {
     overflow-y: auto;
 }
 
-    div.menuContainer::after {
+    /* the little dropdown arrow from the settings icon */
+    div.menuContainer::before {
         content: "";
         display: block;
         position: fixed;
@@ -28,6 +29,18 @@ div.menuContainer {
         line-height: 0;
     }
 
+    /* mini inset "drop shadow" */
+    div.menuContainer::after {
+        content: "";
+        display: block;
+        position: fixed;
+        top: 90px;
+        right: 0;
+        left: 0;
+        height: 20px;
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+    }
+
     div.menuContainer > * {
         color: white;
         text-align: left;
@@ -39,6 +52,3 @@ div.menuContainer {
         margin: 0;
     }
 
-    div.menuContainer > .main {
-        margin: 1em 0;
-    }

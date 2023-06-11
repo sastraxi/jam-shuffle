@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { AuthSession } from "@supabase/supabase-js"
-import MenuContainer from "../components/MenuContainer"
-import PlaylistSelector from "../settings/PlaylistSelector"
+import MenuContainer from "./MenuContainer"
+import PlaylistSelector from "./PlaylistSelector"
 import './Settings.css'
 import IconButton from "../components/IconButton"
 

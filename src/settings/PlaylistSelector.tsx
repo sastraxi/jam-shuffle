@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
-import IconButton from '../components/IconButton'
 import { useQuery } from '@tanstack/react-query'
 import { AuthSession } from '@supabase/supabase-js'
 import { SpotifyMyPlaylists } from '../types/spotify'
-import SelectionGrid, { GridItem } from '../components/SelectionGrid'
+import SelectionGrid, { GridItem } from './SelectionGrid'
 
 type url = string
 

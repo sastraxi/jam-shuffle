@@ -7,10 +7,10 @@ import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { useQuery } from "@tanstack/react-query";
 
 import './App.css'
-import Category from '../components/Category'
+import Category from './Category'
 import { SpotifyMe } from '../types/spotify';
 import SingleIdea from '../prompts/SingleIdea';
-import Settings from './Settings';
+import Settings from '../settings/Settings';
 
 // Create a single supabase client for interacting with your database
 const PUBLIC_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtYmhjZ2ZueWtwdHZpZHJ6em9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODYxMTM1NDQsImV4cCI6MjAwMTY4OTU0NH0.wli6p3Lx-99RAvTUz5qCD23JM1OTMB6NUiUAFlk2TkU"

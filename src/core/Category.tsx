@@ -1,6 +1,6 @@
 import React from 'react'
 import './Category.css'
-import IconButton from './IconButton'
+import IconButton from '../components/IconButton'
 
 const Category = ({
     onClickSettings,
