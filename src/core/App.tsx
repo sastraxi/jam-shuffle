@@ -20,6 +20,7 @@ async function signout() {
   const { error } = await supabase.auth.signOut()
 }
 
+
 const App = () => {
   const [session, setSession] = useState<Session | null>(null)
 
@@ -33,22 +34,22 @@ const App = () => {
 
   const { isLoading, error, data, isFetching } = useQuery<SpotifyMe>({
     queryKey: ["userProfile"],
+    enabled: !!session?.user,
     queryFn: getUserProfile,
   })
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('initial', session)
       setSession(session)
     })
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
     })
-
     return () => subscription.unsubscribe()
-  }, [session])
+  }, [])
 
   if (!session) {
     return (<Auth
@@ -63,9 +64,7 @@ const App = () => {
   return (
     <>
       <Settings name={data?.display_name} onLogout={signout} session={session} />
-      <Category
-        category="single idea"
-      />
+      <Category category="single idea" />
       <SingleIdea />
     </>
   )
