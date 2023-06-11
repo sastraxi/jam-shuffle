@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import BasePrompt from '../core/BasePrompt'
 import { createMakeChoice } from '../util'
 import IconButton from '../components/IconButton'
+import { PromptState } from './types'
 
-const SINGLE_IDEAS = [
+export const SINGLE_IDEAS = [
     "Everyone does coordinated stops",
     "Something funky",
     "Smooth jazz vibes",
@@ -12,11 +13,13 @@ const SINGLE_IDEAS = [
     "Tension and release"
 ]
 
-type RerollValues = typeof SINGLE_IDEAS[number];
+export type SingleIdeaChoices = {
+    idea: string
+}
 
 const makeChoice = createMakeChoice(SINGLE_IDEAS)
 
-const SingleIdea = () => {
+const SingleIdea: React.FunctionComponent<PromptState<SingleIdeaChoices>> = () => {
     const [lastIdea, setLastIdea] = useState<RerollValues | undefined>(undefined)
     const [idea, setIdea] = useState<RerollValues | undefined>(makeChoice())
 

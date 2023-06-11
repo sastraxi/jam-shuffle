@@ -5,13 +5,15 @@ import IconButton from '../components/IconButton'
 import { useQuery } from '@tanstack/react-query'
 import { AuthSession } from '@supabase/supabase-js'
 import { SpotifyMyPlaylists } from '../types/spotify'
+import { PromptState } from './types'
 
-const PlaylistPrompt = ({
-  playlistId,
-  session
-}: {
-  playlistId: string
-  session: AuthSession
+export type PlaylistChoices = {
+  songId: string
+}
+
+const PlaylistPrompt: React.FunctionComponent<PromptState<PlaylistChoices>> = ({
+  prompt: { subtype },
+  choices: { songId },
 }) => {
 
     const getUserPlaylists = async () => {
