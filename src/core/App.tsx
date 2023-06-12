@@ -15,7 +15,7 @@ import { useCategory, useSession, useSetSession } from '../state/app';
 import PlaylistPrompt from '../prompts/PlaylistPrompt';
 import Spinner from '../components/Spinner';
 
-import BackgroundVideo from '../assets/pexels-engin-akyurt-1722881-3840x2160-25fps.mp4'
+// import BackgroundVideo from '../assets/pexels-engin-akyurt-1722881-3840x2160-25fps.mp4'
 
 // Create a single supabase client for interacting with your database
 const PUBLIC_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtYmhjZ2ZueWtwdHZpZHJ6em9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODYxMTM1NDQsImV4cCI6MjAwMTY4OTU0NH0.wli6p3Lx-99RAvTUz5qCD23JM1OTMB6NUiUAFlk2TkU"
@@ -79,11 +79,11 @@ const App = () => {
     return (<Spinner size="40px" />)
   }
 
-  const video = <video
-    id="background-video"
-    src={BackgroundVideo}
-    autoPlay loop muted
-  />
+  // const video = <video
+  //   id="background-video"
+  //   src={BackgroundVideo}
+  //   autoPlay loop muted
+  // />
 
   return (
     <>
