@@ -9,9 +9,17 @@ div.menuContainer {
     display: flex;
     flex-direction: column;
     background: black;
-    padding: 2em;
     overflow-y: auto;
+    transition: all 0.1s ease-out;
 }
+
+    div.menuContainer.closed {
+        bottom: calc(100vh - 90px);
+    }
+
+    div.menuContainer > .main {
+        padding: 2em;
+    }
 
     /* the little dropdown arrow from the settings icon */
     div.menuContainer::before {
@@ -19,7 +27,7 @@ div.menuContainer {
         display: block;
         position: fixed;
         top: 75px;
-        right: 38px;
+        right: 42px;
         width: 0;
         height: 0;
         border-left: 15px solid transparent;
@@ -27,7 +35,14 @@ div.menuContainer {
         border-bottom: 15px solid black;
         font-size: 0;
         line-height: 0;
+        clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+        transition: all 0.1s cubic-bezier(0.86, 0, 0.07, 1);
+        filter: none;
     }
+        div.menuContainer.closed::before {
+            clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+            filter: blur(5px);
+        }
 
     /* mini inset "drop shadow" */
     div.menuContainer::after {
@@ -40,6 +55,9 @@ div.menuContainer {
         height: 20px;
         background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
     }
+        div.menuContainer.closed::after {
+            height: 0;
+        }
 
     div.menuContainer > * {
         color: white;

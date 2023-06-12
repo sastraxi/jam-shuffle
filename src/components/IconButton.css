@@ -1,43 +1,69 @@
-button.iconButton {
-    vertical-align: middle;
-    margin: 0 0.7em;
-    padding: 0.6em 0.6em;
+.iconButton {
     border: none;
-    background: transparent;
-    transition: all 0.2s;
     cursor: pointer;
+    position: relative;
+    display: inline-block;
+    margin: 0 0.7em;
 }
-    button.iconButton:not([disabled]):hover {
-        background-color: white;
-        color: #213547;
-        margin: 0 0.7em;
-        padding: 0.6em 0.6em;
+
+    .iconButton > button {
+        vertical-align: middle;
+        padding: 0.8em 0.8em;
+        background: transparent;
+        border-radius: 100%;
+        border: none;
     }
 
-    button > span {
+    .circle {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 0;
+        height: 0;
+        z-index: -99;
+        transition: all 0.2s ease-in-out;
+        border-radius: 100%;
+        box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.5);
+    }
+
+        .iconButton:not(.disabled):hover .circle,
+        .iconButton:not(.disabled) > button:focus .circle {
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);
+        }
+    
+
+    .iconButton > span {
         color: rgba(255, 255, 255, 0.8);
         font-size: 16px;
         vertical-align: 2px;
         margin: 0 0.7em;
+        transition: all 0.2s;
     }
 
-        button.iconButton:not([disabled]):hover > span {
-            color: #213547;
-            
+        .iconButton:not(.disabled):hover > span {
+            color: rgba(255, 255, 255, 1);
         }
 
-    button > img {
+    .iconButton img {
         vertical-align: -0.4em;
         margin: 0;
         opacity: 0.7;
         width: 2em;
         height: 2em;
+        transition: all 0.2s;
     }
 
         /* to remove flash, figure out:
            mask: url(logo.svg) no-repeat center; */
         button.iconButton:not([disabled]):hover > img {
-            filter: invert(1);
+            opacity: 1.0;
         }
 
         button.iconButton:disabled {

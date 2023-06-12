@@ -1,14 +1,15 @@
 import React from 'react'
-import IconButton from '../components/IconButton'
 import './MenuContainer.css'
 
 const MenuContainer = ({
+    isOpen,
     children,
 }: {
+    isOpen: boolean
     children: React.ReactNode
 }) => {
     return (
-        <div className="menuContainer">
+        <div className={`menuContainer ${!isOpen ? "closed" : ""}`}>
             <div className="main">
                 { children }
             </div>

@@ -28,16 +28,15 @@ const Settings = ({
 
     return (
         <>
-            {isActive &&
-                <MenuContainer>
-                    <h2>Shuffle prompts</h2>
-                    <p>Choose which built-in prompts can show up when you shuffle.</p>
-                    <h2>Spotify playlists</h2>
-                    <p>Selected playlists will show up as prompt categories.</p>
-                    <PlaylistSelector
-                        session={session}
-                    />
-                </MenuContainer>}
+            <MenuContainer isOpen={isActive}>
+                <h2>Shuffle prompts</h2>
+                <p>Choose which built-in prompts can show up when you shuffle.</p>
+                <h2>Spotify playlists</h2>
+                <p>Selected playlists will show up as prompt categories.</p>
+                <PlaylistSelector
+                    session={session}
+                />
+            </MenuContainer>
             <div className="settingsContainer">
                 {name && <span className="user">{name}</span>}
                 <IconButton type="logout" onClick={onLogout} />

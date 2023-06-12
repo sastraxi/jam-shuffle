@@ -31,10 +31,13 @@ const IconButton = ({
     children?: React.ReactNode
 }) => {
     return (
-        <button className="iconButton" disabled={disabled} onClick={onClick} style={{ fontSize: size }}>
-            <img src={iconFromType(type)} />
-            {children && <span>{children}</span>}
-        </button>
+        <div className={`iconButton ${disabled ? 'disabled' : ''}`}>
+            <button disabled={disabled} onClick={onClick} style={{ fontSize: size }}>
+                <div className="circle"></div>
+                <img src={iconFromType(type)} />
+                {children && <span>{children}</span>}
+            </button>
+        </div>
     )
 }
 

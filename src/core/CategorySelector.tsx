@@ -23,13 +23,15 @@ const CategorySelector = () => {
     <div className="categoryContainer">
       <h3>Category</h3>
       <h2>
-        <IconButton type="undo" disabled={history.length < 2} onClick={historyGoBack} />
-        <span className="spacer" />
+        <div className="buttons">
+          <IconButton type="undo" disabled={history.length < 2} onClick={historyGoBack} />
+        </div>
         <a className="category">
           {category.displayName ?? category.type}
         </a>
-        <span className="spacer" />
-        <IconButton type="shuffle" onClick={onShuffle} />
+        <div className="buttons">
+          <IconButton type="shuffle" onClick={onShuffle} />
+        </div>
       </h2>
     </div>
   )

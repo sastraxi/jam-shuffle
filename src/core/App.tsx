@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Auth } from '@supabase/auth-ui-react'
 import { createClient } from '@supabase/supabase-js'
@@ -28,29 +28,28 @@ async function signout() {
 const App = () => {
   const session = useSession()
   const setSession = useSetSession()
+  const category = useCategory()
 
   // FIXME: why does app re-render (once) when we click somewhere?
-
-  const getUserProfile = async () => {
-    if (!session) return null
-    if (!session.provider_token) {
-      // FIXME: are we supposed to save the provider_token / refresh token ourselves and re-add to session?
-      signout()
-      throw new Error("No provider_token in session")
-    }
-    const res = await fetch('https://api.spotify.com/v1/me', {
-      headers: { "Authorization": `Bearer ${session.provider_token}` }
-    })
-    if (!res.ok) throw res.json()
-    return res.json()
-  }
-
   const { isLoading, error, data, isFetching, isError } = useQuery<SpotifyMe>({
     queryKey: ["userProfile"],
     enabled: !!session?.user,
-    queryFn: getUserProfile,
+    queryFn: async () => {
+      if (!session) return null
+      if (!session.provider_token) {
+        // FIXME: are we supposed to save the provider_token / refresh token ourselves and re-add to session?
+        signout()
+        throw new Error("No provider_token in session")
+      }
+      const res = await fetch('https://api.spotify.com/v1/me', {
+        headers: { "Authorization": `Bearer ${session.provider_token}` }
+      })
+      if (!res.ok) throw res.json()
+      return res.json()
+    },
   })
 
+  // initial load effects
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
@@ -63,7 +62,13 @@ const App = () => {
     return () => subscription.unsubscribe()
   }, [])
 
-  const category = useCategory()
+  /////////////////////////////////////////////
+  // const videoRef = useRef<HTMLVideoElement>(null)
+  // useEffect(() => {
+  //   if (!videoRef.current) return
+  //   videoRef.current.onload = () => videoRef.current!.className = "loaded"
+  // }, [videoRef]);
+  const [videoLoaded, setVideoLoaded] = useState(false)
 
   if (!session) {
     return (<Auth
@@ -82,6 +87,8 @@ const App = () => {
   const backgroundVideo = <video
     id="background-video"
     src={BackgroundVideo}
+    className={videoLoaded ? 'loaded' : ''}
+    onLoadedData={() => setVideoLoaded(true)}
     autoPlay loop muted
   />
 
