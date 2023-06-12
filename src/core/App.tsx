@@ -79,9 +79,14 @@ const App = () => {
     return (<Spinner size="40px" />)
   }
 
+  const video = <video
+    id="background-video"
+    src={BackgroundVideo}
+    autoPlay loop muted
+  />
+
   return (
     <>
-      <video id="background-video" src={BackgroundVideo} autoPlay loop muted />
       <Settings name={data?.display_name} onLogout={signout} session={session} />
       <CategorySelector />
       { category.type === "single idea" && <SingleIdea /> }
