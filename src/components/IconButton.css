@@ -1,6 +1,5 @@
 .iconButton {
     border: none;
-    cursor: pointer;
     position: relative;
     display: inline-block;
     margin: 0 0.7em;
@@ -66,10 +65,10 @@
             opacity: 1.0;
         }
 
-        button.iconButton:disabled {
+        .disabled.iconButton button {
             cursor: not-allowed;
         }
 
-            button.iconButton:disabled > img {
+            .iconButton.disabled button > img {
                 opacity: 0.3;
             }
