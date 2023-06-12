@@ -11,3 +11,12 @@
     .prompt-main h1 {
         font-size: 64px;
     }
+
+    .prompt-main .buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: block;
+        padding-bottom: 120px;
+    }

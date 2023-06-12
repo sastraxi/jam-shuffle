@@ -34,31 +34,10 @@ export type SpotifyMyPlaylists = {
     items:    PlaylistBrief[];
 }
 
-export type PlaylistBrief = {
-    collaborative: boolean;
-    description:   string;
-    external_urls: ExternalUrls;
-    href:          string;
-    id:            string;
-    images:        Image[];
-    name:          string;
-    owner:         Owner;
-    public:        boolean;
-    snapshot_id:   string;
-    tracks:        TracksBrief;
-    type:          string;
-    uri:           string;
-}
-
-export type TracksBrief = {
-    href:  string;
-    total: number;
-}
-
 /**
  * https://api.spotify.com/v1/playlists/{playlist_id}
  */
-export type SpotifyPlaylist = {
+export type SpotifyGetPlaylist = {
     collaborative: boolean;
     description:   string;
     external_urls: ExternalUrls;
@@ -73,15 +52,6 @@ export type SpotifyPlaylist = {
     tracks:        Tracks;
     type:          string;
     uri:           string;
-}
-
-export type ExternalUrls = {
-    spotify: string;
-}
-
-export type Followers = {
-    href:  string;
-    total: number;
 }
 
 export type Image = {
@@ -156,7 +126,7 @@ export type Album = {
     type:                   string;
     uri:                    string;
     copyrights:             Copyright[];
-    external_ids:           ExternalIDS;
+    external_ids:           ExternalIds;
     genres:                 string[];
     label:                  string;
     popularity:             number;
@@ -168,6 +138,63 @@ export type Copyright = {
     text: string;
     type: string;
 }
+
+export type ExternalIds = {
+    isrc: string;
+    ean:  string;
+    upc:  string;
+}
+
+export type PlaylistBrief = {
+    collaborative: boolean;
+    description:   string;
+    external_urls: ExternalUrls;
+    href:          string;
+    id:            string;
+    images:        Image[];
+    name:          string;
+    owner:         Owner;
+    public:        boolean;
+    snapshot_id:   string;
+    tracks:        TracksBrief;
+    type:          string;
+    uri:           string;
+}
+
+export type TracksBrief = {
+    href:  string;
+    total: number;
+}
+
+/**
+ * https://api.spotify.com/v1/playlists/{playlist_id}
+ */
+export type SpotifyPlaylist = {
+    collaborative: boolean;
+    description:   string;
+    external_urls: ExternalUrls;
+    followers:     Followers;
+    href:          string;
+    id:            string;
+    images:        Image[];
+    name:          string;
+    owner:         Owner;
+    public:        boolean;
+    snapshot_id:   string;
+    tracks:        Tracks;
+    type:          string;
+    uri:           string;
+}
+
+export type ExternalUrls = {
+    spotify: string;
+}
+
+export type Followers = {
+    href:  string;
+    total: number;
+}
+
 
 export type ExternalIDS = {
     isrc: string;

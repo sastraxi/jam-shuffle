@@ -22,11 +22,11 @@ export type Category = {
  * e.g. { "first idea": "a" | "b" | "c", "second idea": "d" | "e" }
  * Eventually we could auto-generate these types?
  */
-export type PromptChoices = Record<string, string>
+export type PromptChoices = Record<string, string | undefined>
 
-export type PromptState<C extends PromptChoices = Record<string, string>> = {
+export type PromptState<C extends PromptChoices = Record<string, string | undefined>> = {
     category: Category,
-    choices?: C,
+    choices: C,
 }
 
 export type PromptType =

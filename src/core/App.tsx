@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 
-import { Auth, SignIn } from '@supabase/auth-ui-react'
-import { Session, createClient } from '@supabase/supabase-js'
+import { Auth } from '@supabase/auth-ui-react'
+import { createClient } from '@supabase/supabase-js'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 
 import { useQuery } from "@tanstack/react-query";
@@ -11,8 +11,11 @@ import CategorySelector from './CategorySelector'
 import { SpotifyMe } from '../types/spotify';
 import SingleIdea from '../prompts/SingleIdea';
 import Settings from '../settings/Settings';
-import { useCategory } from '../state/app';
+import { useCategory, useSession, useSetSession } from '../state/app';
 import PlaylistPrompt from '../prompts/PlaylistPrompt';
+import Spinner from '../components/Spinner';
+
+import BackgroundVideo from '../assets/pexels-engin-akyurt-1722881-3840x2160-25fps.mp4'
 
 // Create a single supabase client for interacting with your database
 const PUBLIC_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtYmhjZ2ZueWtwdHZpZHJ6em9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODYxMTM1NDQsImV4cCI6MjAwMTY4OTU0NH0.wli6p3Lx-99RAvTUz5qCD23JM1OTMB6NUiUAFlk2TkU"
@@ -23,7 +26,10 @@ async function signout() {
 }
 
 const App = () => {
-  const [session, setSession] = useState<Session | null>(null)
+  const session = useSession()
+  const setSession = useSetSession()
+
+  // FIXME: why does app re-render (once) when we click somewhere?
 
   const getUserProfile = async () => {
     if (!session) return null
@@ -46,9 +52,7 @@ const App = () => {
   })
 
   useEffect(() => {
-    console.log('useEffect')
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('initial', session)
       setSession(session)
     })
     const {
@@ -71,12 +75,17 @@ const App = () => {
     />)
   }
 
+  if (!data) {
+    return (<Spinner size="40px" />)
+  }
+
   return (
     <>
+      <video id="background-video" src={BackgroundVideo} autoPlay loop muted />
       <Settings name={data?.display_name} onLogout={signout} session={session} />
       <CategorySelector />
       { category.type === "single idea" && <SingleIdea /> }
-      { category.type === "playlist" && "todo playlist" }
+      { category.type === "playlist" && <PlaylistPrompt /> }
     </>
   )
 }

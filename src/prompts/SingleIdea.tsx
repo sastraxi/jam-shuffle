@@ -1,34 +1,36 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import BasePrompt from '../core/BasePrompt'
 import { createMakeChoice } from '../util'
 import IconButton from '../components/IconButton'
 import { SINGLE_IDEAS } from '../ideas'
+import { usePromptChoices, useSetPromptChoice } from '../state/app'
 
-export type SingleIdeaChoices = {
-    idea: string
+type SingleIdeaChoices = {
+  idea: string | undefined
 }
 
 const makeChoice = createMakeChoice(SINGLE_IDEAS)
 
 const SingleIdea: React.FunctionComponent = () => {
-    const [lastIdea, setLastIdea] = useState<string | undefined>(undefined)
-    const [idea, setIdea] = useState<string | undefined>(makeChoice())
+  const { idea } = usePromptChoices<SingleIdeaChoices>()
+  const setPromptChoice = useSetPromptChoice<SingleIdeaChoices>()
+  const nextIdea = (replace = false) => setPromptChoice('idea', makeChoice(idea), replace)
 
-    const shuffleIdea = () => {
-        setIdea(makeChoice(idea))
-        setLastIdea(idea)
-    }
+  useEffect(() => {
+    // FIXME: why does this initially run twice w/ undefined? :/
+    if (!idea) nextIdea(true)
+  }, [idea])
 
-    return (
-        <BasePrompt>
-            <h1>
-                <a>{idea}</a>
-            </h1>
-            <div>
-                <IconButton type="shuffle" size="24px" onClick={shuffleIdea} />
-            </div>
-        </BasePrompt>
-    )
+  return (
+    <BasePrompt>
+      <h1>
+        <a>{idea}</a>
+      </h1>
+      <div className="buttons">
+        <IconButton type="shuffle" size="24px" onClick={() => nextIdea(false)} />
+      </div>
+    </BasePrompt>
+  )
 }
 
 export default SingleIdea
