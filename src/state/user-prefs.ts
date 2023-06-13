@@ -15,7 +15,10 @@ type UserPreferencesAndMutators = UserPreferences & {
 const playlistEquals = (a: SavedPlaylist, b: SavedPlaylist) => a.id === b.id
 
 const selectCategories = (state: UserPreferences): Array<Category> => {
-    const categories: Array<Category> = [{ type: "single idea" }]
+    const categories: Array<Category> = [
+        { type: "single idea" },
+        { type: "contrast" },
+    ]
     state.playlists.forEach((playlist) => 
         categories.push({
             type: "playlist",

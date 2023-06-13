@@ -6,11 +6,18 @@
     justify-content: center;
     margin-bottom: 10vh;
     flex-direction: column;
+    padding-top: 32px;
 }
 
-    .prompt-main h1 {
+    .prompt-main > h1 {
         font-size: 64px;
+        margin: 18px;
     }
+
+        .prompt-main h1.subtle {
+            opacity: 0.3;
+            font-weight: 300;
+        }
 
     .prompt-main .buttons {
         position: fixed;

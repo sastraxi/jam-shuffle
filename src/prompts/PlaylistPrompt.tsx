@@ -63,7 +63,7 @@ const PlaylistPrompt: React.FunctionComponent = () => {
 
     const nextMakeChoice = createMakeChoice(songIds)
     if (!songId || !songIds.includes(songId)) {
-      setPromptChoice('songId', nextMakeChoice(), true)
+      setPromptChoice({ songId: nextMakeChoice() }, true)
     }    
   
     return nextMakeChoice
@@ -74,25 +74,25 @@ const PlaylistPrompt: React.FunctionComponent = () => {
   }
 
   const track = tracksById[songId]
-  const shuffleIdea = () => setPromptChoice('songId', makeChoice(songId))
+  const shuffleIdea = () => setPromptChoice({ songId: makeChoice(songId) })
   const audioFeaturesElement = !audioFeatures.data
     ? <Spinner size="18px" />
     : (
       <div className="audioFeatures">
         <div>
-          <h3>BPM</h3>
-          <h2>{Math.round(audioFeatures.data.tempo)}</h2>
+          <h3>Time<br/>signature</h3>
+          <h2>{audioFeatures.data.time_signature}/4</h2>
         </div>
         <div>
           <h3>Key</h3>
           <h2>{PITCH_CLASS[audioFeatures.data.key]} {MODES[audioFeatures.data.mode]}</h2>
         </div>
         <div>
-          <h3>Time<br/>signature</h3>
-          <h2>{audioFeatures.data.time_signature}/4</h2>
+          <h3>BPM</h3>
+          <h2>{Math.round(audioFeatures.data.tempo)}</h2>
         </div>
         <div>
-          <h3>Listen</h3>
+          <h3>Listen &amp;<br/>lyrics</h3>
           <IconButton
             type="external link"
             size="20px"

@@ -1,0 +1,51 @@
+import { useEffect } from 'react'
+import BasePrompt from '../core/BasePrompt'
+import { createMakeChoice } from '../util'
+import IconButton from '../components/IconButton'
+import { CONTRAST_IDEAS } from '../ideas'
+import { usePromptChoices, useSetPromptChoice } from '../state/app'
+import Choice from '../components/Choice'
+
+type ContrastPromptChoices = {
+  first: string | undefined
+  second: string | undefined
+}
+
+const makeChoice = createMakeChoice(CONTRAST_IDEAS)
+
+const ContrastPrompt: React.FunctionComponent = () => {
+  const { first, second } = usePromptChoices<ContrastPromptChoices>()
+  const setPromptChoice = useSetPromptChoice<ContrastPromptChoices>()
+  const nextIdea = (replace = false) => {
+    const nextFirst = makeChoice(first)
+    let nextSecond = nextFirst
+    while (nextSecond === nextFirst) nextSecond = makeChoice()
+
+    setPromptChoice({
+      first: nextFirst,
+      second: nextSecond,
+    }, replace)
+  }
+
+  useEffect(() => {
+    // FIXME: why does this initially run twice w/ undefined? :/
+    if (!first || !second) nextIdea(true)
+  }, [first])
+
+  return (
+    <BasePrompt>
+      <h1>
+        <Choice>{first}</Choice>
+      </h1>
+      <h1 className="subtle">mixed with</h1>
+      <h1>
+        <Choice>{second}</Choice>
+      </h1>
+      <div className="buttons">
+        <IconButton type="shuffle" size="24px" onClick={() => nextIdea(false)} />
+      </div>
+    </BasePrompt>
+  )
+}
+
+export default ContrastPrompt

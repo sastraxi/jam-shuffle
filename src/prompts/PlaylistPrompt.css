@@ -4,6 +4,7 @@
     align-items: end;
     justify-content: center;
     gap: 64px;
+    margin-top: 64px;
 }
 
     .audioFeatures > div {

@@ -32,3 +32,4 @@ export type PromptState<C extends PromptChoices = Record<string, string | undefi
 export type PromptType =
     | 'playlist'
     | 'single idea'
+    | 'contrast'

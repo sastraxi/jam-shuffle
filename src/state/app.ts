@@ -50,7 +50,7 @@ const advanceTo = (
 type AppStateAndMutators = AppState & {
     setSession: (session: AuthSession | null) => unknown
     goToCategory: (nextCategory: Category) => unknown
-    setPromptChoice: (key: string, value: string | undefined) => unknown
+    setPromptChoice: (changes: Record<string, string | undefined>, replace?: boolean) => unknown
     goBack: () => unknown
 }
 
@@ -82,13 +82,13 @@ export const useAppState = create<AppStateAndMutators>()((set) => ({
             choices: {},
         })),
 
-    setPromptChoice: (key: string, value: string | undefined, replace = false) =>
+    setPromptChoice: (changes: Record<string, string | undefined>, replace = false) =>
         set((state) => {
             // FIXME: we should be able to define "replace" based on an empty
             // state.current.choices, but re-renders are killing us here
             return advanceTo(state, {
                 category: state.current.category,
-                choices: { ...state.current.choices, [key]: value }
+                choices: { ...state.current.choices, ...changes }
             }, { replace })
         }),
 
@@ -104,7 +104,7 @@ export const usePromptChoices = <T extends PromptChoices>() =>
 
 export const useSetPromptChoice = <T extends PromptChoices>() =>    
     useAppState(state => state.setPromptChoice) as
-        (key: keyof T, value: string | undefined, replace?: boolean) => unknown
+        (changes: Partial<T>, replace?: boolean) => unknown
 
 export const useCategory = () => useAppState(state => state.current.category)
 export const useGoToCategory = () => useAppState(state => state.goToCategory)

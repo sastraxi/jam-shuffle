@@ -15,7 +15,7 @@ const makeChoice = createMakeChoice(SINGLE_IDEAS)
 const SingleIdea: React.FunctionComponent = () => {
   const { idea } = usePromptChoices<SingleIdeaChoices>()
   const setPromptChoice = useSetPromptChoice<SingleIdeaChoices>()
-  const nextIdea = (replace = false) => setPromptChoice('idea', makeChoice(idea), replace)
+  const nextIdea = (replace = false) => setPromptChoice({ idea: makeChoice(idea) }, replace)
 
   useEffect(() => {
     // FIXME: why does this initially run twice w/ undefined? :/

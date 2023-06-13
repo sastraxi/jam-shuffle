@@ -10,6 +10,7 @@ import './App.css'
 import CategorySelector from './CategorySelector'
 import { SpotifyMe } from '../types/spotify';
 import SingleIdea from '../prompts/SingleIdea';
+import ContrastPrompt from '../prompts/ContrastPrompt';
 import Settings from '../settings/Settings';
 import { useCategory, useSession, useSetSession } from '../state/app';
 import PlaylistPrompt from '../prompts/PlaylistPrompt';
@@ -98,6 +99,7 @@ const App = () => {
       <Settings name={data?.display_name} onLogout={signout} session={session} />
       <CategorySelector />
       { category.type === "single idea" && <SingleIdea /> }
+      { category.type === "contrast" && <ContrastPrompt /> }
       { category.type === "playlist" && <PlaylistPrompt /> }
     </>
   )
