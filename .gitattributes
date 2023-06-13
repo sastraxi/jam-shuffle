@@ -1,1 +1,2 @@
 src/assets/pexels-engin-akyurt-1722881-3840x2160-25fps.mp4 filter=lfs diff=lfs merge=lfs -text
+src/assets/smoke-1080p-30fps.mp4 filter=lfs diff=lfs merge=lfs -text
