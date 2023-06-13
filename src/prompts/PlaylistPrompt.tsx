@@ -3,13 +3,19 @@ import BasePrompt from '../core/BasePrompt'
 import { createMakeChoice } from '../util'
 import IconButton from '../components/IconButton'
 import { useQuery } from '@tanstack/react-query'
-import { SpotifyGetPlaylist, Track } from '../types/spotify'
+import { SpotifyAudioFeatures, SpotifyGetPlaylist, Track } from '../types/spotify'
 import { useCategory, usePromptChoices, useSession, useSetPromptChoice } from '../state/app'
 import Spinner from '../components/Spinner'
+
+import './PlaylistPrompt.css'
+import Choice from '../components/Choice'
 
 type PromptChoices = {
   songId: string | undefined
 }
+
+const PITCH_CLASS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+const MODES = ['minor', 'major']
 
 const PlaylistPrompt: React.FunctionComponent = () => {
   const session = useSession()
@@ -27,6 +33,19 @@ const PlaylistPrompt: React.FunctionComponent = () => {
         headers: { "Authorization": `Bearer ${session.provider_token}` }
       })
       return res.json() as Promise<SpotifyGetPlaylist>
+    },
+  })
+
+  const audioFeatures = useQuery({
+    queryKey: ["audio-features", songId],
+    enabled: !!session?.provider_token && !!songId,
+    queryFn: async ({ queryKey }) => {
+      const [, songId] = queryKey
+      if (!session) return null
+      const res = await fetch(`https://api.spotify.com/v1/audio-features/${songId}`, {
+        headers: { "Authorization": `Bearer ${session.provider_token}` }
+      })
+      return res.json() as Promise<SpotifyAudioFeatures>
     },
   })
 
@@ -56,11 +75,40 @@ const PlaylistPrompt: React.FunctionComponent = () => {
 
   const track = tracksById[songId]
   const shuffleIdea = () => setPromptChoice('songId', makeChoice(songId))
+  const audioFeaturesElement = !audioFeatures.data
+    ? <Spinner size="18px" />
+    : (
+      <div className="audioFeatures">
+        <div>
+          <h3>BPM</h3>
+          <h2>{Math.round(audioFeatures.data.tempo)}</h2>
+        </div>
+        <div>
+          <h3>Key</h3>
+          <h2>{PITCH_CLASS[audioFeatures.data.key]} {MODES[audioFeatures.data.mode]}</h2>
+        </div>
+        <div>
+          <h3>Time<br/>signature</h3>
+          <h2>{audioFeatures.data.time_signature}/4</h2>
+        </div>
+        <div>
+          <h3>Listen</h3>
+          <IconButton
+            type="external link"
+            size="20px"
+            href={track.external_urls.spotify}
+            target="_blank"
+          />
+        </div>
+      </div>
+    )
+    
   return (
     <BasePrompt>
       <h1>
-        <a>{track.artists[0].name} - {track.name}</a>
+        <Choice>{track.artists[0].name} - {track.name}</Choice>
       </h1>
+      {audioFeaturesElement}
       <div className="buttons">
         <IconButton type="shuffle" size="24px" onClick={shuffleIdea} />
       </div>

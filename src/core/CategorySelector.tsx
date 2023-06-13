@@ -4,6 +4,7 @@ import { useCategory, useGoToCategory, useHistoryGoBack, usePromptHistory } from
 import { useCategories } from '../state/user-prefs'
 import { createMakeChoice } from '../util'
 import { Category } from '../prompts/types'
+import Choice from '../components/Choice'
 
 
 const CategorySelector = () => {
@@ -26,9 +27,9 @@ const CategorySelector = () => {
         <div className="buttons">
           <IconButton type="undo" disabled={history.length < 2} onClick={historyGoBack} />
         </div>
-        <a className="category">
+        <Choice className="category">
           {category.displayName ?? category.type}
-        </a>
+        </Choice>
         <div className="buttons">
           <IconButton type="shuffle" onClick={onShuffle} />
         </div>

@@ -4,6 +4,7 @@ import { createMakeChoice } from '../util'
 import IconButton from '../components/IconButton'
 import { SINGLE_IDEAS } from '../ideas'
 import { usePromptChoices, useSetPromptChoice } from '../state/app'
+import Choice from '../components/Choice'
 
 type SingleIdeaChoices = {
   idea: string | undefined
@@ -24,7 +25,7 @@ const SingleIdea: React.FunctionComponent = () => {
   return (
     <BasePrompt>
       <h1>
-        <a>{idea}</a>
+        <Choice>{idea}</Choice>
       </h1>
       <div className="buttons">
         <IconButton type="shuffle" size="24px" onClick={() => nextIdea(false)} />
