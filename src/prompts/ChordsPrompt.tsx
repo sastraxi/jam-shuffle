@@ -8,7 +8,7 @@ import ChordDiagram from '../components/ChordDiagram'
 import GuitarChords from '../theory/guitar.json'
 import { ChordDefinition } from 'vexchords'
 
-import './ChordProgressionPrompt.css'
+import './ChordsPrompt.css'
 
 type ChordLibraryEntry = {
   key: string,
@@ -89,7 +89,7 @@ const frettingToVexChord = (f: Fretting): ChordDefinition => {
   }
 } 
 
-const ChordProgressionPrompt: React.FunctionComponent = () => {
+const ChordsPrompt: React.FunctionComponent = () => {
 
   const CHORDS = [
     "B minor",
@@ -121,4 +121,4 @@ const ChordProgressionPrompt: React.FunctionComponent = () => {
   )
 }
 
-export default ChordProgressionPrompt
+export default ChordsPrompt
