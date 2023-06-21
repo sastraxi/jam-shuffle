@@ -20,7 +20,6 @@ export type Category = {
 /**
  * Each prompt will have its own choices,
  * e.g. { "first idea": "a" | "b" | "c", "second idea": "d" | "e" }
- * Eventually we could auto-generate these types?
  */
 export type PromptChoices = Record<string, string | undefined>
 
