@@ -1,0 +1,4 @@
+div.chords {
+    display: flex;
+    flex-direction: row;
+}

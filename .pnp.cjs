@@ -42,7 +42,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-plugin-react-refresh", "virtual:e5ddc4fd2fc29e500e913143b4b158fece2e0f0dbfca55d86d2652a5b9c2988bade6031e45916f81550f4a84bae97e92f7ae01f3bd3dd26de4c36291fe4ecd14#npm:0.3.5"],\
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:e5ddc4fd2fc29e500e913143b4b158fece2e0f0dbfca55d86d2652a5b9c2988bade6031e45916f81550f4a84bae97e92f7ae01f3bd3dd26de4c36291fe4ecd14#npm:18.2.0"],\
+            ["tonal", "npm:5.0.0"],\
             ["typescript", "patch:typescript@npm%3A5.1.3#~builtin<compat/typescript>::version=5.1.3&hash=5da071"],\
+            ["vexchords", "npm:1.2.0"],\
             ["vite", "virtual:e5ddc4fd2fc29e500e913143b4b158fece2e0f0dbfca55d86d2652a5b9c2988bade6031e45916f81550f4a84bae97e92f7ae01f3bd3dd26de4c36291fe4ecd14#npm:4.3.9"],\
             ["vite-plugin-mkcert", "virtual:e5ddc4fd2fc29e500e913143b4b158fece2e0f0dbfca55d86d2652a5b9c2988bade6031e45916f81550f4a84bae97e92f7ae01f3bd3dd26de4c36291fe4ecd14#npm:1.15.0"],\
             ["zustand", "virtual:e5ddc4fd2fc29e500e913143b4b158fece2e0f0dbfca55d86d2652a5b9c2988bade6031e45916f81550f4a84bae97e92f7ae01f3bd3dd26de4c36291fe4ecd14#npm:4.3.8"]\
@@ -712,6 +714,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@svgdotjs/svg.js", [\
+        ["npm:3.2.0", {\
+          "packageLocation": "./.yarn/cache/@svgdotjs-svg.js-npm-3.2.0-44bebfb329-73e34a50ca.zip/node_modules/@svgdotjs/svg.js/",\
+          "packageDependencies": [\
+            ["@svgdotjs/svg.js", "npm:3.2.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@swc/core", [\
         ["npm:1.3.62", {\
           "packageLocation": "./.yarn/unplugged/@swc-core-virtual-b990a08201/node_modules/@swc/core/",\
@@ -871,6 +882,227 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             "react-dom",\
             "react-native",\
             "react"\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/abc-notation", [\
+        ["npm:4.8.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-abc-notation-npm-4.8.0-aa169f4184-3f559c637b.zip/node_modules/@tonaljs/abc-notation/",\
+          "packageDependencies": [\
+            ["@tonaljs/abc-notation", "npm:4.8.0"],\
+            ["@tonaljs/core", "npm:4.10.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/array", [\
+        ["npm:4.8.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-array-npm-4.8.0-31f80af387-f3c396d4d8.zip/node_modules/@tonaljs/array/",\
+          "packageDependencies": [\
+            ["@tonaljs/array", "npm:4.8.0"],\
+            ["@tonaljs/core", "npm:4.10.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/chord", [\
+        ["npm:5.0.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-chord-npm-5.0.0-04ba00a60b-2eb3be77ab.zip/node_modules/@tonaljs/chord/",\
+          "packageDependencies": [\
+            ["@tonaljs/chord", "npm:5.0.0"],\
+            ["@tonaljs/chord-detect", "npm:4.8.2"],\
+            ["@tonaljs/chord-type", "npm:5.0.0"],\
+            ["@tonaljs/collection", "npm:4.8.0"],\
+            ["@tonaljs/core", "npm:4.10.0"],\
+            ["@tonaljs/pcset", "npm:4.8.2"],\
+            ["@tonaljs/scale-type", "npm:4.8.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/chord-detect", [\
+        ["npm:4.8.2", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-chord-detect-npm-4.8.2-9a840aabb8-4d9d80abd7.zip/node_modules/@tonaljs/chord-detect/",\
+          "packageDependencies": [\
+            ["@tonaljs/chord-detect", "npm:4.8.2"],\
+            ["@tonaljs/chord-type", "npm:5.0.0"],\
+            ["@tonaljs/core", "npm:4.10.0"],\
+            ["@tonaljs/pcset", "npm:4.8.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/chord-type", [\
+        ["npm:5.0.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-chord-type-npm-5.0.0-277f534719-028c233f26.zip/node_modules/@tonaljs/chord-type/",\
+          "packageDependencies": [\
+            ["@tonaljs/chord-type", "npm:5.0.0"],\
+            ["@tonaljs/core", "npm:4.10.0"],\
+            ["@tonaljs/pcset", "npm:4.8.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/collection", [\
+        ["npm:4.8.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-collection-npm-4.8.0-78db33cf88-9b0d4c89d7.zip/node_modules/@tonaljs/collection/",\
+          "packageDependencies": [\
+            ["@tonaljs/collection", "npm:4.8.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/core", [\
+        ["npm:4.10.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-core-npm-4.10.0-24a9ef14b3-40e0a4700c.zip/node_modules/@tonaljs/core/",\
+          "packageDependencies": [\
+            ["@tonaljs/core", "npm:4.10.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/duration-value", [\
+        ["npm:4.8.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-duration-value-npm-4.8.0-9cddf48179-b21ccdb66f.zip/node_modules/@tonaljs/duration-value/",\
+          "packageDependencies": [\
+            ["@tonaljs/duration-value", "npm:4.8.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/interval", [\
+        ["npm:4.8.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-interval-npm-4.8.0-2c7a44e38a-c2b4289ae5.zip/node_modules/@tonaljs/interval/",\
+          "packageDependencies": [\
+            ["@tonaljs/interval", "npm:4.8.0"],\
+            ["@tonaljs/core", "npm:4.10.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/key", [\
+        ["npm:4.9.1", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-key-npm-4.9.1-3dc067071e-ac92905dea.zip/node_modules/@tonaljs/key/",\
+          "packageDependencies": [\
+            ["@tonaljs/key", "npm:4.9.1"],\
+            ["@tonaljs/core", "npm:4.10.0"],\
+            ["@tonaljs/note", "npm:4.10.0"],\
+            ["@tonaljs/roman-numeral", "npm:4.8.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/midi", [\
+        ["npm:4.9.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-midi-npm-4.9.0-5a9ce51b03-9d7dc1b1a7.zip/node_modules/@tonaljs/midi/",\
+          "packageDependencies": [\
+            ["@tonaljs/midi", "npm:4.9.0"],\
+            ["@tonaljs/core", "npm:4.10.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/mode", [\
+        ["npm:4.8.1", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-mode-npm-4.8.1-9f5e8ecbec-06721169a7.zip/node_modules/@tonaljs/mode/",\
+          "packageDependencies": [\
+            ["@tonaljs/mode", "npm:4.8.1"],\
+            ["@tonaljs/collection", "npm:4.8.0"],\
+            ["@tonaljs/core", "npm:4.10.0"],\
+            ["@tonaljs/interval", "npm:4.8.0"],\
+            ["@tonaljs/pcset", "npm:4.8.2"],\
+            ["@tonaljs/scale-type", "npm:4.8.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/note", [\
+        ["npm:4.10.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-note-npm-4.10.0-a538551854-588f566a34.zip/node_modules/@tonaljs/note/",\
+          "packageDependencies": [\
+            ["@tonaljs/note", "npm:4.10.0"],\
+            ["@tonaljs/core", "npm:4.10.0"],\
+            ["@tonaljs/midi", "npm:4.9.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/pcset", [\
+        ["npm:4.8.2", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-pcset-npm-4.8.2-c685c85e39-9c84fb4368.zip/node_modules/@tonaljs/pcset/",\
+          "packageDependencies": [\
+            ["@tonaljs/pcset", "npm:4.8.2"],\
+            ["@tonaljs/collection", "npm:4.8.0"],\
+            ["@tonaljs/core", "npm:4.10.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/progression", [\
+        ["npm:4.8.1", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-progression-npm-4.8.1-46fed9d5d2-fdb3aeea3a.zip/node_modules/@tonaljs/progression/",\
+          "packageDependencies": [\
+            ["@tonaljs/progression", "npm:4.8.1"],\
+            ["@tonaljs/chord", "npm:5.0.0"],\
+            ["@tonaljs/core", "npm:4.10.0"],\
+            ["@tonaljs/roman-numeral", "npm:4.8.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/range", [\
+        ["npm:4.8.1", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-range-npm-4.8.1-fa75e938d7-4be34b3223.zip/node_modules/@tonaljs/range/",\
+          "packageDependencies": [\
+            ["@tonaljs/range", "npm:4.8.1"],\
+            ["@tonaljs/collection", "npm:4.8.0"],\
+            ["@tonaljs/midi", "npm:4.9.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/roman-numeral", [\
+        ["npm:4.8.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-roman-numeral-npm-4.8.0-bbfd105d7d-d3cbf7e25c.zip/node_modules/@tonaljs/roman-numeral/",\
+          "packageDependencies": [\
+            ["@tonaljs/roman-numeral", "npm:4.8.0"],\
+            ["@tonaljs/core", "npm:4.10.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/scale", [\
+        ["npm:4.12.2", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-scale-npm-4.12.2-537bd1aa14-41ad7b7c16.zip/node_modules/@tonaljs/scale/",\
+          "packageDependencies": [\
+            ["@tonaljs/scale", "npm:4.12.2"],\
+            ["@tonaljs/chord-type", "npm:5.0.0"],\
+            ["@tonaljs/collection", "npm:4.8.0"],\
+            ["@tonaljs/core", "npm:4.10.0"],\
+            ["@tonaljs/note", "npm:4.10.0"],\
+            ["@tonaljs/pcset", "npm:4.8.2"],\
+            ["@tonaljs/scale-type", "npm:4.8.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/scale-type", [\
+        ["npm:4.8.2", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-scale-type-npm-4.8.2-d4bd7f27f1-5020808dc3.zip/node_modules/@tonaljs/scale-type/",\
+          "packageDependencies": [\
+            ["@tonaljs/scale-type", "npm:4.8.2"],\
+            ["@tonaljs/core", "npm:4.10.0"],\
+            ["@tonaljs/pcset", "npm:4.8.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@tonaljs/time-signature", [\
+        ["npm:4.8.0", {\
+          "packageLocation": "./.yarn/cache/@tonaljs-time-signature-npm-4.8.0-bfb7f608e0-9e454e4783.zip/node_modules/@tonaljs/time-signature/",\
+          "packageDependencies": [\
+            ["@tonaljs/time-signature", "npm:4.8.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -2523,7 +2755,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-plugin-react-refresh", "virtual:e5ddc4fd2fc29e500e913143b4b158fece2e0f0dbfca55d86d2652a5b9c2988bade6031e45916f81550f4a84bae97e92f7ae01f3bd3dd26de4c36291fe4ecd14#npm:0.3.5"],\
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:e5ddc4fd2fc29e500e913143b4b158fece2e0f0dbfca55d86d2652a5b9c2988bade6031e45916f81550f4a84bae97e92f7ae01f3bd3dd26de4c36291fe4ecd14#npm:18.2.0"],\
+            ["tonal", "npm:5.0.0"],\
             ["typescript", "patch:typescript@npm%3A5.1.3#~builtin<compat/typescript>::version=5.1.3&hash=5da071"],\
+            ["vexchords", "npm:1.2.0"],\
             ["vite", "virtual:e5ddc4fd2fc29e500e913143b4b158fece2e0f0dbfca55d86d2652a5b9c2988bade6031e45916f81550f4a84bae97e92f7ae01f3bd3dd26de4c36291fe4ecd14#npm:4.3.9"],\
             ["vite-plugin-mkcert", "virtual:e5ddc4fd2fc29e500e913143b4b158fece2e0f0dbfca55d86d2652a5b9c2988bade6031e45916f81550f4a84bae97e92f7ae01f3bd3dd26de4c36291fe4ecd14#npm:1.15.0"],\
             ["zustand", "virtual:e5ddc4fd2fc29e500e913143b4b158fece2e0f0dbfca55d86d2652a5b9c2988bade6031e45916f81550f4a84bae97e92f7ae01f3bd3dd26de4c36291fe4ecd14#npm:4.3.8"]\
@@ -3507,6 +3741,34 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["tonal", [\
+        ["npm:5.0.0", {\
+          "packageLocation": "./.yarn/cache/tonal-npm-5.0.0-f76cb3ff52-345d864fb9.zip/node_modules/tonal/",\
+          "packageDependencies": [\
+            ["tonal", "npm:5.0.0"],\
+            ["@tonaljs/abc-notation", "npm:4.8.0"],\
+            ["@tonaljs/array", "npm:4.8.0"],\
+            ["@tonaljs/chord", "npm:5.0.0"],\
+            ["@tonaljs/chord-type", "npm:5.0.0"],\
+            ["@tonaljs/collection", "npm:4.8.0"],\
+            ["@tonaljs/core", "npm:4.10.0"],\
+            ["@tonaljs/duration-value", "npm:4.8.0"],\
+            ["@tonaljs/interval", "npm:4.8.0"],\
+            ["@tonaljs/key", "npm:4.9.1"],\
+            ["@tonaljs/midi", "npm:4.9.0"],\
+            ["@tonaljs/mode", "npm:4.8.1"],\
+            ["@tonaljs/note", "npm:4.10.0"],\
+            ["@tonaljs/pcset", "npm:4.8.2"],\
+            ["@tonaljs/progression", "npm:4.8.1"],\
+            ["@tonaljs/range", "npm:4.8.1"],\
+            ["@tonaljs/roman-numeral", "npm:4.8.0"],\
+            ["@tonaljs/scale", "npm:4.12.2"],\
+            ["@tonaljs/scale-type", "npm:4.8.2"],\
+            ["@tonaljs/time-signature", "npm:4.8.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["tr46", [\
         ["npm:0.0.3", {\
           "packageLocation": "./.yarn/cache/tr46-npm-0.0.3-de53018915-726321c5ea.zip/node_modules/tr46/",\
@@ -3693,6 +3955,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/util-deprecate-npm-1.0.2-e3fe1a219c-474acf1146.zip/node_modules/util-deprecate/",\
           "packageDependencies": [\
             ["util-deprecate", "npm:1.0.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["vexchords", [\
+        ["npm:1.2.0", {\
+          "packageLocation": "./.yarn/cache/vexchords-npm-1.2.0-ca6030c52d-6eebb4a650.zip/node_modules/vexchords/",\
+          "packageDependencies": [\
+            ["vexchords", "npm:1.2.0"],\
+            ["@svgdotjs/svg.js", "npm:3.2.0"]\
           ],\
           "linkType": "HARD"\
         }]\

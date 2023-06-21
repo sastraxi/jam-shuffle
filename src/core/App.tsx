@@ -17,6 +17,7 @@ import PlaylistPrompt from '../prompts/PlaylistPrompt';
 import Spinner from '../components/Spinner';
 
 import BackgroundVideo from '../assets/smoke-1080p-30fps.mp4'
+import ChordProgressionPrompt from '../prompts/ChordProgressionPrompt';
 
 // Create a single supabase client for interacting with your database
 const PUBLIC_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtYmhjZ2ZueWtwdHZpZHJ6em9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODYxMTM1NDQsImV4cCI6MjAwMTY4OTU0NH0.wli6p3Lx-99RAvTUz5qCD23JM1OTMB6NUiUAFlk2TkU"
@@ -93,9 +94,10 @@ const App = () => {
       { backgroundVideo }
       <Settings name={data?.display_name} onLogout={signout} session={session} />
       <CategorySelector />
-      { category.type === "single idea" && <SingleIdea /> }
+      <ChordProgressionPrompt />
+      {/* { category.type === "single idea" && <SingleIdea /> }
       { category.type === "contrast" && <ContrastPrompt /> }
-      { category.type === "playlist" && <PlaylistPrompt /> }
+      { category.type === "playlist" && <PlaylistPrompt /> } */}
     </>
   )
 }
