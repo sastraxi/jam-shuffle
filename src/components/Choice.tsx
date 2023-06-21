@@ -12,7 +12,7 @@ const Choice = ({
     children?: React.ReactNode
 }) => {
     return (
-        <a href={href} target={target} className={`choice ${className ?? ''}`}>
+        <a href={href} target={target} className={`choice balance-text ${className ?? ''}`}>
             {children}
         </a>
     )

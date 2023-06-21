@@ -5,6 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jam Shuffle!</title>
+
+    <!-- polyfill for text-wrap: balance (https://github.com/adobe/balance-text) -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/balance-text/3.3.1/balancetext.min.js"></script>
+    <script>
+      balanceText();
+    </script>
+    <style type="text/css">
+      /* Plugin looks for elements with class named "balance-text" */
+      .balance-text {
+          text-wrap: balance;  /* Apply (proposed) CSS style */
+      }
+    </style>
+
   </head>
   <body>
     <div id="root"></div>
