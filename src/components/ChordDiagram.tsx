@@ -1,8 +1,8 @@
-import { draw, type DrawOptions } from 'vexchords';
+import { draw, type ChordDefinition } from 'vexchords';
 import './ChordDiagram.css'
 import { useEffect, useRef } from 'react';
 
-type PropTypes = DrawOptions & {
+type PropTypes = ChordDefinition & {
     label?: string,
     width: number,
     height: number,
@@ -11,14 +11,14 @@ type PropTypes = DrawOptions & {
 /**
  * Component to render a vexchords diagram.
  */
-const ChordDiagram = ({ label, width, height, ...drawOptions }: PropTypes) => {
+const ChordDiagram = ({ label, width, height, ...chordDefinition }: PropTypes) => {
     const chordRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         if (!chordRef.current) return
         const container = chordRef.current
 
-        draw(container, drawOptions, {
+        draw(container, chordDefinition, {
             width,
             height,
             defaultColor: 'white',
