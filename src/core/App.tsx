@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Auth } from '@supabase/auth-ui-react'
 import { createClient } from '@supabase/supabase-js'
@@ -64,11 +64,6 @@ const App = () => {
   }, [])
 
   /////////////////////////////////////////////
-  // const videoRef = useRef<HTMLVideoElement>(null)
-  // useEffect(() => {
-  //   if (!videoRef.current) return
-  //   videoRef.current.onload = () => videoRef.current!.className = "loaded"
-  // }, [videoRef]);
   const [videoLoaded, setVideoLoaded] = useState(false)
 
   if (!session) {
