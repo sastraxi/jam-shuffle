@@ -1,18 +1,83 @@
-a.choice {
-    font-weight: 500;
-    color: white;
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-decoration-color: rgba(255, 255, 255, 0.3);
-    transition: all 0.2s;
-    border-radius: 0.3em;
-    cursor: pointer;
-    display: inline-block;
+div.choice {
+    position: relative;
+    perspective: none;
 }
 
-    a.choice:hover {
-      padding: 0.15em 0.4em;
-      margin: -0.15em -0.4em;
-      background-color: white;
-      color: #213547;
+    div.choice.expanded > .shroud {
+        background: rgba(0, 0, 0.7);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        z-index: -98;
     }
+
+    .cube {
+        display: none;
+        transform-origin: center;
+        transition: all 0.5s;
+        width: var(--cube-width);
+        height: var(--cube-height);
+        transform-style: preserve-3d;
+    }
+
+        div.choice.expanded > .cube {
+            display: block;
+        }
+
+        .cube.facing-front  { transform: rotate3d(1, 0, 0, 0deg) }
+        .cube.facing-top    { transform: rotate3d(1, 0, 0, 90deg) }
+        .cube.facing-back   { transform: rotate3d(1, 0, 0, 180deg) }
+        .cube.facing-bottom { transform: rotate3d(1, 0, 0, 270deg) }
+            
+        .cube > .side {
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+        }
+
+            .cube > .side.front {
+                transform: translateZ(calc(0.5 * var(--cube-height)));
+            }
+
+            .cube > .side.top {
+                transform: rotateX(90deg) translateZ(calc(0.5 * var(--cube-height)));
+            }
+        
+            .cube > .side.back {
+                transform: scale(-1, -1) rotateY(180deg) translateZ(calc(0.5 * var(--cube-height)));
+            }
+
+            .cube > .side.bottom {
+                transform: rotateX(270deg) translateZ(calc(0.5 * var(--cube-height)));
+            }
+
+
+    div.choice > a {
+        font-weight: 500;
+        color: white;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        text-decoration-color: rgba(255, 255, 255, 0.3);
+        transition: all 0.2s;
+        border-radius: 0.3em;
+        cursor: pointer;
+        display: inline-block;
+        position: relative;
+    }
+
+
+        div.choice.expanded > a {
+            display: none;
+        }
+
+        div.choice > a:hover {
+          padding: 0.15em 0.4em;
+          margin: -0.15em -0.4em;
+          background-color: white;
+          color: #213547;
+        }

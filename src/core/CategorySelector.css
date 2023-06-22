@@ -25,7 +25,3 @@ div.categoryContainer {
             width: 0.5em;
             display: inline-block;
         }
-
-        div.categoryContainer > h2 a {
-            cursor: pointer;
-        }

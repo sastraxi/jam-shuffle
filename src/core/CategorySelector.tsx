@@ -27,7 +27,7 @@ const CategorySelector = () => {
         <div className="buttons">
           <IconButton type="undo" disabled={history.length < 2} onClick={historyGoBack} />
         </div>
-        <Choice className="category">
+        <Choice>
           {category.displayName ?? category.type}
         </Choice>
         <div className="buttons">
