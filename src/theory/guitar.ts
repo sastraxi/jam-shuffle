@@ -107,7 +107,7 @@ export const ALL_CHORDS: Array<string> = []
  * Return chords that are "compatible" wih the one given.
  * @param chord e.g. "E sus2sus4", "Bb 9", "Ab major"
  */
-export const compatibleChords = (chord: string): Array<string> => {
+export const compatibleChords = (_chord: string): Array<string> => {
   const FOUND_CHORDS: Array<string> = []
 
   // TODO: discover scales that this chord lives in
