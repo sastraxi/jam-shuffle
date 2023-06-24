@@ -86,7 +86,7 @@ export const frettingToVexChord = (f: Fretting): ChordDefinition => {
       if (f.frets[i] === -1) return ''
       if (f.frets[i] === 0) return stringRootNote
       // TODO: if we asked for Gb, show those enharmonic notes
-      return noteForDisplay(transpose(stringRootNote, Interval.fromSemitones(f.frets[i])))
+      return noteForDisplay(transpose(stringRootNote, Interval.fromSemitones(f.frets[i] + f.baseFret - 1)))
     })
     // TODO: barres
   }

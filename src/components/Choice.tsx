@@ -46,8 +46,8 @@ function Choice<ChoiceType,>({
         setPendingChoice(allChoices[nextPendingChoiceIndex])
     }
 
-    const closeExpandedMode = useCallback(() => {
-        if (setChoice) {
+    const closeExpandedMode = useCallback((shouldSetChoice: boolean) => {
+        if (shouldSetChoice && setChoice) {
             setChoice(pendingChoice)
         }
         setExpanded(false)
@@ -57,11 +57,18 @@ function Choice<ChoiceType,>({
     // document-level event listener: ESC closes expanded mode
     useEffect(() => {
         if (expanded) {
-            const closeOnEscape = (e: KeyboardEvent) => {
-                if (e.key === "Escape") closeExpandedMode()
+            const closeOnKey = (e: KeyboardEvent) => {
+                if (e.key === "Escape") {
+                    closeExpandedMode(false)
+                    e.stopPropagation()
+                }
+                if (e.key === "Enter") {
+                    closeExpandedMode(true)
+                    e.stopPropagation()
+                }
             }
-            document.addEventListener('keydown', closeOnEscape, false)
-            return () => document.removeEventListener('keydown', closeOnEscape, false)   
+            document.addEventListener('keydown', closeOnKey, false)
+            return () => document.removeEventListener('keydown', closeOnKey, false)   
         }
     }, [expanded, closeExpandedMode])
 
@@ -91,7 +98,7 @@ function Choice<ChoiceType,>({
         >
             <div
                 className="select-container"
-                onClick={closeExpandedMode}
+                onClick={() => closeExpandedMode(false)}
             >
                 <div className="positioner" style={screenPosition}>
                     <div className="choices before">
@@ -99,6 +106,7 @@ function Choice<ChoiceType,>({
                     </div>
                     <a
                         className="balance-text current pending"
+                        onClick={() => closeExpandedMode(true)}
                     >
                         {displayTransform(pendingChoice)}
                     </a>
