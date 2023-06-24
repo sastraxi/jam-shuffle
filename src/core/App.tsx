@@ -94,12 +94,13 @@ const App = () => {
       { backgroundVideo }
       <Settings name={data?.display_name} onLogout={signout} session={session} />
       <CategorySelector />
-      <ChordsPrompt />
-      {/* { category.type === "single idea" && <SingleIdea /> }
+      { category.type === "single idea" && <SingleIdea /> }
       { category.type === "contrast" && <ContrastPrompt /> }
-      { category.type === "playlist" && <PlaylistPrompt /> } */}
+      { category.type === "playlist" && <PlaylistPrompt /> }
+      { category.type === "chords" && <ChordsPrompt /> }
     </>
   )
 }
 
 export default App
+

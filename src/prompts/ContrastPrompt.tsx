@@ -28,7 +28,6 @@ const ContrastPrompt: React.FunctionComponent = () => {
   }
 
   useEffect(() => {
-    // FIXME: why does this initially run twice w/ undefined? :/
     if (!first || !second) nextIdea(true)
   }, [first])
 

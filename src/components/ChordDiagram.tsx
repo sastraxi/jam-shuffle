@@ -23,6 +23,8 @@ const ChordDiagram = ({ label, width, height, ...chordDefinition }: PropTypes) =
             height,
             defaultColor: 'white',
             labelColor: 'black',
+            showTuning: true,
+            fontSize: 24,
             // See the docs for more available options.
             // https://github.com/0xfe/vexchords
         });

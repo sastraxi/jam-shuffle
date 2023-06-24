@@ -18,6 +18,7 @@ const selectCategories = (state: UserPreferences): Array<Category> => {
     const categories: Array<Category> = [
         { type: "single idea" },
         { type: "contrast" },
+        { type: "chords" },
     ]
     state.playlists.forEach((playlist) => 
         categories.push({
