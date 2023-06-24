@@ -27,9 +27,12 @@ const CategorySelector = () => {
         <div className="buttons">
           <IconButton type="undo" disabled={history.length < 2} onClick={historyGoBack} />
         </div>
-        <Choice>
-          {category.displayName ?? category.type}
-        </Choice>
+        <Choice
+          current={category}
+          displayTransform={category => category.displayName ?? category.type}
+          allChoices={allCategories}
+          setChoice={goToCategory}
+        />
         <div className="buttons">
           <IconButton type="shuffle" onClick={onShuffle} />
         </div>

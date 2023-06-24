@@ -49,12 +49,14 @@ const PlaylistPrompt: React.FunctionComponent = () => {
     },
   })
 
-  const tracksById = useMemo(() => {
+  const { tracksById, tracks } = useMemo(() => {
+    const nextTracks = playlist.data?.tracks.items.map(({ track }) => track) ?? []
     const nextTracksById: Record<string, Track> = {}
-    playlist.data?.tracks.items.forEach(
-      ({ track }) => nextTracksById[track.id] = track
-    )
-    return nextTracksById
+    nextTracks.forEach(track => nextTracksById[track.id] = track)
+    return {
+      tracksById: nextTracksById,
+      tracks: nextTracks,
+    }
   }, [playlist.data])
 
   const makeChoice = useMemo(() => {
@@ -74,7 +76,6 @@ const PlaylistPrompt: React.FunctionComponent = () => {
   }
 
   const track = tracksById[songId]
-  const shuffleIdea = () => setPromptChoice({ songId: makeChoice(songId) })
   const audioFeaturesElement = !audioFeatures.data
     ? <Spinner size="18px" />
     : (
@@ -103,14 +104,22 @@ const PlaylistPrompt: React.FunctionComponent = () => {
       </div>
     )
     
+  const shuffleTrack = () => setPromptChoice({ songId: makeChoice(songId) })
+  const setTrack = (track: Track) => setPromptChoice({ songId: track.id })
   return (
     <BasePrompt>
       <h1>
-        <Choice>{track.artists[0].name} - {track.name}</Choice>
+        <Choice
+          current={track}
+          displayTransform={track => `${track.artists[0].name} - ${track.name}`}
+          allChoices={tracks}
+          setChoice={setTrack}
+          fullWidth
+        />
       </h1>
       {audioFeaturesElement}
       <div className="buttons">
-        <IconButton type="shuffle" size="24px" onClick={shuffleIdea} />
+        <IconButton type="shuffle" size="24px" onClick={shuffleTrack} />
       </div>
     </BasePrompt>
   )

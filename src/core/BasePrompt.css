@@ -4,6 +4,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0 auto;
     margin-bottom: 10vh;
     flex-direction: column;
     padding-top: 32px;
@@ -12,6 +13,7 @@
     .prompt-main > h1 {
         font-size: 64px;
         margin: 18px;
+        width: 100%;
     }
 
         .prompt-main h1.subtle {

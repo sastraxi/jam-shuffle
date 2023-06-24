@@ -18,14 +18,20 @@ const SingleIdea: React.FunctionComponent = () => {
   const nextIdea = (replace = false) => setPromptChoice({ idea: makeChoice(idea) }, replace)
 
   useEffect(() => {
-    // FIXME: why does this initially run twice w/ undefined? :/
+    // FIXME: in strictmode, runs twice, hence the guard
+    // figure out a better way to only set it once so our undo history is nice
     if (!idea) nextIdea(true)
   }, [idea])
 
   return (
     <BasePrompt>
       <h1>
-        <Choice>{idea}</Choice>
+        <Choice
+          current={idea}
+          allChoices={SINGLE_IDEAS}
+          setChoice={idea => setPromptChoice({ idea })}
+          fullWidth
+        />
       </h1>
       <div className="buttons">
         <IconButton type="shuffle" size="24px" onClick={() => nextIdea(false)} />

@@ -35,11 +35,21 @@ const ContrastPrompt: React.FunctionComponent = () => {
   return (
     <BasePrompt>
       <h1>
-        <Choice>{first}</Choice>
+        <Choice
+          current={first}
+          allChoices={CONTRAST_IDEAS}
+          setChoice={first => setPromptChoice({ first, second })}
+          fullWidth
+        />
       </h1>
       <h1 className="subtle">mixed with</h1>
       <h1>
-        <Choice>{second}</Choice>
+        <Choice
+          current={second}
+          allChoices={CONTRAST_IDEAS}
+          setChoice={second => setPromptChoice({ first, second })}
+          fullWidth
+        />
       </h1>
       <div className="buttons">
         <IconButton type="shuffle" size="24px" onClick={() => nextIdea(false)} />
