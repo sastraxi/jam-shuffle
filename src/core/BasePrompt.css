@@ -1,6 +1,6 @@
 .prompt-main {
-    height: calc(100vh - 20vh - 150px);
-    padding-top: 10vh;
+    height: calc(100vh - 18vh - 150px);
+    padding-top: 8vh;
     padding-bottom: 10vh;
     max-width: 80vw;
     display: flex;
@@ -23,8 +23,20 @@
         }
 
     .prompt-main > .buttons {
-        display: block;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        width: 100%;
     }
+
+        /* TODO: we need to just use css-grid and have items set their own location */
+
+        /* this + flex-wrap above allow us to center if there's just 1 item */
+        .prompt-main > .buttons > * {
+            margin-left: auto;
+            margin-right: auto;
+        }
 
     .prompt-main > .big {
         height: 50vh;
@@ -32,4 +44,5 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        width: 100%;
     }

@@ -21,7 +21,14 @@ export type Category = {
  * Each prompt will have its own choices,
  * e.g. { "first idea": "a" | "b" | "c", "second idea": "d" | "e" }
  */
-export type PromptChoices = Record<string, string | Array<string> | undefined>
+export type PromptChoices = Record<
+    string,    
+    | string
+    | Array<string>
+    | Record<string, unknown>
+    | Array<Record<string, unknown>>
+    | undefined
+>
 
 export type PromptState<C extends PromptChoices = Record<string, string | undefined>> = {
     category: Category,

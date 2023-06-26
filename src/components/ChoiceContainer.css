@@ -20,7 +20,6 @@ div.choiceContainer {
         }
 
         div.choiceContainer > div.content > h2 {
-            text-transform: capitalize;
             font-size: 38px;
             font-weight: 800;
             margin: 0;
