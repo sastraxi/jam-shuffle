@@ -25,14 +25,16 @@ const SingleIdea: React.FunctionComponent = () => {
 
   return (
     <BasePrompt>
-      <h1>
-        <Choice
-          current={idea}
-          allChoices={SINGLE_IDEAS}
-          setChoice={idea => setPromptChoice({ idea })}
-          fullWidth
-        />
-      </h1>
+      <div className="big">
+        <h1>
+          <Choice
+            current={idea}
+            allChoices={SINGLE_IDEAS}
+            setChoice={idea => setPromptChoice({ idea })}
+            fullWidth
+          />
+        </h1>
+      </div>
       <div className="buttons">
         <IconButton type="shuffle" size="24px" onClick={() => nextIdea(false)} />
       </div>

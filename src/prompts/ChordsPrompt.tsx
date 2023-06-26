@@ -50,6 +50,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
             />
             <h2>
               <Choice
+                alignItems="center"
                 current={chords[chordIndex]}
                 displayTransform={noteForDisplay}
                 allChoices={ALL_CHORDS.filter(chord =>

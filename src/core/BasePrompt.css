@@ -1,16 +1,16 @@
 .prompt-main {
-    min-height: 50vh;
+    height: calc(100vh - 20vh - 150px);
+    padding-top: 10vh;
+    padding-bottom: 10vh;
     max-width: 80vw;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-around;
     margin: 0 auto;
-    margin-bottom: 10vh;
     flex-direction: column;
-    padding-top: 32px;
 }
 
-    .prompt-main > h1 {
+    .prompt-main h1 {
         font-size: 64px;
         margin: 18px;
         width: 100%;
@@ -19,13 +19,17 @@
         .prompt-main h1.subtle {
             opacity: 0.3;
             font-weight: 300;
+            margin: 0;
         }
 
-    .prompt-main .buttons {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
+    .prompt-main > .buttons {
         display: block;
-        padding-bottom: 120px;
+    }
+
+    .prompt-main > .big {
+        height: 50vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
