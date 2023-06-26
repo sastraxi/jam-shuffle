@@ -7,6 +7,13 @@ type Props<T> = {
     allChoices?: T[],
     setChoice?: (newChoice: T) => void,
     fullWidth?: boolean
+    alignItems?: 'start' | 'center' | 'end'
+}
+
+const calculateTransform = (alignItems: 'start' | 'center' | 'end', offsetWidth: number) => {
+    if (alignItems === 'center') return 'translate(-50%, -50%)'
+    const sign = alignItems === 'end' ? 1 : -1
+    return `translate(${0.5 * sign * offsetWidth}px, -50%)`
 }
 
 const convertToString = <T,>(x: T) => `${x}`
@@ -17,6 +24,7 @@ function Choice<ChoiceType,>({
     allChoices,
     setChoice,
     fullWidth = false,
+    alignItems = 'start'
 }: Props<ChoiceType>) {
     
     const rootRef = useRef<HTMLDivElement>(null)
@@ -31,6 +39,7 @@ function Choice<ChoiceType,>({
                 left: `${offsetLeft + (0.5 * offsetWidth)}px`,
                 top: `${offsetTop + (0.5 * offsetHeight)}px`,
                 width: fullWidth ? `${offsetWidth}px` : undefined,
+                transform: calculateTransform(alignItems, offsetWidth),
             })
         }
         setExpanded(true)

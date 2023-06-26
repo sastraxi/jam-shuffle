@@ -1,11 +1,10 @@
-import './CategorySelector.css'
 import IconButton from '../components/IconButton'
 import { useCategory, useGoToCategory, useHistoryGoBack, usePromptHistory } from '../state/app'
 import { useCategories } from '../state/user-prefs'
 import { createMakeChoice } from '../util'
 import { Category } from '../prompts/types'
 import Choice from '../components/Choice'
-
+import ChoiceContainer from '../components/ChoiceContainer'
 
 const CategorySelector = () => {
   const allCategories = useCategories()
@@ -20,24 +19,23 @@ const CategorySelector = () => {
     goToCategory(nextCategory)
   }
 
+  const buttons = (<>
+    <IconButton type="shuffle" onClick={onShuffle} />
+    <IconButton type="undo" disabled={history.length < 2} onClick={historyGoBack} />
+  </>)
+
   return (
-    <div className="categoryContainer">
-      <h3>Category</h3>
-      <h2>
-        <div className="buttons">
-          <IconButton type="undo" disabled={history.length < 2} onClick={historyGoBack} />
-        </div>
-        <Choice
+    <ChoiceContainer
+      buttons={buttons}
+      caption="Category"
+    >
+      <Choice
           current={category}
           displayTransform={category => category.displayName ?? category.type}
           allChoices={allCategories}
           setChoice={goToCategory}
         />
-        <div className="buttons">
-          <IconButton type="shuffle" onClick={onShuffle} />
-        </div>
-      </h2>
-    </div>
+    </ChoiceContainer>
   )
 }
 

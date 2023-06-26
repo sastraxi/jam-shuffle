@@ -1,6 +1,7 @@
 div.choice {
     position: relative;
     perspective: none;
+    z-index: 900;
 }
 
     div.choice.full-width {
@@ -40,7 +41,7 @@ div.choice {
         div.choice div.positioner {
             position: absolute;
             overflow: visible;
-            transform: translate(-50%, -50%);
+            /* transform set via screenPosition / alignItems */
         }
 
 

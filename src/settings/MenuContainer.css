@@ -10,7 +10,7 @@ div.menuContainer {
     flex-direction: column;
     background: black;
     overflow-y: auto;
-    transition: bottom 0.1s ease-out;
+    transition: bottom var(--menu-transition-time) ease-out;
     box-shadow: 0px 20px 35px rgba(0, 0, 0, 0.7);
 }
 

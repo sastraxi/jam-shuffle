@@ -2,7 +2,6 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-  width: 100%;
 }
 
 #background-video {
@@ -21,3 +20,9 @@
   #background-video.loaded {
     opacity: 0.5;
   }
+
+.top-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

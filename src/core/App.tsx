@@ -92,8 +92,10 @@ const App = () => {
   return (
     <>
       { backgroundVideo }
-      <Settings name={data?.display_name} onLogout={signout} session={session} />
-      <CategorySelector />
+      <div className="top-bar">
+        <CategorySelector />
+        <Settings name={data?.display_name} onLogout={signout} session={session} />
+      </div>
       { category.type === "single idea" && <SingleIdea /> }
       { category.type === "contrast" && <ContrastPrompt /> }
       { category.type === "playlist" && <PlaylistPrompt /> }
