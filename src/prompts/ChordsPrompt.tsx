@@ -38,7 +38,7 @@ type ChordsPromptChoices = {
 }
 
 const ChordsPrompt: React.FunctionComponent = () => {
-  const { chords } = usePromptChoices<ChordsPromptChoices>()
+  const { chords, flavour } = usePromptChoices<ChordsPromptChoices>()
   const setPromptChoice = useSetPromptChoice<ChordsPromptChoices>()
   const shuffleAll = (replace = false) => {
     const nextChords: Array<ChordChoice> = []
@@ -105,9 +105,12 @@ const ChordsPrompt: React.FunctionComponent = () => {
           />
         </ChoiceContainer>
         <IconButton type="shuffle" size="24px" onClick={() => shuffleAll(false)} />
-        <ChoiceContainer caption="weird?" alignItems="end">
+        <ChoiceContainer caption="flavour" alignItems="end">
           <Choice
-            current="Not weird"
+            current={flavour}
+            alignItems="center"
+            allChoices={FLAVOUR_CHOICES}
+            setChoice={pendingFlavour => setPromptChoice({ flavour: pendingFlavour })}
           />
         </ChoiceContainer>
       </div>

@@ -10,10 +10,11 @@ type Props<T> = {
     alignItems?: 'start' | 'center' | 'end'
 }
 
+// FIXME: "end" is badly broken
 const calculateTransform = (alignItems: 'start' | 'center' | 'end', offsetWidth: number) => {
     if (alignItems === 'center') return 'translate(-50%, -50%)'
-    const sign = alignItems === 'end' ? 1 : -1
-    return `translate(${0.5 * sign * offsetWidth}px, -50%)`
+    const multiplier = alignItems === 'end' ? 1 : 1
+    return `translate(${-0.5 * multiplier * offsetWidth}px, -50%)`
 }
 
 const convertToString = <T,>(x: T) => `${x}`
