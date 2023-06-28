@@ -1,7 +1,5 @@
 div.choice {
     position: relative;
-    perspective: none;
-    z-index: 900;
 }
 
     div.choice.full-width {
@@ -26,7 +24,6 @@ div.choice {
         left: 0;
         right: 0;
         bottom: 0;
-        z-index: 1;
     }
 
         div.choice > .select-container .current {
@@ -36,6 +33,7 @@ div.choice {
             margin: -0.15em -0.4em;
             background-color: white;
             border-radius: 0.3em;
+            cursor: pointer;
         }
 
         div.choice div.positioner {

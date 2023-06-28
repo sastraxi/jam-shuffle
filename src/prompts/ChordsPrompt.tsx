@@ -6,10 +6,33 @@ import ChordDiagram from '../components/ChordDiagram'
 import './ChordsPrompt.css'
 
 import { usePromptChoices, useSetPromptChoice } from '../state/app'
-import { createMakeChoice, memoize } from '../util'
-import { ALL_GUITAR_CHORDS, frettingToVexChord, getFrettings } from '../theory/guitar'
-import { noteForDisplay } from '../theory/common'
+import { memoize, randomChoice } from '../util'
+
+import {
+  ALL_GUITAR_CHORDS,
+  frettingToVexChord,
+  getFrettings,
+  chordsMatchingCondition,
+  getGuitarNotes,
+} from '../theory/guitar'
+
+import {
+  keynameToNotes,
+  keysIncludingChord,
+  noteForDisplay,
+} from '../theory/common'
+
 import ChoiceContainer from '../components/ChoiceContainer'
+
+///////////////////////////
+
+const keys = keysIncludingChord(new Set(["A", "C#", "E"]))
+keys.forEach((keyName) => {
+  console.log(keyName, keynameToNotes(keyName))
+})
+
+
+///////////////////////////
 
 const FLAVOUR_CHOICES = [
   'MAX POWER!',
@@ -18,28 +41,31 @@ const FLAVOUR_CHOICES = [
   'Kinda weird',
   'Jazzy extensions',
   'Extremely weird',
-]
-// FIXME: why can't I "as const" here?
-
-const chooseGuitarChord = createMakeChoice(ALL_GUITAR_CHORDS)
-const chooseFlavour = createMakeChoice(FLAVOUR_CHOICES)
+] as const
 
 const VARIANT_NUMBERS = "①②③④⑤⑥⑦⑧⑨⑩"
 const SOURCE_SET_CHOICES = [
-  '✨', '🎷', '🔑'
+  '🔑', '🌶️', '✨',
 ] as const
 type SourceSetChoices = typeof SOURCE_SET_CHOICES[number]
+const DEFAULT_SOURCE_SET: SourceSetChoices = '🌶️'
 
-const getMaxOutOfKeyNotes = (sourceSet: SourceSetChoices) => {
+const sourceSetExpandedTransform = (sourceSet: SourceSetChoices) => {
+  if (sourceSet === '✨') return '✨ All chords'
+  if (sourceSet === '🌶️') return '🌶️ Max. 1 accidental'
+  return '🔑 Strictly in-key'
+}
+
+const getMaxAccidentals = (sourceSet: SourceSetChoices) => {
   if (sourceSet === '✨') return 9999
-  if (sourceSet === '🎷') return 1
+  if (sourceSet === '🌶️') return 1
   return 0
 }
 
 const withReplacement = <T,>(array: Array<T>, index: number, replacement: T) =>
   [...array.slice(0, index), replacement, ...array.slice(index + 1)]
 
-
+// memoized so we don't thrash renders / recompute useCallbacks in <Choice />
 const firstNDigits = memoize((n: number) => [...Array(n).keys()])
 
 type ChordChoice = {
@@ -52,6 +78,8 @@ type ChordChoice = {
 type ChordsPromptChoices = {
   chords: Array<ChordChoice>
   flavour: typeof FLAVOUR_CHOICES[number]
+  keyName?: string
+  possibleKeys?: Array<string>
 }
 
 const dimmedIf = (exactlyMatches: string) =>
@@ -69,25 +97,99 @@ const ChordsPrompt: React.FunctionComponent = () => {
     replace?: boolean
   } = {}) => {
     const nextChords: Array<ChordChoice> = []
+    /*
+      The key name option is weird. We have a few different modes of operation:
 
+      Informational.
+        We just want to know what keys work for these chords. We should support
+        having no accidental restrictions and thus potentially creating a
+        list of chords that does not work with any (major-based) scale.
+      
+      Set after first chord.
+        The default options should always ensure three distinct chords can be
+        generated and still follow the rules we've set out. It should be possible
+        to change the first chord to something out of the selected key, which
+        would trigger changing the key, which _might_ trigger changing other
+        chords if they are restricted based on the key (and not locked).
+      
+      Set outright.
+        We should *also* support changing the key as the first thing. This is
+        challenging because it means that Choice needs to be able to pick from
+        every single key at all times, and is at odds with the "Informational"
+        use case where we want to see which keys are.
+
+      It seems like the solution is to add another 🔒 choice next to the key.
+        🔒 Locked to first chord.
+          The caption above the key choice becomes "Keys containing <chord 0>".
+          The source set choice for chord 0 goes away, as by definition it is
+          now locked to "🔑 Strictly in-key".
+
+        🔓 Unlocked.
+          The caption above the key choice becomes "All keys". You can now
+          choose the source set for the chord 0. If its source set becomes "🔑
+          Strictly in-key", functionality is _similar_ to Locked mode, but
+          with the important difference that you can still change to any key
+          you want. This should probably be the default.
+    */
+    // TODO: if a chord is locked and goes out-of-key, we should update its
+    // source set in the prompt choices state to a less restrictive one that
+    // includes the currently-chosen chord.
+
+    // Set after first chord. 
+
+    let keyName: string | undefined = undefined
+    let possibleKeys = current.possibleKeys ?? undefined
+
+    // FIXME: something is going wrong with generation, overly restricted
+
+    // generate up to three chords
     for (let i = 0; i < 3; ++i) {
-      nextChords.push({
-        name: chooseGuitarChord(...nextChords.map(c => c.name)),
-        locked: current.chords?.[i]?.locked ?? false,
-        variant: current.chords?.[i]?.variant ?? 0,
-        // first chord can't be locked to the current key
-        sourceSet: i === 0 ? undefined : (current.chords?.[i]?.sourceSet ?? '🎷'),
-      })
+      const currentChord = current.chords?.[i]
+
+      if (currentChord?.locked) {
+        // keep this chord as-is
+        nextChords.push(current.chords[i])
+      } else {
+        // generate a new chord based on key + restrictions
+        const scaleNotes = keyName ? keynameToNotes(keyName) : undefined
+        const sourceSet = currentChord?.sourceSet ?? DEFAULT_SOURCE_SET
+        const candidateChords = !scaleNotes
+          ? ALL_GUITAR_CHORDS
+          : chordsMatchingCondition({
+            scaleNotes,
+            maxAccidentals: getMaxAccidentals(sourceSet),
+          })
+
+        nextChords.push({
+          // TODO: randomChoice that is weighted based on flavour
+          name: randomChoice(candidateChords),
+          locked: currentChord?.locked ?? false,
+          variant: currentChord?.variant ?? 0,
+          // first chord determines key, so we cannot choose its source set
+          sourceSet: i === 0 ? undefined : sourceSet,
+        })
+      }
+
+      // after picking the first chord, if we don't already have a key from last
+      // time we'll have to pick one that works with our new chord. If we had one
+      // from before, we already generated the first chord in that
+      if (!keyName) {
+        const chordNoteSet = getGuitarNotes(nextChords[0].name)
+        possibleKeys = keysIncludingChord(chordNoteSet)
+        // FIXME: pick the first scale that has the same root note
+        keyName = possibleKeys[0]
+      }
     }
 
     setPromptChoice({
       chords: nextChords,
-      flavour: chooseFlavour(current.flavour),
+      keyName,
+      possibleKeys,
       ...overrides,
     }, replace)
   }
 
-  // TODO: generate fewer undo moves
+  // XXX: is "replace = true" the right way to generate fewer undo moves?
   const modifyChord = (chordIndex: number, changes: Partial<ChordChoice>) =>
     setPromptChoice({
       chords: withReplacement(chords, chordIndex, {
@@ -124,11 +226,11 @@ const ChordsPrompt: React.FunctionComponent = () => {
       <div className="chords">
         {frettingsByChordIndex?.map((frettings, chordIndex) => (
           <div key={chords[chordIndex].name}>
+            {/* TODO: de-dupe some things in here by making this a real function */}
             <div className="buttons">
               <Choice
                 help="Locked? (prevents shuffle)"
                 setChoice={icon => modifyChord(chordIndex, { locked: icon === '🔒' })}
-                alignItems="center"
                 current={chords[chordIndex].locked ? '🔒' : '🔓'}
                 allChoices={['🔓', '🔒']}
                 displayTransform={dimmedIf('🔓')}
@@ -136,19 +238,18 @@ const ChordsPrompt: React.FunctionComponent = () => {
               />
               {chords[chordIndex].sourceSet && 
                 <Choice
-                  help="Source set (restrict to key?)"
-                  setChoice={sourceSet => modifyChord(chordIndex, { sourceSet })}
+                  help="Which chords can we choose from?"
                   alignItems="center"
+                  setChoice={sourceSet => modifyChord(chordIndex, { sourceSet })}
                   current={chords[chordIndex].sourceSet ?? '✨'}
                   allChoices={SOURCE_SET_CHOICES}
-                  displayTransform={dimmedIf('✨')}
+                  expandedDisplayTransform={sourceSetExpandedTransform}
                   tapToChange
                 />
               }
               <Choice
-                help="Variant (ascending fretboard order)"
+                help="Variant"
                 setChoice={variant => modifyChord(chordIndex, { variant })}
-                alignItems="center"
                 current={Math.min(chords[chordIndex].variant, frettings.length - 1)}
                 allChoices={firstNDigits(frettings.length)}
                 displayTransform={x => VARIANT_NUMBERS[x]}
@@ -158,7 +259,10 @@ const ChordsPrompt: React.FunctionComponent = () => {
             <ChordDiagram
               width={320}
               height={400}
-              {...frettingToVexChord(frettings[chords[chordIndex].variant % frettings.length], noteForDisplay)}
+              {...frettingToVexChord(
+                frettings[Math.min(chords[chordIndex].variant, frettings.length - 1)],
+                /* { keyName: current.keyName } */
+              )}
             />
             <h2>
               <Choice
@@ -177,10 +281,14 @@ const ChordsPrompt: React.FunctionComponent = () => {
       </div>
 
       <div className="buttons">
-        <ChoiceContainer caption="key options (3)">
-          <Choice
-            current="A minor"
-          />
+        <ChoiceContainer caption="key options">
+          {current.keyName && 
+            <Choice
+              current={current.keyName}
+              allChoices={current.possibleKeys}
+              setChoice={keyName => setPromptChoice({ keyName })}
+            />
+          }
         </ChoiceContainer>
         <IconButton type="shuffle" size="24px" onClick={() => shuffleAll()} />
         <ChoiceContainer caption="flavour" alignItems="end">
@@ -188,7 +296,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
             current={flavour}
             alignItems="center"
             allChoices={FLAVOUR_CHOICES}
-            setChoice={pendingFlavour => setPromptChoice({ flavour: pendingFlavour })}
+            setChoice={flavour => setPromptChoice({ flavour })}
           />
         </ChoiceContainer>
       </div>

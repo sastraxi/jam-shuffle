@@ -4,6 +4,7 @@ import './Choice.css'
 type Props<T> = {
     current: T,
     displayTransform?: ((choice: T) => React.ReactNode),
+    expandedDisplayTransform?: ((choice: T) => React.ReactNode),
     allChoices?: readonly T[],
     setChoice?: (newChoice: T) => void,
     fullWidth?: boolean
@@ -31,6 +32,7 @@ function Choice<ChoiceType,>({
     help,
     tapToChange = false,
     displayTransform = convertToString,
+    expandedDisplayTransform,
     fullWidth = false,
     alignItems = 'start',
 }: Props<ChoiceType>) {
@@ -41,6 +43,7 @@ function Choice<ChoiceType,>({
     const [screenPosition, setScreenPosition] = useState<Partial<React.CSSProperties>>({})
 
     const goToExpandedMode = useCallback(() => {
+        if (expanded) return
         if (rootRef.current) {
             const { offsetLeft, offsetTop, offsetWidth, offsetHeight } = rootRef.current 
             setScreenPosition({
@@ -51,7 +54,7 @@ function Choice<ChoiceType,>({
             })
         }
         setExpanded(true)
-    }, [alignItems, fullWidth])
+    }, [expanded, alignItems, fullWidth])
     
     const [pendingChoice, setPendingChoice] = useState<ChoiceType>(current)
     const getRelativeChoice = useCallback((from: ChoiceType, delta: number) => {
@@ -74,13 +77,14 @@ function Choice<ChoiceType,>({
     }
 
     const onTap = useCallback(() => {
+        if (expanded) return
         return tapToChange
             ? setChoice?.(getRelativeChoice(current, 1))
             : goToExpandedMode();
-    }, [current, setChoice, getRelativeChoice, goToExpandedMode, tapToChange])
+    }, [expanded, current, setChoice, getRelativeChoice, goToExpandedMode, tapToChange])
 
-    const closeExpandedMode = useCallback((shouldSetChoice: boolean) => {
-        if (shouldSetChoice && setChoice) {
+    const closeExpandedMode = useCallback((shouldCommit: boolean) => {
+        if (shouldCommit && setChoice) {
             setChoice(pendingChoice)
         }
         setExpanded(false)
@@ -124,6 +128,7 @@ function Choice<ChoiceType,>({
     ].filter(x => x).join(' ')
 
     // TODO: global help tooltip
+    const pendingDisplayTransform = expandedDisplayTransform ?? displayTransform
     return (
         <div
             className={rootClassNames}
@@ -131,6 +136,14 @@ function Choice<ChoiceType,>({
             onWheel={allChoices ? e => changePendingChoice(Math.sign(e.deltaY)) : undefined}
             title={help}
         >
+            <a
+                ref={unexpandedAnchorRef}
+                className="balance-text current"
+                onClick={allChoices ? onTap : undefined}
+                onWheel={allChoices ? goToExpandedMode : undefined}
+            >
+                {displayTransform(current)}
+            </a>      
             <div
                 className="select-container"
                 onClick={() => closeExpandedMode(false)}
@@ -143,21 +156,13 @@ function Choice<ChoiceType,>({
                         className="balance-text current pending"
                         onClick={() => closeExpandedMode(true)}
                     >
-                        {displayTransform(pendingChoice)}
+                        {pendingDisplayTransform(pendingChoice)}
                     </a>
                     <div className="choices after">
 
                     </div>
                 </div>
-            </div>
-            <a
-                ref={unexpandedAnchorRef}
-                className="balance-text current"
-                onClick={allChoices ? onTap : undefined}
-                onWheel={allChoices ? goToExpandedMode : undefined}
-            >
-                {displayTransform(current)}
-            </a>            
+            </div>      
         </div>
     )
 }

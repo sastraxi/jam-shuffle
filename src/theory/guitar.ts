@@ -1,7 +1,9 @@
 // N.B. from https://github.com/tombatossals/chords-db/blob/master/lib/guitar.json
 import GuitarChords from './guitar.json'
 import { ChordDefinition } from 'vexchords'
-import { transpose, Interval } from 'tonal'
+import { transpose, Interval, Scale, PcSet } from 'tonal'
+import { memoize, randomChoice } from '../util'
+import { MAJOR_MODES_BY_DEGREE, MAJOR_SCALES, NoteDisplayContext, noteForDisplay } from './common'
 
 type ChordLibraryEntry = {
     key: string,
@@ -75,9 +77,27 @@ export const getFrettings = (chordName: string): Fretting[] => {
   return frettings
 }
 
+/**
+ * Return all the notes in the first variant of the given guitar chord.
+ * @param chordName the chord name, e.g. C/D#, Emmaj7b5, F major
+ * @returns e.g. ["A", "C", "E"]
+ */
+export const getGuitarNotes = memoize((chordName: string): Set<string> => {
+  const { frets, baseFret } = getFrettings(chordName)[0]
+  const notes = STANDARD_TUNING.map((stringRootNote, i) => {
+    // FIXME: dedupe with frettingToVexChord
+    if (frets[i] === -1) return undefined
+    if (frets[i] === 0) return stringRootNote
+    return transpose(stringRootNote, Interval.fromSemitones(frets[i] + baseFret - 1))
+  }).filter(x => x !== undefined) as string[]
+  
+  // FIXME: doesn't return octaves b/c STANDARD_TUNING doesn't have them. Maybe it should?
+  return new Set(notes)
+})
+
 export const frettingToVexChord = (
   f: Fretting,
-  noteForDisplay: (note: string) => string
+  displayContext: NoteDisplayContext = {}
 ): ChordDefinition => {
   return {
     chord: f.frets.map((n, fretIndex) => [6 - fretIndex, (n === -1 ? 'x' : n)]),
@@ -86,7 +106,10 @@ export const frettingToVexChord = (
       if (f.frets[i] === -1) return ''
       if (f.frets[i] === 0) return stringRootNote
       // TODO: if we asked for Gb, show those enharmonic notes
-      return noteForDisplay(transpose(stringRootNote, Interval.fromSemitones(f.frets[i] + f.baseFret - 1)))
+      return noteForDisplay(
+        transpose(stringRootNote, Interval.fromSemitones(f.frets[i] + f.baseFret - 1)),
+        displayContext,
+      )
     })
     // TODO: barres
   }
@@ -103,16 +126,47 @@ export const ALL_GUITAR_CHORDS: Array<string> = []
   })
 }
 
-
-/**
- * Return chords that are "compatible" wih the one given.
- * @param chord e.g. "E sus2sus4", "Bb 9", "Ab major"
- */
-export const compatibleChords = (_chord: string): Array<string> => {
-  const FOUND_CHORDS: Array<string> = []
-
-  // TODO: discover scales that this chord lives in
-  // TODO: discover other chords in that scale and return them
-
-  return FOUND_CHORDS
+type ChordSearchParams = {
+  scaleNotes?: string[],  // FIXME: Note[]
+  maxAccidentals?: number
 }
+
+export const chordsMatchingCondition = memoize(
+  ({ 
+    scaleNotes,
+    maxAccidentals,
+  }: ChordSearchParams) => {
+    if (!scaleNotes) return ALL_GUITAR_CHORDS
+    const inScale = PcSet.isNoteIncludedIn(scaleNotes)
+
+    // FIXME: it's more important that the root note (in the name of the chord)
+    // is in the scale, less important as we get to the extensions above.
+    // So let's...    
+    //   1. block chords that don't have the root note in the scale
+    //   2. block over chords where the bass note is not in the scale
+    //   3. return a "weirdness" score that is a sum of each accidental,
+    //      weighted so that accidentals in higher octaves return lower scores
+
+    // TODO: flavours can then be: { weirdnessExponent, types: { whitelist, blacklist } }
+    // and we'll need a random function that can take weighting into consideration
+    // types.blacklist: e.g. we might not want mmaj7 chords
+    // types.whitelist: e.g. we might just want power chords
+
+    const matchingChords: Array<string> = []
+    for (const chordName of ALL_GUITAR_CHORDS) {
+      const notes = getGuitarNotes(chordName)
+      const accidentals = [...notes]
+        .map(inScale)
+        .reduce((sum, inScale) => sum + (inScale ? 0 : 1), 0)
+
+      // move onto the next chord if there are too many accidentals;
+      // i.e. notes that are not in the scale that we're looking at
+      if (maxAccidentals !== undefined && accidentals > maxAccidentals) {
+        console.log(`${chordName} (${[...notes]}) has ${accidentals} accidentals (max ${maxAccidentals}) in ${scaleNotes}`)      
+        continue
+      }
+
+      matchingChords.push(chordName)
+    }
+    return matchingChords
+  })

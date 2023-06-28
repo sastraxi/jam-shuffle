@@ -55,7 +55,7 @@ type AppStateAndMutators = AppState & {
 }
 
 const INITIAL_PROMPT: PromptState = {
-    category: { type: "chords" },
+    category: { type: "chords", displayName: "Chords" },
     choices: {},
 }
 

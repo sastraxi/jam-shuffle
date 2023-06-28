@@ -16,9 +16,9 @@ const playlistEquals = (a: SavedPlaylist, b: SavedPlaylist) => a.id === b.id
 
 const selectCategories = (state: UserPreferences): Array<Category> => {
     const categories: Array<Category> = [
-        { type: "single idea" },
-        { type: "contrast" },
-        { type: "chords" },
+        { type: "single idea", displayName: "Single idea" },
+        { type: "contrast", displayName: "Contrast" },
+        { type: "chords", displayName: "Chords" },
     ]
     state.playlists.forEach((playlist) => 
         categories.push({
