@@ -4,10 +4,15 @@ import './Choice.css'
 type Props<T> = {
     current: T,
     displayTransform?: ((choice: T) => React.ReactNode),
-    allChoices?: T[],
+    allChoices?: readonly T[],
     setChoice?: (newChoice: T) => void,
     fullWidth?: boolean
     alignItems?: 'start' | 'center' | 'end'
+    help?: string
+    /**
+     * Should we immediately go to the next value on click?
+     */
+    tapToChange?: boolean
 }
 
 // FIXME: "end" is badly broken
@@ -21,11 +26,13 @@ const convertToString = <T,>(x: T) => `${x}`
 
 function Choice<ChoiceType,>({
     current,
-    displayTransform = convertToString,
     allChoices,
     setChoice,
+    help,
+    tapToChange = false,
+    displayTransform = convertToString,
     fullWidth = false,
-    alignItems = 'start'
+    alignItems = 'start',
 }: Props<ChoiceType>) {
     
     const rootRef = useRef<HTMLDivElement>(null)
@@ -33,7 +40,7 @@ function Choice<ChoiceType,>({
     const [expanded, setExpanded] = useState<boolean>(false)
     const [screenPosition, setScreenPosition] = useState<Partial<React.CSSProperties>>({})
 
-    const goToExpandedMode = () => {
+    const goToExpandedMode = useCallback(() => {
         if (rootRef.current) {
             const { offsetLeft, offsetTop, offsetWidth, offsetHeight } = rootRef.current 
             setScreenPosition({
@@ -44,17 +51,33 @@ function Choice<ChoiceType,>({
             })
         }
         setExpanded(true)
-    }
-
+    }, [alignItems, fullWidth])
+    
     const [pendingChoice, setPendingChoice] = useState<ChoiceType>(current)
+    const getRelativeChoice = useCallback((from: ChoiceType, delta: number) => {
+        if (!allChoices) throw new Error("No choices to choose from!")
+        
+        const fromIndex = allChoices.indexOf(from)
+        if (fromIndex === -1) {
+            return allChoices[0]  // if we're out of the set, just pick the first (e.g. variant overflow)
+        }
+
+        let nextPendingChoiceIndex = (fromIndex + Math.round(delta)) % allChoices.length
+        if (nextPendingChoiceIndex < 0) nextPendingChoiceIndex += allChoices.length
+        return allChoices[nextPendingChoiceIndex]
+    }, [allChoices, pendingChoice])
+
     const changePendingChoice = (delta: number) => {
         if (delta === 0) return
         if (!allChoices) return
-
-        let nextPendingChoiceIndex = (allChoices.indexOf(pendingChoice) + Math.round(delta)) % allChoices.length
-        if (nextPendingChoiceIndex < 0) nextPendingChoiceIndex += allChoices.length
-        setPendingChoice(allChoices[nextPendingChoiceIndex])
+        setPendingChoice(getRelativeChoice(pendingChoice, delta))
     }
+
+    const onTap = useCallback(() => {
+        return tapToChange
+            ? setChoice?.(getRelativeChoice(current, 1))
+            : goToExpandedMode();
+    }, [current, setChoice, getRelativeChoice, goToExpandedMode, tapToChange])
 
     const closeExpandedMode = useCallback((shouldSetChoice: boolean) => {
         if (shouldSetChoice && setChoice) {
@@ -100,11 +123,13 @@ function Choice<ChoiceType,>({
         fullWidth && 'full-width'
     ].filter(x => x).join(' ')
 
+    // TODO: global help tooltip
     return (
         <div
             className={rootClassNames}
             ref={rootRef} 
             onWheel={allChoices ? e => changePendingChoice(Math.sign(e.deltaY)) : undefined}
+            title={help}
         >
             <div
                 className="select-container"
@@ -128,7 +153,7 @@ function Choice<ChoiceType,>({
             <a
                 ref={unexpandedAnchorRef}
                 className="balance-text current"
-                onClick={allChoices ? goToExpandedMode : undefined}
+                onClick={allChoices ? onTap : undefined}
                 onWheel={allChoices ? goToExpandedMode : undefined}
             >
                 {displayTransform(current)}

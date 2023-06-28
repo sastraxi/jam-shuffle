@@ -2,3 +2,22 @@ div.chords {
     display: flex;
     flex-direction: row;
 }
+
+    div.chords > * > .buttons {
+        display: flex;
+        flex-direction: row;
+        margin: 0 auto;            
+        font-size: 28px;
+        place-content: center;
+    }
+    
+        div.chords > * > .buttons > * {
+            margin-left: 0.4em;
+            margin-right: 0.4em;
+
+        }
+
+            div.chords .choice > a:not(:hover) > span.dimmed {
+                opacity: 0.5;
+                filter: grayscale()
+            }

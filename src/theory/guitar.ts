@@ -19,8 +19,6 @@ type Fretting = {
 
 const STANDARD_TUNING = ['E', 'A', 'D', 'G', 'B', 'E']
 
-export const noteForDisplay = (note: string) => note.replace('#', '♯').replace('b', '♭')
-
 /**
  * Normalize the root of a chord for lookup in the database.
  * This is based on the published "keys" in guitar.json
@@ -59,12 +57,11 @@ const getRootAndSuffix = (chordName: string) => {
 }
 
 /**
- * Looks up a guitar chord based on chord name in chords-db.
+ * Looks up all guitar chords for a given chord name in chords-db.
  * @param chordName the chord name, e.g. C/D#, Emmaj7b5, F major
- * @param variant 
  * @returns 
  */
-export const getFretting = (chordName: string, variant?: number): Fretting => {
+export const getFrettings = (chordName: string): Fretting[] => {
   const { root, suffix } = getRootAndSuffix(chordName)
 
   const lookupKey = root.replace("#", "sharp")  // who knows!
@@ -75,10 +72,13 @@ export const getFretting = (chordName: string, variant?: number): Fretting => {
     throw new Error(`Could not find ${root} frettings for ${suffix}`)
   }
 
-  return frettings[(variant ?? 0) % frettings.length]
+  return frettings
 }
 
-export const frettingToVexChord = (f: Fretting): ChordDefinition => {
+export const frettingToVexChord = (
+  f: Fretting,
+  noteForDisplay: (note: string) => string
+): ChordDefinition => {
   return {
     chord: f.frets.map((n, fretIndex) => [6 - fretIndex, (n === -1 ? 'x' : n)]),
     position: f.baseFret,
@@ -92,16 +92,17 @@ export const frettingToVexChord = (f: Fretting): ChordDefinition => {
   }
 } 
 
-export const ALL_CHORDS: Array<string> = []
+export const ALL_GUITAR_CHORDS: Array<string> = []
 {
   Object.keys(GuitarChords.chords).forEach(lookupKey => {
     const rootNote = lookupKey.replace('sharp', '#')
     const allSuffixes: Array<ChordLibraryEntry> = (GuitarChords.chords as Record<string, any>)[lookupKey]
     allSuffixes.forEach(entry =>
-      ALL_CHORDS.push(`${rootNote} ${entry.suffix}`)
+      ALL_GUITAR_CHORDS.push(`${rootNote} ${entry.suffix}`)
     )
   })
 }
+
 
 /**
  * Return chords that are "compatible" wih the one given.
