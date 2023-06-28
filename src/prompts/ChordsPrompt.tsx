@@ -34,6 +34,10 @@ keys.forEach((keyName) => {
 
 ///////////////////////////
 
+// TODO: flavours should be: { name, chordWeightingFunc, types: { whitelist, blacklist } }
+// chordWeightFunc: (accidentalScaleDegreesWithOctaves: number[]) => number
+// types.blacklist: e.g. we might not want mmaj7 chords
+// types.whitelist: e.g. we might just want power chords
 const FLAVOUR_CHOICES = [
   'MAX POWER!',
   'Basic b****',
@@ -124,16 +128,20 @@ const ChordsPrompt: React.FunctionComponent = () => {
           The source set choice for chord 0 goes away, as by definition it is
           now locked to "🔑 Strictly in-key".
 
-        🔓 Unlocked.
+        🔓 All keys. [DEFAULT]
           The caption above the key choice becomes "All keys". You can now
           choose the source set for the chord 0. If its source set becomes "🔑
-          Strictly in-key", functionality is _similar_ to Locked mode, but
-          with the important difference that you can still change to any key
-          you want. This should probably be the default.
+          Strictly in-key", functionality is _similar_ to 🔒 Locked to first
+          chord mode, but with the important difference that you can still
+          change to any key you want.
     */
+
     // TODO: if a chord is locked and goes out-of-key, we should update its
     // source set in the prompt choices state to a less restrictive one that
     // includes the currently-chosen chord.
+
+    // TODO: if a chord is unlocked, it should *always* be regenerated to
+    // facilitate the Unlocked mode described
 
     // Set after first chord. 
 
@@ -199,7 +207,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
     }, true)
   
   //////////////////////////////////////////////////////
-  // initial set
+  // initial setting
 
   useEffect(() => {
     if (!current.chords || current.chords.length === 0) {
@@ -220,13 +228,12 @@ const ChordsPrompt: React.FunctionComponent = () => {
     [chords]
   )
 
-
   return (
     <BasePrompt>
       <div className="chords">
+        {/* TODO: de-dupe some things in here by making each chord its own component */}
         {frettingsByChordIndex?.map((frettings, chordIndex) => (
           <div key={chords[chordIndex].name}>
-            {/* TODO: de-dupe some things in here by making this a real function */}
             <div className="buttons">
               <Choice
                 help="Locked? (prevents shuffle)"
@@ -261,6 +268,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
               height={400}
               {...frettingToVexChord(
                 frettings[Math.min(chords[chordIndex].variant, frettings.length - 1)],
+                /* TODO: populate ENHARMONIC_DISPLAY_FOR_KEYNAME */
                 /* { keyName: current.keyName } */
               )}
             />

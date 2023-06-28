@@ -1,9 +1,9 @@
 // N.B. from https://github.com/tombatossals/chords-db/blob/master/lib/guitar.json
 import GuitarChords from './guitar.json'
 import { ChordDefinition } from 'vexchords'
-import { transpose, Interval, Scale, PcSet } from 'tonal'
-import { memoize, randomChoice } from '../util'
-import { MAJOR_MODES_BY_DEGREE, MAJOR_SCALES, NoteDisplayContext, noteForDisplay } from './common'
+import { transpose, Interval, PcSet } from 'tonal'
+import { memoize } from '../util'
+import {  NoteDisplayContext, noteForDisplay } from './common'
 
 type ChordLibraryEntry = {
     key: string,
@@ -85,7 +85,6 @@ export const getFrettings = (chordName: string): Fretting[] => {
 export const getGuitarNotes = memoize((chordName: string): Set<string> => {
   const { frets, baseFret } = getFrettings(chordName)[0]
   const notes = STANDARD_TUNING.map((stringRootNote, i) => {
-    // FIXME: dedupe with frettingToVexChord
     if (frets[i] === -1) return undefined
     if (frets[i] === 0) return stringRootNote
     return transpose(stringRootNote, Interval.fromSemitones(frets[i] + baseFret - 1))
@@ -105,7 +104,6 @@ export const frettingToVexChord = (
     tuning: STANDARD_TUNING.map((stringRootNote, i) => {
       if (f.frets[i] === -1) return ''
       if (f.frets[i] === 0) return stringRootNote
-      // TODO: if we asked for Gb, show those enharmonic notes
       return noteForDisplay(
         transpose(stringRootNote, Interval.fromSemitones(f.frets[i] + f.baseFret - 1)),
         displayContext,
@@ -127,7 +125,7 @@ export const ALL_GUITAR_CHORDS: Array<string> = []
 }
 
 type ChordSearchParams = {
-  scaleNotes?: string[],  // FIXME: Note[]
+  scaleNotes?: string[],  // FIXME: Note[] ???
   maxAccidentals?: number
 }
 
@@ -138,22 +136,14 @@ export const chordsMatchingCondition = memoize(
   }: ChordSearchParams) => {
     if (!scaleNotes) return ALL_GUITAR_CHORDS
     const inScale = PcSet.isNoteIncludedIn(scaleNotes)
-
-    // FIXME: it's more important that the root note (in the name of the chord)
-    // is in the scale, less important as we get to the extensions above.
-    // So let's...    
-    //   1. block chords that don't have the root note in the scale
-    //   2. block over chords where the bass note is not in the scale
-    //   3. return a "weirdness" score that is a sum of each accidental,
-    //      weighted so that accidentals in higher octaves return lower scores
-
-    // TODO: flavours can then be: { weirdnessExponent, types: { whitelist, blacklist } }
-    // and we'll need a random function that can take weighting into consideration
-    // types.blacklist: e.g. we might not want mmaj7 chords
-    // types.whitelist: e.g. we might just want power chords
-
+    // TODO: confirm PcSet is working as expected with enharmonics
+  
     const matchingChords: Array<string> = []
     for (const chordName of ALL_GUITAR_CHORDS) {
+
+      // TODO: skip chords that don't have the root note in the scale
+      // TODO: skip chords where the bass note is not in the scale
+
       const notes = getGuitarNotes(chordName)
       const accidentals = [...notes]
         .map(inScale)
@@ -166,6 +156,9 @@ export const chordsMatchingCondition = memoize(
         continue
       }
 
+      // TODO: return the scale degrees (w/octave) of the accidentals in the output
+      // rather than taking in a "max accidentals" parameter. That way the memoization
+      // cache won't take up as much space and can prevent unnecessary re-renders
       matchingChords.push(chordName)
     }
     return matchingChords

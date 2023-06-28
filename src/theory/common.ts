@@ -7,11 +7,12 @@ import { memoize } from '../util'
 type Note = string
 
 /**
- * We require notes to be uppercase.
+ * We require notes to be uppercase, and they can have an ocatve.
  */
 const NOTE_REGEX = /([ABCDEFG][#b]?)(\d*)/i
 
 /**
+ * Ensures that string comparison === note comparison (w/enharmonic equivalents).
  * Doesn't matter what we pick; here we're just always choosing sharps.
  */
 const ENHARMONIC_NORMALIZE_MAP = {
@@ -67,9 +68,9 @@ ROOT_NOTES.forEach(rootNote => {
  * probably consider double-sharps / double-flats as well...
  */
 export const ENHARMONIC_DISPLAY_FOR_KEYNAME: Record<string, Record<Note, Note>> = {}
-// ROOT_NOTES.forEach()
-// FIXME: what about the enharmonic equivalents of key names?/
-// How should we support e.g. Bb Major vs A# Major?
+// TODO: ROOT_NOTES.forEach(...)
+// FIXME: What about the enharmonic equivalents of key names...
+//        How should we support e.g. Bb Major vs A# Major?
 
 export type NoteDisplayContext = {
     keyName?: string
