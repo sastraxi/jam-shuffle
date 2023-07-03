@@ -23,8 +23,9 @@ import {
   noteForDisplay,
 } from '../theory/common'
 
-import ChoiceContainer from '../components/ChoiceContainer'
 import { Balanced, FLAVOUR_CHOICES } from '../theory/flavours'
+
+import ChoiceContainer from '../components/ChoiceContainer'
 
 ///////////////////////////
 
@@ -32,7 +33,6 @@ const keys = keysIncludingChord(new Set(["A", "C#", "E"]))
 keys.forEach((keyName) => {
   console.log(keyName, keynameToNotes(keyName))
 })
-
 
 ///////////////////////////
 
@@ -138,6 +138,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
     let keyName: string | undefined = undefined
     let possibleKeys = current.possibleKeys ?? undefined
+    const flavour = FLAVOUR_CHOICES.find(f => f.name === current.flavour) ?? Balanced
 
     // generate up to three chords
     for (let i = 0; i < 3; ++i) {
@@ -158,7 +159,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
           })
 
         nextChords.push({
-          // TODO: randomChoice that is weighted based on flavour
+          // TODO: use getMakeFlavourChoice
           name: randomChoice(candidateChords),
           locked: currentChord?.locked ?? false,
           variant: currentChord?.variant ?? 0,

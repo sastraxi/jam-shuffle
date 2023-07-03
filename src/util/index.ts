@@ -30,3 +30,33 @@ export function memoize<R, T extends (...args: any[]) => R>(f: T): T {
 
     return g as T;
 }
+
+/**
+ * Return 0 <= i <= array.length such that !pred(array[i - 1]) && pred(array[i]).
+ * This and lowerBound / upperBound from https://stackoverflow.com/a/41956372
+ */
+export function binarySearch<T>(array: Array<T>, pred: (item: T) => boolean) {
+    let lo = -1, hi = array.length;
+    while (1 + lo < hi) {
+        const mi = lo + ((hi - lo) >> 1);
+        if (pred(array[mi])) {
+            hi = mi;
+        } else {
+            lo = mi;
+        }
+    }
+    return hi;
+}
+/**
+ * Return i such that array[i - 1] < item <= array[i].
+ */
+export function lowerBound<T>(array: Array<T>, item: T) {
+    return binarySearch(array, j => item <= j);
+}
+
+/**
+ * Return i such that array[i - 1] <= item < array[i].
+ */
+export function upperBound<T>(array: Array<T>, item: T) {
+    return binarySearch(array, j => item < j);
+}

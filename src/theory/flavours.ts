@@ -1,3 +1,5 @@
+import { memoize, upperBound } from "../util"
+
 type ChordSuffix = string
 
 export type Flavour = {
@@ -81,3 +83,28 @@ export const FLAVOUR_CHOICES: Readonly<Array<Flavour>> = [
   // 'Jazzy extensions',
   ExtremelyWeird,
 ] as const
+
+// TODO: guitar.ts needs to generate these in chordsMatchingCondition
+type ChordAndAccidentals = {
+  chordRootNote: string
+  chordSuffix: string
+  accidentalScaleDegreesWithOctaves: number[]
+}
+
+export const getMakeFlavourChoice = memoize((flavour: Flavour, chords: Array<ChordAndAccidentals>) => {
+  const weightingFunc = flavour.chordWeightingFunc ?? (() => 1)
+  const cumulativeWeight: Array<number> = []
+  for (let i = 0; i < chords.length; ++i) {
+    const lastWeight = i === 0 ? 0 : cumulativeWeight[0]
+    cumulativeWeight.push(lastWeight + weightingFunc(
+      chords[i].chordSuffix,
+      chords[i].accidentalScaleDegreesWithOctaves
+    ))
+  }
+  const max = cumulativeWeight[cumulativeWeight.length - 1]
+  return () => {
+    const needle = Math.random() * max
+    const i = upperBound(cumulativeWeight, needle)
+    return `${chords[i].chordRootNote} ${chords[i].chordSuffix}`
+  }
+})

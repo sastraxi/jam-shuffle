@@ -3,6 +3,11 @@ div.chords {
     flex-direction: row;
 }
 
+    div.chords h2 {
+        margin-top: 0;
+        font-size: 28px;
+    }
+
     div.chords > * > .buttons {
         display: flex;
         flex-direction: row;
