@@ -23,6 +23,7 @@ import {
 } from '../theory/common'
 
 import ChoiceContainer from '../components/ChoiceContainer'
+import { Balanced, FLAVOUR_CHOICES } from '../theory/flavours'
 
 ///////////////////////////
 
@@ -33,19 +34,6 @@ keys.forEach((keyName) => {
 
 
 ///////////////////////////
-
-// TODO: flavours should be: { name, chordWeightingFunc, types: { whitelist, blacklist } }
-// chordWeightFunc: (accidentalScaleDegreesWithOctaves: number[]) => number
-// types.blacklist: e.g. we might not want mmaj7 chords
-// types.whitelist: e.g. we might just want power chords
-const FLAVOUR_CHOICES = [
-  'MAX POWER!',
-  'Basic b****',
-  'Not weird',
-  'Kinda weird',
-  'Jazzy extensions',
-  'Extremely weird',
-] as const
 
 const VARIANT_NUMBERS = "①②③④⑤⑥⑦⑧⑨⑩"
 const SOURCE_SET_CHOICES = [
@@ -81,7 +69,7 @@ type ChordChoice = {
 
 type ChordsPromptChoices = {
   chords: Array<ChordChoice>
-  flavour: typeof FLAVOUR_CHOICES[number]
+  flavour: string
   keyName?: string
   possibleKeys?: Array<string>
 }
@@ -214,7 +202,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
       shuffleAll({
         replace: true,
         overrides: {
-          flavour: "Not weird"
+          flavour: "Balanced"
         },
       })
     }
@@ -301,10 +289,11 @@ const ChordsPrompt: React.FunctionComponent = () => {
         <IconButton type="shuffle" size="24px" onClick={() => shuffleAll()} />
         <ChoiceContainer caption="flavour" alignItems="end">
           <Choice
-            current={flavour}
+            current={FLAVOUR_CHOICES.find(f => f.name === flavour) ?? Balanced}
             alignItems="center"
             allChoices={FLAVOUR_CHOICES}
-            setChoice={flavour => setPromptChoice({ flavour })}
+            displayTransform={f => f.name}
+            setChoice={flavour => setPromptChoice({ flavour: flavour.name })}
           />
         </ChoiceContainer>
       </div>

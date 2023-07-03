@@ -151,8 +151,8 @@ export const chordsMatchingCondition = memoize(
 
       // move onto the next chord if there are too many accidentals;
       // i.e. notes that are not in the scale that we're looking at
-      if (maxAccidentals !== undefined && accidentals > maxAccidentals) {
-        console.log(`${chordName} (${[...notes]}) has ${accidentals} accidentals (max ${maxAccidentals}) in ${scaleNotes}`)      
+      console.log(`${chordName} (${[...notes]}) has ${accidentals} accidentals (max ${maxAccidentals}) in ${scaleNotes}`)      
+      if (maxAccidentals !== undefined && accidentals > maxAccidentals) {        
         continue
       }
 
