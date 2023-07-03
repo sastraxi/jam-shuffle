@@ -24,6 +24,7 @@ export type Category = {
 export type PromptChoices = Record<
     string,    
     | string
+    | boolean
     | Array<string>
     | Record<string, unknown>
     | Array<Record<string, unknown>>

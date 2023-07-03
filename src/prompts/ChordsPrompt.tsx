@@ -14,6 +14,7 @@ import {
   getFrettings,
   chordsMatchingCondition,
   getGuitarNotes,
+  chordForDisplay,
 } from '../theory/guitar'
 
 import {
@@ -72,6 +73,7 @@ type ChordsPromptChoices = {
   flavour: string
   keyName?: string
   possibleKeys?: Array<string>
+  keyIsLocked: boolean
 }
 
 const dimmedIf = (exactlyMatches: string) =>
@@ -111,6 +113,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
         use case where we want to see which keys are.
 
       It seems like the solution is to add another 🔒 choice next to the key.
+
         🔒 Locked to first chord.
           The caption above the key choice becomes "Keys containing <chord 0>".
           The source set choice for chord 0 goes away, as by definition it is
@@ -136,8 +139,6 @@ const ChordsPrompt: React.FunctionComponent = () => {
     let keyName: string | undefined = undefined
     let possibleKeys = current.possibleKeys ?? undefined
 
-    // FIXME: something is going wrong with generation, overly restricted
-
     // generate up to three chords
     for (let i = 0; i < 3; ++i) {
       const currentChord = current.chords?.[i]
@@ -161,8 +162,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
           name: randomChoice(candidateChords),
           locked: currentChord?.locked ?? false,
           variant: currentChord?.variant ?? 0,
-          // first chord determines key, so we cannot choose its source set
-          sourceSet: i === 0 ? undefined : sourceSet,
+          sourceSet,
         })
       }
 
@@ -202,7 +202,8 @@ const ChordsPrompt: React.FunctionComponent = () => {
       shuffleAll({
         replace: true,
         overrides: {
-          flavour: "Balanced"
+          flavour: "Balanced",
+          keyIsLocked: false,
         },
       })
     }
@@ -210,7 +211,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
   //////////////////////////////////////////////////////
 
-  const { chords, flavour } = current
+  const { chords, flavour, keyIsLocked } = current
   const frettingsByChordIndex = useMemo(
     () => chords?.map(chord => getFrettings(chord.name)),
     [chords]
@@ -231,7 +232,9 @@ const ChordsPrompt: React.FunctionComponent = () => {
                 displayTransform={dimmedIf('🔓')}
                 tapToChange
               />
-              {chords[chordIndex].sourceSet && 
+              {/* first chord determines key if "isKeyLocked"; in this case the
+                  key depends on the chord and as such there is no source set */}
+              {chords[chordIndex].sourceSet && (chordIndex !== 0 || !keyIsLocked) && 
                 <Choice
                   help="Which chords can we choose from?"
                   alignItems="center"
@@ -264,7 +267,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
               <Choice
                 alignItems="center"
                 current={chords[chordIndex].name}
-                displayTransform={noteForDisplay}
+                displayTransform={chordForDisplay}
                 allChoices={ALL_GUITAR_CHORDS.filter(chord =>
                   chord === chords[chordIndex].name ||
                   !chords.map(c => c.name).includes(chord)
@@ -277,7 +280,9 @@ const ChordsPrompt: React.FunctionComponent = () => {
       </div>
 
       <div className="buttons">
-        <ChoiceContainer caption="key options">
+        <ChoiceContainer
+          caption={keyIsLocked ? `keys containing ${chords[0].name}` : "all keys"}
+        >
           {current.keyName && 
             <Choice
               current={current.keyName}
@@ -285,6 +290,15 @@ const ChordsPrompt: React.FunctionComponent = () => {
               setChoice={keyName => setPromptChoice({ keyName })}
             />
           }
+          &nbsp;&nbsp;
+          <Choice
+            help="Locked to first chord?"
+            setChoice={icon => setPromptChoice({ keyIsLocked: icon === '🔒' })}
+            current={keyIsLocked ? '🔒' : '🔓'}
+            allChoices={['🔓', '🔒']}
+            displayTransform={dimmedIf('🔓')}
+            tapToChange
+          />
         </ChoiceContainer>
         <IconButton type="shuffle" size="24px" onClick={() => shuffleAll()} />
         <ChoiceContainer caption="flavour" alignItems="end">

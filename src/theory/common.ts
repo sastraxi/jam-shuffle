@@ -77,6 +77,12 @@ export type NoteDisplayContext = {
     scale?: Note[]
 }
 
+/**
+ * Replaces # and b with the actual sharp / flat unicode symbols.
+ */
+export const displayAccidentals = (s: string) =>
+  s.replace('#', '♯').replace('b', '♭')
+
 export const noteForDisplay = (note: string, { keyName, scale }: NoteDisplayContext = {}) => {
     const match = NOTE_REGEX.exec(note)
     if (!match || match.length !== 3) throw new Error(`Unrecognized note: ${note}`)
@@ -96,7 +102,7 @@ export const noteForDisplay = (note: string, { keyName, scale }: NoteDisplayCont
         noteNameInContext = noteName
     }
 
-    return `${noteNameInContext.replace('#', '♯').replace('b', '♭')}${octave ?? ''}`
+    return `${displayAccidentals(noteNameInContext)}${octave ?? ''}`
 }
 
 /**

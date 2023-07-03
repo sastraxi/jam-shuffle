@@ -3,7 +3,7 @@ import GuitarChords from './guitar.json'
 import { ChordDefinition } from 'vexchords'
 import { transpose, Interval, PcSet } from 'tonal'
 import { memoize } from '../util'
-import {  NoteDisplayContext, noteForDisplay } from './common'
+import {  NoteDisplayContext, displayAccidentals, noteForDisplay } from './common'
 
 type ChordLibraryEntry = {
     key: string,
@@ -56,6 +56,11 @@ const getRootAndSuffix = (chordName: string) => {
     }
   }
   throw new Error(`Could not find root for chord name: ${chordName}`)
+}
+
+export const chordForDisplay = (chordName: string, context: NoteDisplayContext = {}) => {
+  const { root, suffix } = getRootAndSuffix(chordName)
+  return `${noteForDisplay(root, context)} ${displayAccidentals(suffix)}`
 }
 
 /**
