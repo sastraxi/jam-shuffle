@@ -71,7 +71,8 @@ export const combineChord = (chord: ExplodedChord): Chord => `${chord.root} ${ch
 
 export const chordForDisplay = (chordName: string, context: NoteDisplayContext = {}) => {
   const { root, suffix } = explodeChord(chordName)
-  return `${noteForDisplay(root, context)} ${displayAccidentals(suffix)}`
+  const space = suffix.startsWith('/') ? '' : ' '
+  return `${noteForDisplay(root, context)}${space}${displayAccidentals(suffix)}`
 }
 
 /**

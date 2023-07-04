@@ -144,10 +144,13 @@ export const keysIncludingChord = memoize((
   const matchingScales: Array<ScaleName> = []
   for (const scale of Object.values(MAJOR_SCALES)) {
     const inScale = PcSet.isNoteIncludedIn(scale)
-    const accidentals = [...notes]
+    const accidentals = notes
       .map(inScale)
+
+    const numAccidents = accidentals
       .reduce((sum, inScale) => sum + (inScale ? 0 : 1), 0)
-    if (accidentals <= maxAccidentals) {
+
+    if (numAccidents <= maxAccidentals) {
       scale.forEach((note, degree) => {
         const mode = MAJOR_MODES_BY_DEGREE[degree]
         if (!restrictedModes.includes(mode)) {
@@ -157,5 +160,6 @@ export const keysIncludingChord = memoize((
     }
   }
 
+  console.log(notes, 'contained in', matchingScales)
   return matchingScales
 })

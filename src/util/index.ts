@@ -60,3 +60,17 @@ export function lowerBound<T>(array: Array<T>, item: T) {
 export function upperBound<T>(array: Array<T>, item: T) {
     return binarySearch(array, j => item < j);
 }
+
+/**
+ * Return a modified version of the given array with the element
+ * at a given index replaced with a replacement element.
+ */
+export const withReplacement = <T,>(array: Array<T>, index: number, replacement: T) =>
+  [...array.slice(0, index), replacement, ...array.slice(index + 1)]
+
+// memoized so we don't thrash renders / recompute useCallbacks in <Choice />
+
+/**
+ * Returns the first N integers, e.g. firstNDigits(5) === [0, 1, 2, 3, 4].
+ */
+export const firstNDigits = memoize((n: number) => [...Array(n).keys()])
