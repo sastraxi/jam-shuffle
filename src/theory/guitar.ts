@@ -3,12 +3,12 @@ import GuitarChords from './guitar.json'
 import { ChordDefinition } from 'vexchords'
 import { transpose, Interval, PcSet } from 'tonal'
 import { memoize } from '../util'
-import {  NoteDisplayContext, displayAccidentals, noteForDisplay } from './common'
+import {  Note, NoteDisplayContext, displayAccidentals, noteForDisplay } from './common'
 
 type ChordLibraryEntry = {
-    key: string,
-    suffix: string,
-    positions: Array<Fretting>
+  key: string,
+  suffix: string,
+  positions: Array<Fretting>
 }
 
 type Fretting = {
@@ -19,7 +19,14 @@ type Fretting = {
   barres: number[]
 }
 
-const STANDARD_TUNING = ['E', 'A', 'D', 'G', 'B', 'E']
+export type Chord = string
+
+export type ExplodedChord = {
+  root: string
+  suffix: string
+}
+
+const STANDARD_TUNING = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4']
 
 /**
  * Normalize the root of a chord for lookup in the database.
@@ -37,12 +44,14 @@ const translateKeyMap: Record<string, string> = {
 const allKeysInDescLength = [...GuitarChords.keys, ...Object.keys(translateKeyMap)]
 allKeysInDescLength.sort((a, b) => b.length - a.length)
 
+export const isOverChord = ({ suffix }: ExplodedChord) => suffix.includes('/')
+
 /**
  * Gets a root and a suffix for lookup in the guitar chords database.
  * @param chordName descriptive chord name, e.g. "A#minor"
  * @returns { root, suffix } e.g. { root: "Bb", suffix: "minor" }
  */
-const getRootAndSuffix = (chordName: string) => {
+export const explodeChord = (chordName: Chord): ExplodedChord => {
   let root, suffix
   for (const prefix of allKeysInDescLength) {
     if (chordName.startsWith(prefix)) {
@@ -58,8 +67,10 @@ const getRootAndSuffix = (chordName: string) => {
   throw new Error(`Could not find root for chord name: ${chordName}`)
 }
 
+export const combineChord = (chord: ExplodedChord): Chord => `${chord.root} ${chord.suffix}`
+
 export const chordForDisplay = (chordName: string, context: NoteDisplayContext = {}) => {
-  const { root, suffix } = getRootAndSuffix(chordName)
+  const { root, suffix } = explodeChord(chordName)
   return `${noteForDisplay(root, context)} ${displayAccidentals(suffix)}`
 }
 
@@ -69,7 +80,7 @@ export const chordForDisplay = (chordName: string, context: NoteDisplayContext =
  * @returns 
  */
 export const getFrettings = (chordName: string): Fretting[] => {
-  const { root, suffix } = getRootAndSuffix(chordName)
+  const { root, suffix } = explodeChord(chordName)
 
   const lookupKey = root.replace("#", "sharp")  // who knows!
   const allSuffixes: Array<ChordLibraryEntry> = (GuitarChords.chords as Record<string, any>)[lookupKey]
@@ -83,20 +94,20 @@ export const getFrettings = (chordName: string): Fretting[] => {
 }
 
 /**
- * Return all the notes in the first variant of the given guitar chord.
+ * Return all the notes in the given guitar chord.
  * @param chordName the chord name, e.g. C/D#, Emmaj7b5, F major
- * @returns e.g. ["A", "C", "E"]
+ * @param variant which variation of the chord should we pick? Defaults to the first.
+ * @returns e.g. ["A2", "C3", "E3"], from lowest-to-highest frequency
  */
-export const getGuitarNotes = memoize((chordName: string): Set<string> => {
-  const { frets, baseFret } = getFrettings(chordName)[0]
+export const getGuitarNotes = memoize((chordName: string, variant = 0): Array<Note> => {
+  const frettings = getFrettings(chordName)
+  const { frets, baseFret } = frettings[variant % frettings.length]
   const notes = STANDARD_TUNING.map((stringRootNote, i) => {
     if (frets[i] === -1) return undefined
     if (frets[i] === 0) return stringRootNote
     return transpose(stringRootNote, Interval.fromSemitones(frets[i] + baseFret - 1))
-  }).filter(x => x !== undefined) as string[]
-  
-  // FIXME: doesn't return octaves b/c STANDARD_TUNING doesn't have them. Maybe it should?
-  return new Set(notes)
+  }).filter(x => x !== undefined) as Note[]
+  return notes
 })
 
 export const frettingToVexChord = (
@@ -108,7 +119,7 @@ export const frettingToVexChord = (
     position: f.baseFret,
     tuning: STANDARD_TUNING.map((stringRootNote, i) => {
       if (f.frets[i] === -1) return ''
-      if (f.frets[i] === 0) return stringRootNote
+      if (f.frets[i] === 0) return noteForDisplay(stringRootNote, displayContext)
       return noteForDisplay(
         transpose(stringRootNote, Interval.fromSemitones(f.frets[i] + f.baseFret - 1)),
         displayContext,
@@ -129,42 +140,75 @@ export const ALL_GUITAR_CHORDS: Array<string> = []
   })
 }
 
-type ChordSearchParams = {
-  scaleNotes?: string[],  // FIXME: Note[] ???
+export type ChordSearchParams = {
+  /**
+   * The notes of the scale, without octaves.
+   */
+  scaleNotes: string[],
   maxAccidentals?: number
 }
 
+export type ChordAndAccidentals = {
+  chord: ExplodedChord
+  accidentalScaleDegreesWithOctaves: number[]
+}
+
+/**
+ * How many semitones are between the two given notes?
+ * The result is not well-defined if octaves are not given.
+ */
+const semitoneDistance = (from: Note, to: Note): number => {
+  const semitones = Interval.semitones(Interval.distance(from, to))
+  if (semitones === undefined) throw new Error(`semitone distance from ${from} to ${to} is undefined`)
+  return semitones
+}
+
+/**
+ * Which chords are inside of the scale we're interested in?
+ */
 export const chordsMatchingCondition = memoize(
   ({ 
     scaleNotes,
     maxAccidentals,
-  }: ChordSearchParams) => {
-    if (!scaleNotes) return ALL_GUITAR_CHORDS
+  }: ChordSearchParams): Array<ChordAndAccidentals> => {
+    console.log(scaleNotes)
     const inScale = PcSet.isNoteIncludedIn(scaleNotes)
     // TODO: confirm PcSet is working as expected with enharmonics
   
-    const matchingChords: Array<string> = []
+    const matchingChords: Array<ChordAndAccidentals> = []
     for (const chordName of ALL_GUITAR_CHORDS) {
-
-      // TODO: skip chords that don't have the root note in the scale
-      // TODO: skip chords where the bass note is not in the scale
-
-      const notes = getGuitarNotes(chordName)
-      const accidentals = [...notes]
-        .map(inScale)
-        .reduce((sum, inScale) => sum + (inScale ? 0 : 1), 0)
-
-      // move onto the next chord if there are too many accidentals;
-      // i.e. notes that are not in the scale that we're looking at
-      console.log(`${chordName} (${[...notes]}) has ${accidentals} accidentals (max ${maxAccidentals}) in ${scaleNotes}`)      
-      if (maxAccidentals !== undefined && accidentals > maxAccidentals) {        
+      const chord = explodeChord(chordName)
+      const notes = getGuitarNotes(chordName, 0)
+      
+      // skip chords that don't have the root and bass note in scale
+      const bassNote = notes[0]
+      const rootNote = isOverChord(chord) ? notes[1] : notes[0]
+      if (!inScale(bassNote) || !inScale(rootNote)) {
+        // console.warn(
+        //   `${chordName} (${notes}): out-of-scale root/bass note in ${scaleNotes}.`
+        // )
         continue
       }
 
-      // TODO: return the scale degrees (w/octave) of the accidentals in the output
-      // rather than taking in a "max accidentals" parameter. That way the memoization
-      // cache won't take up as much space and can prevent unnecessary re-renders
-      matchingChords.push(chordName)
+      const accidentals = notes
+        .filter(note => !inScale(note))
+        .map(note => semitoneDistance(rootNote, note))
+
+      // move onto the next chord if there are too many accidentals;
+      // i.e. notes that are not in the scale that we're looking at
+      // TODO: we might want to remove this altogether and just have
+      // the flavour have this logic
+      if (maxAccidentals !== undefined && accidentals.length > maxAccidentals) {        
+        // console.warn(
+        //   `${chordName} (${notes}): ${accidentals.length} accidentals (max ${maxAccidentals}) in ${scaleNotes}`
+        // )
+        continue
+      }
+
+      matchingChords.push({
+        chord: explodeChord(chordName),
+        accidentalScaleDegreesWithOctaves: accidentals,
+      })
     }
     return matchingChords
   })

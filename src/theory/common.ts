@@ -4,23 +4,29 @@ import { memoize } from '../util'
 /**
  * e.g. C, E2, D#, Eb4
  */
-type Note = string
+export type Note = string
 
-/**
- * We require notes to be uppercase, and they can have an ocatve.
- */
-const NOTE_REGEX = /([ABCDEFG][#b]?)(\d*)/i
+export type NoteDisplayContext = {
+  keyName?: string
+  scale?: Note[]
+  showOctave?: boolean
+}
+
+export type ExplodedNote = {
+  name: string,
+  octave?: number
+}
 
 /**
  * Ensures that string comparison === note comparison (w/enharmonic equivalents).
  * Doesn't matter what we pick; here we're just always choosing sharps.
  */
 const ENHARMONIC_NORMALIZE_MAP = {
-    'Db': 'C#',
-    'Eb': 'D#',
-    'Gb': 'F#',
-    'Ab': 'G#',
-    'Bb': 'A#',
+  'Db': 'C#',
+  'Eb': 'D#',
+  'Gb': 'F#',
+  'Ab': 'G#',
+  'Bb': 'A#',
 }
 
 /**
@@ -28,28 +34,28 @@ const ENHARMONIC_NORMALIZE_MAP = {
  * Later, we can put the note back "into context" of the key.
  */
 export const normalizedNoteName = (noteName: Note) => {
-    for (const [needle, replacement] of Object.entries(ENHARMONIC_NORMALIZE_MAP)) {
-        if (noteName.includes(needle)) return noteName.replace(needle, replacement)
-    }
-    return noteName
+  for (const [needle, replacement] of Object.entries(ENHARMONIC_NORMALIZE_MAP)) {
+    if (noteName.includes(needle)) return noteName.replace(needle, replacement)
+  }
+  return noteName
 }
 
 export const MAJOR_MODES_BY_DEGREE = [
-    "major",
-    "dorian",
-    "phrygian",
-    "lydian",
-    "mixolydian",
-    "minor",
-    "locrian",
+  "major",
+  "dorian",
+  "phrygian",
+  "lydian",
+  "mixolydian",
+  "minor",
+  "locrian",
 ]
 
 export const keynameToNotes = (keyName: string): Array<Note> =>
-    Scale.get(keyName).notes
+  Scale.get(keyName).notes
 
 export const ROOT_NOTES: Array<Note> = []
 for (let i = 0; i < 12; ++i) {
-    ROOT_NOTES.push(normalizedNoteName(transpose("C", Interval.fromSemitones(i))))
+  ROOT_NOTES.push(normalizedNoteName(transpose("C", Interval.fromSemitones(i))))
 }
 
 /**
@@ -57,9 +63,8 @@ for (let i = 0; i < 12; ++i) {
  */
 export const MAJOR_SCALES: Record<Note, Note[]> = {}
 ROOT_NOTES.forEach(rootNote => {
-    MAJOR_SCALES[rootNote] = keynameToNotes(`${rootNote} major`)
+  MAJOR_SCALES[rootNote] = keynameToNotes(`${rootNote} major`)
 })
-
 
 /**
  * In a given key, provide a mapping that lets us run note names through it
@@ -72,37 +77,55 @@ export const ENHARMONIC_DISPLAY_FOR_KEYNAME: Record<string, Record<Note, Note>> 
 // FIXME: What about the enharmonic equivalents of key names...
 //        How should we support e.g. Bb Major vs A# Major?
 
-export type NoteDisplayContext = {
-    keyName?: string
-    scale?: Note[]
-}
-
 /**
  * Replaces # and b with the actual sharp / flat unicode symbols.
  */
 export const displayAccidentals = (s: string) =>
   s.replace('#', '♯').replace('b', '♭')
 
-export const noteForDisplay = (note: string, { keyName, scale }: NoteDisplayContext = {}) => {
-    const match = NOTE_REGEX.exec(note)
-    if (!match || match.length !== 3) throw new Error(`Unrecognized note: ${note}`)
-    const [, noteName, octave] = match
+/**
+ * We require notes to be uppercase, and they can have an ocatve.
+ */
+const NOTE_REGEX = /([ABCDEFG][#b]?)(\d+)?/
 
-    let noteNameInContext 
-    if (keyName) {
-        noteNameInContext = ENHARMONIC_DISPLAY_FOR_KEYNAME[keyName][noteName]
-    } else if (scale) {
-        noteNameInContext = scale.find(scaleNoteName =>
-            TonalNote.get(scaleNoteName).chroma === TonalNote.get(noteName).chroma
-        )
-        if (!noteNameInContext) {
-            throw new Error(`Bad scale; cannot find enharmonic of ${noteName} in ${scale}!`)
-        }
-    } else {
-        noteNameInContext = noteName
+/**
+ * "Explodes" a note from string representation into { note, octave? }
+ */
+export const explodeNote = (note: Note): ExplodedNote => {
+  const match = NOTE_REGEX.exec(note)
+  if (match?.length === 3) {
+    const [, name, octave] = match
+    return { name, octave: octave === undefined ? undefined : parseInt(octave, 10) }
+  }
+  throw new Error(`Unrecognized note: ${note}`)
+}
+
+export const combineNote = ({ name, octave }: ExplodedNote): Note => `${name}${octave ?? ''}`
+
+export const noteForDisplay = (
+  note: Note | ExplodedNote,
+  { keyName, scale, showOctave }: NoteDisplayContext = {},
+) => {
+  const explodedNote = (typeof note === 'string' ? explodeNote(note) : note)
+  const { name, octave } = explodedNote
+
+  let noteNameInContext
+  if (keyName) {
+    noteNameInContext = ENHARMONIC_DISPLAY_FOR_KEYNAME[keyName][name]
+  } else if (scale) {
+    noteNameInContext = scale.find(scaleNoteName =>
+      TonalNote.get(scaleNoteName).chroma === TonalNote.get(name).chroma
+    )
+    if (!noteNameInContext) {
+      throw new Error(`Bad scale; cannot find enharmonic of ${name} in ${scale}!`)
     }
+  } else {
+    noteNameInContext = name
+  }
 
-    return `${displayAccidentals(noteNameInContext)}${octave ?? ''}`
+  const shouldShowOctave = showOctave ?? false
+  const displayedOctave = shouldShowOctave ? (octave ?? '') : ''
+  return `${displayAccidentals(noteNameInContext)}${displayedOctave}`
 }
 
 /**
@@ -114,7 +137,7 @@ type ScaleName = string
  * N.B. only does keys based on the major scales right now.
  */
 export const keysIncludingChord = memoize((
-  notes: Set<Note>,
+  notes: Array<Note>,
   maxAccidentals = 0,
   restrictedModes: Array<string> = ["locrian"],
 ) => {

@@ -15,6 +15,9 @@ import {
   chordsMatchingCondition,
   getGuitarNotes,
   chordForDisplay,
+  explodeChord,
+  ChordAndAccidentals,
+  combineChord,
 } from '../theory/guitar'
 
 import {
@@ -27,9 +30,15 @@ import { Balanced, FLAVOUR_CHOICES } from '../theory/flavours'
 
 import ChoiceContainer from '../components/ChoiceContainer'
 
+const ALL_GUITAR_CHORDS_WITH_BLANK_ACCIDENTALS: Array<ChordAndAccidentals> =
+  ALL_GUITAR_CHORDS.map(chordName => ({
+    chord: explodeChord(chordName),
+    accidentalScaleDegreesWithOctaves: [],
+  }))
+
 ///////////////////////////
 
-const keys = keysIncludingChord(new Set(["A", "C#", "E"]))
+const keys = keysIncludingChord(["A2", "C#3", "E3"])
 keys.forEach((keyName) => {
   console.log(keyName, keynameToNotes(keyName))
 })
@@ -90,7 +99,6 @@ const ChordsPrompt: React.FunctionComponent = () => {
     overrides?: Partial<ChordsPromptChoices>,
     replace?: boolean
   } = {}) => {
-    const nextChords: Array<ChordChoice> = []
     /*
       The key name option is weird. We have a few different modes of operation:
 
@@ -112,7 +120,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
         every single key at all times, and is at odds with the "Informational"
         use case where we want to see which keys are.
 
-      It seems like the solution is to add another 🔒 choice next to the key.
+      The solution is to add another 🔒 choice next to the key.
 
         🔒 Locked to first chord.
           The caption above the key choice becomes "Keys containing <chord 0>".
@@ -127,32 +135,30 @@ const ChordsPrompt: React.FunctionComponent = () => {
           change to any key you want.
     */
 
-    // TODO: if a chord is locked and goes out-of-key, we should update its
-    // source set in the prompt choices state to a less restrictive one that
-    // includes the currently-chosen chord.
-
     // TODO: if a chord is unlocked, it should *always* be regenerated to
     // facilitate the Unlocked mode described
-
-    // Set after first chord. 
 
     let keyName: string | undefined = undefined
     let possibleKeys = current.possibleKeys ?? undefined
     const flavour = FLAVOUR_CHOICES.find(f => f.name === current.flavour) ?? Balanced
 
     // generate up to three chords
+    const nextChords: Array<ChordChoice> = []
     for (let i = 0; i < 3; ++i) {
       const currentChord = current.chords?.[i]
 
       if (currentChord?.locked) {
         // keep this chord as-is
         nextChords.push(current.chords[i])
+        // TODO: if a chord is locked and goes out-of-key, we should update its
+        // source set in the prompt choices state to a less restrictive one that
+        // includes the currently-chosen chord.
       } else {
         // generate a new chord based on key + restrictions
         const scaleNotes = keyName ? keynameToNotes(keyName) : undefined
         const sourceSet = currentChord?.sourceSet ?? DEFAULT_SOURCE_SET
         const candidateChords = !scaleNotes
-          ? ALL_GUITAR_CHORDS
+          ? ALL_GUITAR_CHORDS_WITH_BLANK_ACCIDENTALS
           : chordsMatchingCondition({
             scaleNotes,
             maxAccidentals: getMaxAccidentals(sourceSet),
@@ -160,7 +166,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
         nextChords.push({
           // TODO: use getMakeFlavourChoice
-          name: randomChoice(candidateChords),
+          name: randomChoice(candidateChords.map(c => combineChord(c.chord))),
           locked: currentChord?.locked ?? false,
           variant: currentChord?.variant ?? 0,
           sourceSet,
@@ -171,8 +177,8 @@ const ChordsPrompt: React.FunctionComponent = () => {
       // time we'll have to pick one that works with our new chord. If we had one
       // from before, we already generated the first chord in that
       if (!keyName) {
-        const chordNoteSet = getGuitarNotes(nextChords[0].name)
-        possibleKeys = keysIncludingChord(chordNoteSet)
+        const chordNotes = getGuitarNotes(nextChords[0].name)
+        possibleKeys = keysIncludingChord(chordNotes)
         // FIXME: pick the first scale that has the same root note
         keyName = possibleKeys[0]
       }
@@ -187,6 +193,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
   }
 
   // XXX: is "replace = true" the right way to generate fewer undo moves?
+  // TODO: we should instead have a "commit" and isCommitted in the state
   const modifyChord = (chordIndex: number, changes: Partial<ChordChoice>) =>
     setPromptChoice({
       chords: withReplacement(chords, chordIndex, {
@@ -223,7 +230,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
       <div className="chords">
         {/* TODO: de-dupe some things in here by making each chord its own component */}
         {frettingsByChordIndex?.map((frettings, chordIndex) => (
-          <div key={chords[chordIndex].name}>
+          <div key={chordIndex}>
             <div className="buttons">
               <Choice
                 help="Locked? (prevents shuffle)"
@@ -261,6 +268,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
               {...frettingToVexChord(
                 frettings[Math.min(chords[chordIndex].variant, frettings.length - 1)],
                 /* TODO: populate ENHARMONIC_DISPLAY_FOR_KEYNAME */
+                { showOctave: false }
                 /* { keyName: current.keyName } */
               )}
             />
@@ -291,6 +299,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
               setChoice={keyName => setPromptChoice({ keyName })}
             />
           }
+          {/* FIXME: better way to space these out */}
           &nbsp;&nbsp;
           <Choice
             help="Locked to first chord?"
