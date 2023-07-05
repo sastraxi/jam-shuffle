@@ -3,7 +3,7 @@ import GuitarChords from './guitar.json'
 import { ChordDefinition } from 'vexchords'
 import { transpose, Interval, PcSet } from 'tonal'
 import { memoize } from '../util'
-import {  Note, NoteDisplayContext, displayAccidentals, noteForDisplay } from './common'
+import {  Note, NoteDisplayContext, displayAccidentals, normalizedNoteName, noteForDisplay } from './common'
 
 type ChordLibraryEntry = {
   key: string,
@@ -69,8 +69,12 @@ export const explodeChord = (chordName: Chord): ExplodedChord => {
 
 export const combineChord = (chord: ExplodedChord): Chord => `${chord.root} ${chord.suffix}`
 
-export const chordForDisplay = (chordName: string, context: NoteDisplayContext = {}) => {
-  const { root, suffix } = explodeChord(chordName)
+export const chordEquals = (a: ExplodedChord, b: ExplodedChord) =>
+  normalizedNoteName(a.root) === normalizedNoteName(b.root) &&
+  a.suffix === b.suffix
+
+export const chordForDisplay = (chord: Chord | ExplodedChord, context: NoteDisplayContext = {}) => {
+  const { root, suffix } = (typeof chord === 'string' ? explodeChord(chord) : chord)
   const space = suffix.startsWith('/') ? '' : ' '
   return `${noteForDisplay(root, context)}${space}${displayAccidentals(suffix)}`
 }
@@ -80,8 +84,8 @@ export const chordForDisplay = (chordName: string, context: NoteDisplayContext =
  * @param chordName the chord name, e.g. C/D#, Emmaj7b5, F major
  * @returns 
  */
-export const getFrettings = (chordName: string): Fretting[] => {
-  const { root, suffix } = explodeChord(chordName)
+export const getFrettings = (chord: Chord | ExplodedChord): Fretting[] => {  
+  const { root, suffix } = (typeof chord === 'string' ? explodeChord(chord) : chord)
 
   const lookupKey = root.replace("#", "sharp")  // who knows!
   const allSuffixes: Array<ChordLibraryEntry> = (GuitarChords.chords as Record<string, any>)[lookupKey]
@@ -96,12 +100,12 @@ export const getFrettings = (chordName: string): Fretting[] => {
 
 /**
  * Return all the notes in the given guitar chord.
- * @param chordName the chord name, e.g. C/D#, Emmaj7b5, F major
+ * @param chord the chord, e.g. C/D#, Emmaj7b5, F major
  * @param variant which variation of the chord should we pick? Defaults to the first.
  * @returns e.g. ["A2", "C3", "E3"], from lowest-to-highest frequency
  */
-export const getGuitarNotes = memoize((chordName: string, variant = 0): Array<Note> => {
-  const frettings = getFrettings(chordName)
+export const getGuitarNotes = memoize((chord: Chord | ExplodedChord, variant = 0): Array<Note> => {
+  const frettings = getFrettings(chord)
   const { frets, baseFret } = frettings[variant % frettings.length]
   const notes = STANDARD_TUNING.map((stringRootNote, i) => {
     if (frets[i] === -1) return undefined

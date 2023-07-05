@@ -138,14 +138,23 @@ type ScaleName = string
  */
 export const keysIncludingChord = (
   notes: Array<Note>,
-  maxAccidentals = 0,
-  restrictedModes: Array<string> = ["locrian"],
+  {
+    maxAccidentals = 0,
+    onlyBaseTriad = true,
+    restrictedModes = ["locrian"],
+  }: {
+    maxAccidentals?: number,
+    onlyBaseTriad?: boolean,
+    restrictedModes?: Array<string> 
+  } = {},
 ) => {
   const matchingScales: Array<ScaleName> = []
   for (const scale of Object.values(MAJOR_SCALES)) {
     const inScale = PcSet.isNoteIncludedIn(scale)
-    const accidentals = notes
-      .map(inScale)
+
+    // TODO: filter down notes based on base triad
+
+    const accidentals = notes.map(inScale)
 
     const numAccidents = accidentals
       .reduce((sum, inScale) => sum + (inScale ? 0 : 1), 0)
