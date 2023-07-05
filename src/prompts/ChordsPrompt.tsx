@@ -57,9 +57,11 @@ const keyLockingExpandedTransform = (keyLocking: KeyLockingChoices) => {
 }
 
 const keyLockingCaption = (keyLocked: boolean, firstChord: ChordChoice) => {
-  if (!keyLocked) return 'All keys'
-  if (firstChord.locked) {
-    return `keys containing ${chordForDisplay(firstChord.chord)}`
+  if (!keyLocked) {
+    if (firstChord.locked) {
+      return `keys containing ${chordForDisplay(firstChord.chord)}`
+    }
+    return 'All keys'
   }
   return 'chosen key'  // locked to the current key
 }
@@ -138,6 +140,13 @@ const ChordsPrompt: React.FunctionComponent = () => {
   const current = usePromptChoices<ChordsPromptChoices>()
   const setPromptChoice = useSetPromptChoice<ChordsPromptChoices>()
   const flavour = FLAVOUR_CHOICES.find(f => f.name === current.flavour) ?? Balanced
+
+  // TODO:
+  // - constrain to first locked chord, not just the first one IF locked
+  // - change triad code in keysIncludingChord: turn { root, suffix } into array of 3 notes
+  //   - show I / ii / bIII / vi°, etc.
+  // - use that triad code in chordsMatchingCondition as well
+  // - add more flavours
 
   /**
    * Generate chords for the [from, to) indexes of our chords array.

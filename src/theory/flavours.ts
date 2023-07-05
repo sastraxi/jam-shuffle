@@ -44,20 +44,21 @@ const MaxPower: Flavour = {
 }
 
 const Basic: Flavour = {
-  name: "Basic b****",
+  name: "Basic stuff",
   suffixes: {
-    whitelist: new Set(['5', 'major', 'minor', 'sus4', 'maj7']),
+    whitelist: new Set(['major', 'minor', 'sus4', 'maj7']),
   }
 }
 
 export const Balanced: Flavour = {
   name: "Balanced",
   chordWeightingFunc: ({ chord, accidentalScaleDegreesWithOctaves }) => {
-    return 10 * Math.max(1, 5 - accidentalScaleDegreesWithOctaves.length)
+    if (chord.suffix === 'major' || chord.suffix === 'minor') return 5000
+    return Math.pow(Math.max(1, 3 - accidentalScaleDegreesWithOctaves.length), 5)
       + (isOverChord(chord) ? 8 : 0)
   },
   suffixes: {
-    blacklist: new Set(['sus2sus4', 'aug9', 'maj7b5', 'maj7#5', 'mmaj7b5', 'dim', 'dim7', '9#11', 'm7b5', 'alt']),
+    blacklist: new Set(['5', 'sus2sus4', 'aug', 'aug9', 'maj7b5', 'maj7#5', 'mmaj7b5', '9#11', 'm7b5', 'alt']),
   }
 }
 
