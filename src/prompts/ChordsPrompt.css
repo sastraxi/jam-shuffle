@@ -44,6 +44,11 @@ div.chords {
 
     .buttons.fixed > * {
         margin: 0;
+        flex-grow: 1;
+    }
+
+    .buttons.fixed > :nth-child(1) {
+        justify-content: flex-start;
     }
 
     .buttons.fixed > :nth-child(2) {
@@ -52,3 +57,7 @@ div.chords {
         left: 50%;
         transform: translate(-50%, -50%);
     }    
+
+    .buttons.fixed > :nth-child(3) {
+        justify-content: flex-end;
+    }

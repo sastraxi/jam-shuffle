@@ -25,6 +25,19 @@ const calculateTransform = (alignItems: 'start' | 'center' | 'end', offsetWidth:
 
 const convertToString = <T,>(x: T) => `${x}`
 
+const cumulativeOffset = (element: HTMLElement) => {
+    let top = 0, left = 0
+    let currentEl: HTMLElement | null = element
+
+    do {
+        top += currentEl.offsetTop || 0;
+        left += currentEl.offsetLeft || 0;
+        currentEl = (currentEl.offsetParent as HTMLElement)
+    } while(currentEl)
+
+    return { top, left }
+};
+
 function Choice<ChoiceType,>({
     current,
     allChoices,
@@ -45,10 +58,11 @@ function Choice<ChoiceType,>({
     const goToExpandedMode = useCallback(() => {
         if (expanded) return
         if (rootRef.current) {
-            const { offsetLeft, offsetTop, offsetWidth, offsetHeight } = rootRef.current 
+            const { offsetWidth, offsetHeight } = rootRef.current 
+            const { top, left } = cumulativeOffset(rootRef.current)
             setScreenPosition({
-                left: `${offsetLeft + (0.5 * offsetWidth)}px`,
-                top: `${offsetTop + (0.5 * offsetHeight)}px`,
+                left: `${left + (0.5 * offsetWidth)}px`,
+                top: `${top + (0.5 * offsetHeight)}px`,
                 width: fullWidth ? `${offsetWidth}px` : undefined,
                 transform: calculateTransform(alignItems, offsetWidth),
             })
@@ -68,7 +82,7 @@ function Choice<ChoiceType,>({
         let nextPendingChoiceIndex = (fromIndex + Math.round(delta)) % allChoices.length
         if (nextPendingChoiceIndex < 0) nextPendingChoiceIndex += allChoices.length
         return allChoices[nextPendingChoiceIndex]
-    }, [allChoices, pendingChoice])
+    }, [allChoices])
 
     const changePendingChoice = (delta: number) => {
         if (delta === 0) return

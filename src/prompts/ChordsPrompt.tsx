@@ -140,14 +140,13 @@ const ChordsPrompt: React.FunctionComponent = () => {
   const flavour = FLAVOUR_CHOICES.find(f => f.name === current.flavour) ?? Balanced
 
   /**
-   * 
-   * 
-   * @param from
-   * @param to
-   * @param keyName 
-   * @param previous we need to know if the later chords were lockked
+   * Generate chords for the [from, to) indexes of our chords array.
+   * @param from lower index, inclusive
+   * @param to upper index, exclusive
+   * @param keyName the key to restrict chords to, or undefined for any
+   * @param previous we need to know if the previous chords were locked, among other things
    * @param shuffle should we change existing chords even if they still work?
-   * @returns the chords after the first one
+   * @returns an array of chords that can be spliced into our chords array
    */
   const generateChords = (
     from: number,
@@ -188,6 +187,9 @@ const ChordsPrompt: React.FunctionComponent = () => {
     return chords
   }
 
+  /**
+   * Shuffle all of our non-locked choices.
+   */
   const shuffle = (previous?: ChordsPromptChoices) => {
     const context = previous ?? DEFAULT_PROMPT_CHOICES_CONTEXT
 
@@ -310,6 +312,10 @@ const ChordsPrompt: React.FunctionComponent = () => {
     () => generateKeyChoices(keyLocked ? chords?.[0] : undefined),
     [chords, keyLocked]
   )
+  const inKeyChords = useMemo(
+    () => generateChordChoices(flavour, keyName).candidateChords.map(c => c.chord),
+    [flavour, keyName]
+  )
 
   if (!chords) return []
 
@@ -348,11 +354,12 @@ const ChordsPrompt: React.FunctionComponent = () => {
               )}
             />
             <h2>
+              {/* TODO: restrict first chord to those that we can build keys off of; would let us remove weird loop as well */}
               <Choice
                 alignItems="center"
                 current={chords[chordIndex].chord}
                 displayTransform={chordForDisplay}
-                allChoices={ALL_GUITAR_CHORDS}
+                allChoices={chordIndex === 0 ? ALL_GUITAR_CHORDS : inKeyChords}
                 setChoice={chord => modifyChord(chordIndex, { chord })}
               />
             </h2>
