@@ -14,6 +14,7 @@
     "@supabase/auth-ui-shared": "^0.1.6",
     "@supabase/supabase-js": "^2.24.0",
     "@tanstack/react-query": "^4.29.12",
+    "fast-json-stable-stringify": "^2.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tonal": "^5.0.0",

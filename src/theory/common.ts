@@ -34,11 +34,23 @@ const ENHARMONIC_NORMALIZE_MAP = {
  * Later, we can put the note back "into context" of the key.
  */
 export const normalizedNoteName = (noteName: Note) => {
+  const simplifiedNoteName = TonalNote.simplify(noteName)
   for (const [needle, replacement] of Object.entries(ENHARMONIC_NORMALIZE_MAP)) {
-    if (noteName.includes(needle)) return noteName.replace(needle, replacement)
+    if (simplifiedNoteName.startsWith(needle)) {
+      return `${replacement}${simplifiedNoteName.substring(needle.length)}`
+    }
   }
-  return noteName
+  return simplifiedNoteName
 }
+
+/**
+ * Does not work with octaves.
+ */
+export const noteNameEquals = (a: Note, b: Note, ignoreOctave = true) => {
+  if (!ignoreOctave) return normalizedNoteName(a) === normalizedNoteName(b)
+  return normalizedNoteName(explodeNote(a).name) === normalizedNoteName(explodeNote(b).name)
+}
+  
 
 export const MAJOR_MODES_BY_DEGREE = [
   "major",
@@ -58,12 +70,26 @@ for (let i = 0; i < 12; ++i) {
   ROOT_NOTES.push(normalizedNoteName(transpose("C", Interval.fromSemitones(i))))
 }
 
+const DEFAULT_RESTRICTED_MODES = ["locrian"]
+
 /**
  * e.g. MAJOR_SCALES["C"] = ["C", "D", "E", ...]
  */
 export const MAJOR_SCALES: Record<Note, Note[]> = {}
+
+/**
+ * e.g. ["C major", "D dorian", ...]
+ */
+export const KEY_NAMES_BASED_ON_MAJOR: string[] = []
+
 ROOT_NOTES.forEach(rootNote => {
   MAJOR_SCALES[rootNote] = keynameToNotes(`${rootNote} major`)
+  MAJOR_SCALES[rootNote].forEach((note, degree) => {
+    const mode = MAJOR_MODES_BY_DEGREE[degree]
+    if (!DEFAULT_RESTRICTED_MODES.includes(mode)) {
+      KEY_NAMES_BASED_ON_MAJOR.push(`${note} ${mode}`)
+    }
+  })
 })
 
 /**
@@ -137,29 +163,46 @@ type ScaleName = string
  * N.B. only does keys based on the major scales right now.
  */
 export const keysIncludingChord = (
+  chordRootNote: Note,
   notes: Array<Note>,
   {
     maxAccidentals = 0,
     onlyBaseTriad = true,
-    restrictedModes = ["locrian"],
+    restrictedModes = DEFAULT_RESTRICTED_MODES,
   }: {
     maxAccidentals?: number,
     onlyBaseTriad?: boolean,
     restrictedModes?: Array<string> 
   } = {},
 ) => {
+
+  // we can optionally skip all the non-core notes (outside the base triad)
+  // this is helpful if we want to allow extensions on the chord we're basing
+  // key selection around (and is in fact why this code exists...)
+  let consideredNotes: Note[]
+  if (onlyBaseTriad) {
+    const NOTES_IN_TRIAD = 3
+    const rootNoteIndex = notes.findIndex(n => noteNameEquals(n, chordRootNote))
+    if (rootNoteIndex === -1) {
+      throw new Error(`keysIncludingChord: cannot find root note ${chordRootNote} in ${notes}`)
+    }
+    consideredNotes = notes.slice(rootNoteIndex, rootNoteIndex + NOTES_IN_TRIAD)
+  } else {
+    consideredNotes = notes
+  }
+
+  // find all scales that contain all the given scale notes,
+  // with a "slop" factor given by numAccidentals.
+  // TODO: remove numAccidentals? We aren't using it (always 0).
   const matchingScales: Array<ScaleName> = []
   for (const scale of Object.values(MAJOR_SCALES)) {
     const inScale = PcSet.isNoteIncludedIn(scale)
 
-    // TODO: filter down notes based on base triad
-
-    const accidentals = notes.map(inScale)
-
-    const numAccidents = accidentals
+    const accidentals = consideredNotes.map(inScale)
+    const numAccidentals = accidentals
       .reduce((sum, inScale) => sum + (inScale ? 0 : 1), 0)
 
-    if (numAccidents <= maxAccidentals) {
+    if (numAccidentals <= maxAccidentals) {
       scale.forEach((note, degree) => {
         const mode = MAJOR_MODES_BY_DEGREE[degree]
         if (!restrictedModes.includes(mode)) {
@@ -169,6 +212,5 @@ export const keysIncludingChord = (
     }
   }
 
-  console.log(notes, 'contained in', matchingScales)
   return matchingScales
 }

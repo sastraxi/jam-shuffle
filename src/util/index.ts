@@ -1,3 +1,8 @@
+import stringify from 'fast-json-stable-stringify'
+
+/**
+ * N.B. returns undefined when the random array is empty.
+ */
 export function randomChoice<T>(items: Array<T>): T {
     return items[Math.floor(Math.random() * items.length)];
 }
@@ -16,18 +21,16 @@ export function createMakeChoice<T>(domain: Array<T>) {
     return makeChoice
 }
 
-// from https://stackoverflow.com/a/43382807
+// from https://stackoverflow.com/a/43382807 then modified to use stringify
 export function memoize<R, T extends (...args: any[]) => R>(f: T): T {
     const memory = new Map<string, R>();
-
     const g = (...args: any[]) => {
-        if (!memory.get(args.join())) {
-            memory.set(args.join(), f(...args));
+        const paramRepr = stringify(args)
+        if (!memory.get(paramRepr)) {
+            memory.set(paramRepr, f(...args));
         }
-
-        return memory.get(args.join());
+        return memory.get(paramRepr);
     };
-
     return g as T;
 }
 

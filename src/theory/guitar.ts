@@ -1,9 +1,8 @@
-// N.B. from https://github.com/tombatossals/chords-db/blob/master/lib/guitar.json
-import GuitarChords from './guitar.json'
+import GuitarChords from './guitar.json'  // see README.md
 import { ChordDefinition } from 'vexchords'
 import { transpose, Interval, PcSet } from 'tonal'
 import { memoize } from '../util'
-import {  Note, NoteDisplayContext, displayAccidentals, normalizedNoteName, noteForDisplay } from './common'
+import { Note, NoteDisplayContext, displayAccidentals, normalizedNoteName, noteForDisplay, noteNameEquals } from './common'
 
 type ChordLibraryEntry = {
   key: string,
@@ -84,7 +83,7 @@ export const chordForDisplay = (chord: Chord | ExplodedChord, context: NoteDispl
  * @param chordName the chord name, e.g. C/D#, Emmaj7b5, F major
  * @returns 
  */
-export const getFrettings = (chord: Chord | ExplodedChord): Fretting[] => {  
+export const getFrettings = (chord: Chord | ExplodedChord): Fretting[] => {
   const { root, suffix } = (typeof chord === 'string' ? explodeChord(chord) : chord)
 
   const lookupKey = root.replace("#", "sharp")  // who knows!
@@ -104,7 +103,10 @@ export const getFrettings = (chord: Chord | ExplodedChord): Fretting[] => {
  * @param variant which variation of the chord should we pick? Defaults to the first.
  * @returns e.g. ["A2", "C3", "E3"], from lowest-to-highest frequency
  */
-export const getGuitarNotes = memoize((chord: Chord | ExplodedChord, variant = 0): Array<Note> => {
+export const getGuitarNotes = (
+  chord: Chord | ExplodedChord,
+  variant: number
+): Array<Note> => {
   const frettings = getFrettings(chord)
   const { frets, baseFret } = frettings[variant % frettings.length]
   const notes = STANDARD_TUNING.map((stringRootNote, i) => {
@@ -113,7 +115,7 @@ export const getGuitarNotes = memoize((chord: Chord | ExplodedChord, variant = 0
     return transpose(stringRootNote, Interval.fromSemitones(frets[i] + baseFret - 1))
   }).filter(x => x !== undefined) as Note[]
   return notes
-})
+}
 
 export const frettingToVexChord = (
   f: Fretting,
@@ -132,15 +134,18 @@ export const frettingToVexChord = (
     })
     // TODO: barres
   }
-} 
+}
 
-export const ALL_GUITAR_CHORDS: Array<string> = []
+export const ALL_GUITAR_CHORDS: Array<ExplodedChord> = []
 {
   Object.keys(GuitarChords.chords).forEach(lookupKey => {
     const rootNote = lookupKey.replace('sharp', '#')
     const allSuffixes: Array<ChordLibraryEntry> = (GuitarChords.chords as Record<string, any>)[lookupKey]
     allSuffixes.forEach(entry =>
-      ALL_GUITAR_CHORDS.push(`${rootNote} ${entry.suffix}`)
+      ALL_GUITAR_CHORDS.push({
+        root: rootNote,
+        suffix: entry.suffix
+      })
     )
   })
 }
@@ -171,47 +176,48 @@ const semitoneDistance = (from: Note, to: Note): number => {
 /**
  * Which chords are inside of the scale we're interested in?
  */
-export const chordsMatchingCondition = memoize(
-  ({ 
-    scaleNotes,
-    maxAccidentals,
-  }: ChordSearchParams): Array<ChordAndAccidentals> => {
-    const inScale = PcSet.isNoteIncludedIn(scaleNotes)
-  
-    const matchingChords: Array<ChordAndAccidentals> = []
-    for (const chordName of ALL_GUITAR_CHORDS) {
-      const chord = explodeChord(chordName)
-      const notes = getGuitarNotes(chordName, 0)
-      
-      // skip chords that don't have the root and bass note in scale
-      const bassNote = notes[0]
-      const rootNote = isOverChord(chord) ? notes[1] : notes[0]
-      if (!inScale(bassNote) || !inScale(rootNote)) {
-        // console.warn(
-        //   `${chordName} (${notes}): out-of-scale root/bass note in ${scaleNotes}.`
-        // )
-        continue
-      }
+export const chordsMatchingCondition = ({
+  scaleNotes,
+  maxAccidentals,
+}: ChordSearchParams): Array<ChordAndAccidentals> => {
+  const inScale = PcSet.isNoteIncludedIn(scaleNotes)
 
-      const accidentals = notes
-        .filter(note => !inScale(note))
-        .map(note => semitoneDistance(rootNote, note))
+  const matchingChords: Array<ChordAndAccidentals> = []
+  for (const chord of ALL_GUITAR_CHORDS) {
+    const notes = getGuitarNotes(chord, 0)  // XXX: is first chord most indicative?
 
-      // move onto the next chord if there are too many accidentals;
-      // i.e. notes that are not in the scale that we're looking at
-      // TODO: we might want to remove this altogether and just have
-      // the flavour have this logic
-      if (maxAccidentals !== undefined && accidentals.length > maxAccidentals) {        
-        // console.warn(
-        //   `${chordName} (${notes}): ${accidentals.length} accidentals (max ${maxAccidentals}) in ${scaleNotes}`
-        // )
-        continue
-      }
-
-      matchingChords.push({
-        chord: explodeChord(chordName),
-        accidentalScaleDegreesWithOctaves: accidentals,
-      })
+    // skip chords that don't have the root and bass note in scale
+    const bassNote = notes[0]
+    const rootNote = notes.find(n => noteNameEquals(n, chord.root))
+    if (!rootNote) {
+      // this indicates an incorrect chord in guitar.json
+      console.error(`Could not find root note in chord ${chord.root} ${chord.suffix} (${notes})`)
+      continue
     }
-    return matchingChords
-  })
+    // FIXME: add triad logic here too to make sure extensions are weird, not base chords
+    if (!inScale(bassNote) || !inScale(rootNote)) {
+      continue
+    }
+
+    const accidentals = notes
+      .filter(note => !inScale(note))
+      .map(note => semitoneDistance(rootNote, note))
+
+    // move onto the next chord if there are too many accidentals;
+    // i.e. notes that are not in the scale that we're looking at
+    // TODO: we might want to remove this altogether and just have
+    // the flavour have this logic
+    if (maxAccidentals !== undefined && accidentals.length > maxAccidentals) {
+      // console.warn(
+      //   `${chordName} (${notes}): ${accidentals.length} accidentals (max ${maxAccidentals}) in ${scaleNotes}`
+      // )
+      continue
+    }
+
+    matchingChords.push({
+      chord,
+      accidentalScaleDegreesWithOctaves: accidentals,
+    })
+  }
+  return matchingChords
+}
