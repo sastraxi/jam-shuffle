@@ -198,6 +198,13 @@ const ChordsPrompt: React.FunctionComponent = () => {
     let newKeyName: string
     let newChords: Array<ChordChoice>
 
+    // avoid triggering re-generation if the chord is identical
+    if (current.chords[chordIndex]) {
+      if (changes.chord && chordEquals(current.chords[chordIndex].chord, changes.chord)) {
+        delete changes['chord']
+      }
+    }
+
     if ('chord' in changes && chordIndex === 0 && !current.keyLocked) {
       // we are changing the chord which determines the key, which,
       // in turn, changes the set of potential chords after the first.
@@ -231,6 +238,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
    * on our key choice are re-generated if they are no longer in-key.
    */
   const setKey = (keyName: string) => {
+    if (keyName === current.keyName) return
     if (current.keyLocked) {
       // key influences all chords
       setPromptChoice({
@@ -254,6 +262,8 @@ const ChordsPrompt: React.FunctionComponent = () => {
   // initial setting
 
   useEffect(() => {
+    console.log('useEffect', current)
+    // FIXME: why is undo making current === {}?
     if (!current.chords || current.chords.length === 0) {
       // we need to put in some nonsense to prevent having to make
       // everything optional in ChordsPromptChoices

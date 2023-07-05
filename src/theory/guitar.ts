@@ -177,7 +177,6 @@ export const chordsMatchingCondition = memoize(
     maxAccidentals,
   }: ChordSearchParams): Array<ChordAndAccidentals> => {
     const inScale = PcSet.isNoteIncludedIn(scaleNotes)
-    // TODO: confirm PcSet is working as expected with enharmonics
   
     const matchingChords: Array<ChordAndAccidentals> = []
     for (const chordName of ALL_GUITAR_CHORDS) {

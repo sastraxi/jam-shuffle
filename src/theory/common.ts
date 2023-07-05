@@ -51,7 +51,7 @@ export const MAJOR_MODES_BY_DEGREE = [
 ]
 
 export const keynameToNotes = (keyName: string): Array<Note> =>
-  Scale.get(keyName).notes
+  Scale.get(keyName).notes.map(TonalNote.simplify)
 
 export const ROOT_NOTES: Array<Note> = []
 for (let i = 0; i < 12; ++i) {
