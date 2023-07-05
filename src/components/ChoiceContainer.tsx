@@ -20,9 +20,9 @@ const ChoiceContainer = ({
 }) => {
   return (
     <div className="choiceContainer">
-      <div className="buttons">
+      {buttons && <div className="buttons">
         {buttons}
-      </div>
+      </div>}
       <div className="content" style={{ alignItems }}>
         <h3>{caption}</h3>
         <h2>

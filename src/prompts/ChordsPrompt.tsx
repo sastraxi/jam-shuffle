@@ -348,7 +348,6 @@ const ChordsPrompt: React.FunctionComponent = () => {
               )}
             />
             <h2>
-              {/* TODO: restrict set of chords */}
               <Choice
                 alignItems="center"
                 current={chords[chordIndex].chord}
@@ -361,7 +360,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
         ))}
       </div>
 
-      <div className="buttons">
+      <div className="buttons fixed">
         <ChoiceContainer caption={keyLockingCaption(keyLocked, chords[0])}>
           {current.keyName &&
             <Choice

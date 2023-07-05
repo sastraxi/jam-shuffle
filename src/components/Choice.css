@@ -2,6 +2,10 @@ div.choice {
     position: relative;
 }
 
+    div.choice.expanded {
+        z-index: 99;
+    }
+
     div.choice.full-width {
         width: 100%;
     }
