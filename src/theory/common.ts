@@ -136,7 +136,7 @@ type ScaleName = string
 /**
  * N.B. only does keys based on the major scales right now.
  */
-export const keysIncludingChord = memoize((
+export const keysIncludingChord = (
   notes: Array<Note>,
   maxAccidentals = 0,
   restrictedModes: Array<string> = ["locrian"],
@@ -162,4 +162,4 @@ export const keysIncludingChord = memoize((
 
   console.log(notes, 'contained in', matchingScales)
   return matchingScales
-})
+}

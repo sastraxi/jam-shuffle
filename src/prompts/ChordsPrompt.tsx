@@ -53,40 +53,19 @@ const VARIANT_NUMBERS = "①②③④⑤⑥⑦⑧⑨⑩"
 
 ///////////////////////////
 
-const SOURCE_SET_CHOICES = [
-  '🔑', '🌶️', '✨',
-] as const
-type SourceSetChoices = typeof SOURCE_SET_CHOICES[number]
-const DEFAULT_SOURCE_SET: SourceSetChoices = '🌶️'
-
-const sourceSetExpandedTransform = (sourceSet: SourceSetChoices) => {
-  if (sourceSet === '✨') return '✨ All chords'
-  if (sourceSet === '🌶️') return '🌶️ Max. 1 accidental'
-  return '🔑 Strictly in-key'
-}
-
-const getMaxAccidentals = (sourceSet: SourceSetChoices) => {
-  if (sourceSet === '✨') return 9999
-  if (sourceSet === '🌶️') return 1
-  return 0
-}
-
-///////////////////////////
-
 const KEY_LOCKING_CHOICES = [
-  '✨', '①', '🔒'
+  '✨', '🔒'
 ] as const
 type KeyLockingChoices = typeof KEY_LOCKING_CHOICES[number]
 
 const keyLockingExpandedTransform = (keyLocking: KeyLockingChoices) => {
   if (keyLocking === '✨') return '✨ All keys'
-  if (keyLocking === '①') return '① Compatible with first chord'
   return '🔒 Locked to key'
 }
 
 const keyLockingCaption = (keyLocking: KeyLockingChoices, firstChord: ChordChoice) => {
   if (keyLocking === '✨') return 'All keys'
-  if (keyLocking === '①') {
+  if (firstChord.locked) {
     return `keys containing ${chordForDisplay(firstChord.name)}`
   }
   return 'chosen key'  // locked to the current key
@@ -97,7 +76,6 @@ const keyLockingCaption = (keyLocking: KeyLockingChoices, firstChord: ChordChoic
 type ChordChoice = {
   name: string,
   locked: boolean,
-  sourceSet: SourceSetChoices,
   variant: number,
 }
 
@@ -112,23 +90,13 @@ type ChordsPromptChoices = {
  * What keys can we choose from based on the choices input by the user?
  */
 const generateKeyChoices = memoize((
-  keyLocking: KeyLockingChoices,
-  previousKeyName: string,
   chord?: ChordChoice,
 ) => {
-  console.log('generateKeyChoices', keyLocking, previousKeyName, chord)
-  if (keyLocking === '✨') {
-    return keysIncludingChord([])
-  } else if (keyLocking === '①') {
-    if (!chord) {
-      throw new Error('Cannot lock to first chord when that chord is undefined')
-    }
+  if (chord) {
     const guitarNotes = getGuitarNotes(chord.name)
     return keysIncludingChord(guitarNotes)
-  } else {
-    // locked to the given key
-    return [previousKeyName]
   }
+  return keysIncludingChord([])
 })
 
 ///////////////////////////////
@@ -172,13 +140,9 @@ const ChordsPrompt: React.FunctionComponent = () => {
     // - "locked to first chord" should be implicit based on key is not locked
     //   and first chord is locked.
 
-    console.log('------- shuffleAll -----------')
-
-    const keyChoices = generateKeyChoices(previous.keyLocking, previous.keyName, previous.chords?.[0])
     let keyName: string | undefined = (
       previous.keyLocking === '🔒' ? previous.keyName : undefined
-    )
-    console.log('possibles:', keyChoices, 'based on', previous)
+    )  // otherwise we'll have the key after we pick the first chord    
 
     const flavour = FLAVOUR_CHOICES.find(f => f.name === previous.flavour) ?? Balanced
 
@@ -190,18 +154,14 @@ const ChordsPrompt: React.FunctionComponent = () => {
       if (currentChord?.locked) {
         // keep this chord as-is
         nextChords.push(previous.chords[i])
-        // TODO: if a chord is locked and goes out-of-key, we should update its
-        // source set in the prompt choices state to a less restrictive one that
-        // includes the currently-chosen chord.
       } else {
         // generate a new chord based on key + restrictions
         const scaleNotes = keyName ? keynameToNotes(keyName) : undefined
-        const sourceSet = currentChord?.sourceSet ?? DEFAULT_SOURCE_SET
         const candidateChords = !scaleNotes
           ? ALL_GUITAR_CHORDS_WITH_BLANK_ACCIDENTALS
           : chordsMatchingCondition({
             scaleNotes,
-            maxAccidentals: getMaxAccidentals(sourceSet),
+            maxAccidentals: 1,  // TODO: based on flavour
           })
 
         const generatedChord: ChordChoice = {
@@ -209,42 +169,61 @@ const ChordsPrompt: React.FunctionComponent = () => {
           name: randomChoice(candidateChords.map(c => combineChord(c.chord))),
           locked: currentChord?.locked ?? false,
           variant: currentChord?.variant ?? 0,
-          sourceSet,
         }
 
         nextChords.push(generatedChord)
 
         // after the first chord, we will always have a key
-        if (!keyName) keyName = randomChoice(keyChoices)
+        if (!keyName) {
+          const keyChoices = generateKeyChoices(generatedChord)
+          keyName = randomChoice(keyChoices)
+        }
       }
     }
-
-    console.log('chosen key', keyName)
 
     setPromptChoice({
       ...previous,
       chords: nextChords,
       keyName,
     })
-
-    console.log('------- END shuffleAll -----------')
   }
 
-  // TODO: we should instead have a "commit" and isCommitted in the state
-  const modifyChord = (chordIndex: number, changes: Partial<ChordChoice>) =>
+  /**
+   * Modifies a chord in the current prompt choice. If the first chord is
+   * changed, we run a fix-up 
+   */
+  const modifyChord = (chordIndex: number, changes: Partial<ChordChoice>) => {
+    const newChords = withReplacement(chords, chordIndex, {
+      ...chords[chordIndex],
+      ...changes,
+    })
+
+    let newKeyName = current.keyName
+    if ('name' in changes && chordIndex === 0 && keyLocking === '🔒' && newChords[0].locked) {
+      // changing the actual chord when we are in "locked to first chord" mode
+      // means that we need to validate the currently-selected key contains this chord
+      // if not, we need to select a new key, then validate that all the rest of the
+      // chords are in that new key. If not, we'll have to change those too (unless
+      // they fit inside the new scale already)
+    }
+
+    // TODO: instead of replace, have "commit" and "isCommitted" in the app state
     setPromptChoice({
-      chords: withReplacement(chords, chordIndex, {
-        ...chords[chordIndex],
-        ...changes,
-      }),
+      chords: newChords,
+      keyName: newKeyName,
     }, true)
+  }
+
+  const setKey = (keyName: string) => {
+    // if we
+  }
   
   //////////////////////////////////////////////////////
   // initial setting
 
   useEffect(() => {
     if (!current.chords || current.chords.length === 0) {
-      // XXX: we need to put in some nonsense to prevent having to make
+      // we need to put in some nonsense to prevent having to make
       // everything optional in ChordsPromptChoices
       shuffleAll({
         flavour: "Balanced",
@@ -263,8 +242,8 @@ const ChordsPrompt: React.FunctionComponent = () => {
     [chords]
   )
   const possibleKeys = useMemo(
-    () => generateKeyChoices(keyLocking, keyName, chords?.[0]),
-    [keyLocking, chords, keyName]
+    () => generateKeyChoices(keyLocking === '🔒' ? chords?.[0] : undefined),
+    [chords, keyLocking]
   )
 
   if (!chords) return []
@@ -284,19 +263,6 @@ const ChordsPrompt: React.FunctionComponent = () => {
                 displayTransform={dimmedIf('🔓')}
                 tapToChange
               />
-              {/* first chord determines key if keyLocking is ①; in this case the
-                  key depends on the chord and as such there is no source set */}
-              {chords[chordIndex].sourceSet && (chordIndex !== 0 || keyLocking !== '①') && 
-                <Choice
-                  help="Which chords can we choose from?"
-                  alignItems="center"
-                  setChoice={sourceSet => modifyChord(chordIndex, { sourceSet })}
-                  current={chords[chordIndex].sourceSet}
-                  allChoices={SOURCE_SET_CHOICES}
-                  expandedDisplayTransform={sourceSetExpandedTransform}
-                  tapToChange
-                />
-              }
               <Choice
                 help="Variant"
                 setChoice={variant => modifyChord(chordIndex, { variant })}
@@ -317,6 +283,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
               )}
             />
             <h2>
+              {/* TODO: restrict set of chords */}
               <Choice
                 alignItems="center"
                 current={chords[chordIndex].name}
@@ -336,9 +303,16 @@ const ChordsPrompt: React.FunctionComponent = () => {
         <ChoiceContainer caption={keyLockingCaption(keyLocking, chords[0])}>
           {current.keyName && 
             <Choice
-              current={current.keyName}
+              current={keyName}
               allChoices={possibleKeys}
-              setChoice={keyName => setPromptChoice({ keyName })}
+              setChoice={(keyName) => {
+                if (keyLocking === '🔒') {
+                  // 
+                } else {
+                  // we are picking from a bunch of keys that work
+                  setPromptChoice({ keyName })
+                }
+              }}
             />
           }
           {/* FIXME: better way to space these out */}
@@ -352,7 +326,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
             tapToChange
           />
         </ChoiceContainer>
-        <IconButton type="shuffle" size="24px" onClick={() => { console.log('\n\n @@@ SHUFFLE LETS GO @@@'); shuffleAll() }} />
+        <IconButton type="shuffle" size="24px" onClick={shuffleAll} />
         <ChoiceContainer caption="flavour" alignItems="end">
           <Choice
             current={FLAVOUR_CHOICES.find(f => f.name === flavour)!}
