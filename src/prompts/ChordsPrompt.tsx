@@ -126,10 +126,7 @@ const generateChordChoices = memoize((
     ? ALL_GUITAR_CHORDS_WITH_BLANK_ACCIDENTALS
     : chordsMatchingCondition({ scaleNotes })
   
-  return {
-    chooseChord: getMakeFlavourChoice(flavour, candidateChords),
-    candidateChords,
-  }
+  return getMakeFlavourChoice(flavour, candidateChords)
 })
 
 ///////////////////////////////

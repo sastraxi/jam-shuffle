@@ -25,12 +25,12 @@ export type Flavour = {
     /**
      * e.g. we might not want mmaj7 chords
      */
-    whitelist?: Readonly<ChordSuffix[]>
+    whitelist?: Readonly<Set<ChordSuffix>>
 
     /**
      * e.g. we might just want power chords
      */
-    blacklist?: Readonly<ChordSuffix[]>
+    blacklist?: Readonly<Set<ChordSuffix>>
   }
 }
 
@@ -39,25 +39,25 @@ export type Flavour = {
 const MaxPower: Flavour = {
   name: "MAX POWER!",
   suffixes: {
-    whitelist: ['5'],
+    whitelist: new Set(['5']),
   }
 }
 
 const Basic: Flavour = {
   name: "Basic b****",
   suffixes: {
-    whitelist: ['5', 'major', 'minor', 'sus4', 'maj7'],
+    whitelist: new Set(['5', 'major', 'minor', 'sus4', 'maj7']),
   }
 }
 
 export const Balanced: Flavour = {
   name: "Balanced",
   chordWeightingFunc: ({ chord, accidentalScaleDegreesWithOctaves }) => {
-    return Math.max(1, 5 - accidentalScaleDegreesWithOctaves.length)
-      + (isOverChord(chord) ? 2 : 0)
+    return 10 * Math.max(1, 5 - accidentalScaleDegreesWithOctaves.length)
+      + (isOverChord(chord) ? 8 : 0)
   },
   suffixes: {
-    blacklist: ['sus2sus4', 'aug9', 'maj7b5', 'maj7#5', 'mmaj7b5', 'dim', 'dim7', '9#11', 'm7b5', 'alt']
+    blacklist: new Set(['sus2sus4', 'aug9', 'maj7b5', 'maj7#5', 'mmaj7b5', 'dim', 'dim7', '9#11', 'm7b5', 'alt']),
   }
 }
 
@@ -65,7 +65,7 @@ const ExtremelyWeird: Flavour = {
   name: "Extremely weird",
   chordWeightingFunc: ({ accidentalScaleDegreesWithOctaves }) => {
     // more accidentals --> more likely to be selected
-    return 1 + accidentalScaleDegreesWithOctaves.length
+    return Math.pow(1 + accidentalScaleDegreesWithOctaves.length, 2)
   }
 }
 
@@ -86,16 +86,31 @@ export const getMakeFlavourChoice = (
   chords: Array<ChordAndAccidentals>,
 ) => {
   const weightingFunc = flavour.chordWeightingFunc ?? (() => 1)
+  
+  // apply whitelist / blacklist
+  let candidates: Array<ChordAndAccidentals>
+  if (flavour.suffixes?.whitelist) {
+    candidates = chords.filter(x => flavour.suffixes?.whitelist?.has(x.chord.suffix))
+  } else if (flavour.suffixes?.blacklist) {
+    candidates = chords.filter(x => !flavour.suffixes?.blacklist?.has(x.chord.suffix))
+  } else {
+    candidates = chords
+  }
+  
   const cumulativeWeight: Array<number> = []
-  for (let i = 0; i < chords.length; ++i) {
+  for (let i = 0; i < candidates.length; ++i) {
     const lastWeight = i === 0 ? 0 : cumulativeWeight[i - 1]
-    const thisWeight = weightingFunc(chords[i])
+    const thisWeight = weightingFunc(candidates[i])
     cumulativeWeight.push(lastWeight + thisWeight)
   }
   const max = cumulativeWeight[cumulativeWeight.length - 1]
-  return () => {
-    const needle = Math.random() * max
-    const i = upperBound(cumulativeWeight, needle)
-    return chords[i].chord
+
+  return {
+    candidateChords: candidates,
+    chooseChord: () => {
+      const needle = Math.random() * max
+      const i = upperBound(cumulativeWeight, needle)
+      return candidates[i].chord
+    },
   }
 }
