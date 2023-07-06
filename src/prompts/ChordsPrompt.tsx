@@ -10,15 +10,17 @@ import { usePromptChoices, useSetPromptChoice } from '../state/app'
 import { firstNDigits, memoize, randomChoice, withReplacement } from '../util'
 
 import {
+  chordsMatchingCondition,
+  ChordAndAccidentals,
+  keysIncludingChord,
+} from '../theory/keys'
+
+import {
   ALL_GUITAR_CHORDS,
   frettingToVexChord,
   getFrettings,
-  chordsMatchingCondition,
   getGuitarNotes,
   chordForDisplay,
-  explodeChord,
-  ChordAndAccidentals,
-  combineChord,
   ExplodedChord,
   chordEquals,
 } from '../theory/guitar'
@@ -26,7 +28,6 @@ import {
 import {
   KEY_NAMES_BASED_ON_MAJOR,
   keynameToNotes,
-  keysIncludingChord,
   noteForDisplay,
 } from '../theory/common'
 
@@ -112,7 +113,7 @@ const generateKeyChoices = memoize((
 ) => {
   if (chord) {
     const guitarNotes = getGuitarNotes(chord.chord, 0)
-    const candidateKeys = keysIncludingChord(chord.chord.root, guitarNotes)
+    const candidateKeys = keysIncludingChord(chord.chord, guitarNotes)
     console.log('key choices', chord.chord, guitarNotes, candidateKeys)
     return candidateKeys
   }

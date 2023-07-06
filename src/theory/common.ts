@@ -1,5 +1,4 @@
-import { transpose, Scale, Interval, Note as TonalNote, PcSet } from 'tonal'
-import { memoize } from '../util'
+import { transpose, Scale, Interval, Note as TonalNote } from 'tonal'
 
 /**
  * e.g. C, E2, D#, Eb4
@@ -43,9 +42,6 @@ export const normalizedNoteName = (noteName: Note) => {
   return simplifiedNoteName
 }
 
-/**
- * Does not work with octaves.
- */
 export const noteNameEquals = (a: Note, b: Note, ignoreOctave = true) => {
   if (!ignoreOctave) return normalizedNoteName(a) === normalizedNoteName(b)
   return normalizedNoteName(explodeNote(a).name) === normalizedNoteName(explodeNote(b).name)
@@ -70,7 +66,7 @@ for (let i = 0; i < 12; ++i) {
   ROOT_NOTES.push(normalizedNoteName(transpose("C", Interval.fromSemitones(i))))
 }
 
-const DEFAULT_RESTRICTED_MODES = ["locrian"]
+export const DEFAULT_RESTRICTED_MODES = ["locrian"]
 
 /**
  * e.g. MAJOR_SCALES["C"] = ["C", "D", "E", ...]
@@ -157,60 +153,4 @@ export const noteForDisplay = (
 /**
  * e.g. C major, F lydian
  */
-type ScaleName = string
-
-/**
- * N.B. only does keys based on the major scales right now.
- */
-export const keysIncludingChord = (
-  chordRootNote: Note,
-  notes: Array<Note>,
-  {
-    maxAccidentals = 0,
-    onlyBaseTriad = true,
-    restrictedModes = DEFAULT_RESTRICTED_MODES,
-  }: {
-    maxAccidentals?: number,
-    onlyBaseTriad?: boolean,
-    restrictedModes?: Array<string> 
-  } = {},
-) => {
-
-  // we can optionally skip all the non-core notes (outside the base triad)
-  // this is helpful if we want to allow extensions on the chord we're basing
-  // key selection around (and is in fact why this code exists...)
-  let consideredNotes: Note[]
-  if (onlyBaseTriad) {
-    const NOTES_IN_TRIAD = 3
-    const rootNoteIndex = notes.findIndex(n => noteNameEquals(n, chordRootNote))
-    if (rootNoteIndex === -1) {
-      throw new Error(`keysIncludingChord: cannot find root note ${chordRootNote} in ${notes}`)
-    }
-    consideredNotes = notes.slice(rootNoteIndex, rootNoteIndex + NOTES_IN_TRIAD)
-  } else {
-    consideredNotes = notes
-  }
-
-  // find all scales that contain all the given scale notes,
-  // with a "slop" factor given by numAccidentals.
-  // TODO: remove numAccidentals? We aren't using it (always 0).
-  const matchingScales: Array<ScaleName> = []
-  for (const scale of Object.values(MAJOR_SCALES)) {
-    const inScale = PcSet.isNoteIncludedIn(scale)
-
-    const accidentals = consideredNotes.map(inScale)
-    const numAccidentals = accidentals
-      .reduce((sum, inScale) => sum + (inScale ? 0 : 1), 0)
-
-    if (numAccidentals <= maxAccidentals) {
-      scale.forEach((note, degree) => {
-        const mode = MAJOR_MODES_BY_DEGREE[degree]
-        if (!restrictedModes.includes(mode)) {
-          matchingScales.push(`${note} ${mode}`)
-        }
-      })
-    }
-  }
-
-  return matchingScales
-}
+export type ScaleName = string

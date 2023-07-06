@@ -1,8 +1,7 @@
 import GuitarChords from './guitar.json'  // see README.md
 import { ChordDefinition } from 'vexchords'
-import { transpose, Interval, PcSet } from 'tonal'
-import { memoize } from '../util'
-import { Note, NoteDisplayContext, displayAccidentals, normalizedNoteName, noteForDisplay, noteNameEquals } from './common'
+import { transpose, Interval, } from 'tonal'
+import { Note, NoteDisplayContext, displayAccidentals, normalizedNoteName, noteForDisplay } from './common'
 
 type ChordLibraryEntry = {
   key: string,
@@ -19,10 +18,11 @@ type Fretting = {
 }
 
 export type Chord = string
+export type ChordSuffix = string
 
 export type ExplodedChord = {
   root: string
-  suffix: string
+  suffix: ChordSuffix
 }
 
 const STANDARD_TUNING = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4']
@@ -148,76 +148,4 @@ export const ALL_GUITAR_CHORDS: Array<ExplodedChord> = []
       })
     )
   })
-}
-
-export type ChordSearchParams = {
-  /**
-   * The notes of the scale, without octaves.
-   */
-  scaleNotes: string[],
-  maxAccidentals?: number
-}
-
-export type ChordAndAccidentals = {
-  chord: ExplodedChord
-  accidentalScaleDegreesWithOctaves: number[]
-}
-
-/**
- * How many semitones are between the two given notes?
- * The result is not well-defined if octaves are not given.
- */
-const semitoneDistance = (from: Note, to: Note): number => {
-  const semitones = Interval.semitones(Interval.distance(from, to))
-  if (semitones === undefined) throw new Error(`semitone distance from ${from} to ${to} is undefined`)
-  return semitones
-}
-
-/**
- * Which chords are inside of the scale we're interested in?
- */
-export const chordsMatchingCondition = ({
-  scaleNotes,
-  maxAccidentals,
-}: ChordSearchParams): Array<ChordAndAccidentals> => {
-  const inScale = PcSet.isNoteIncludedIn(scaleNotes)
-
-  const matchingChords: Array<ChordAndAccidentals> = []
-  for (const chord of ALL_GUITAR_CHORDS) {
-    const notes = getGuitarNotes(chord, 0)  // XXX: is first chord most indicative?
-
-    // skip chords that don't have the root and bass note in scale
-    const bassNote = notes[0]
-    const rootNote = notes.find(n => noteNameEquals(n, chord.root))
-    if (!rootNote) {
-      // this indicates an incorrect chord in guitar.json
-      console.error(`Could not find root note in chord ${chord.root} ${chord.suffix} (${notes})`)
-      continue
-    }
-    // FIXME: add triad logic here too to make sure extensions are weird, not base chords
-    if (!inScale(bassNote) || !inScale(rootNote)) {
-      continue
-    }
-
-    const accidentals = notes
-      .filter(note => !inScale(note))
-      .map(note => semitoneDistance(rootNote, note))
-
-    // move onto the next chord if there are too many accidentals;
-    // i.e. notes that are not in the scale that we're looking at
-    // TODO: we might want to remove this altogether and just have
-    // the flavour have this logic
-    if (maxAccidentals !== undefined && accidentals.length > maxAccidentals) {
-      // console.warn(
-      //   `${chordName} (${notes}): ${accidentals.length} accidentals (max ${maxAccidentals}) in ${scaleNotes}`
-      // )
-      continue
-    }
-
-    matchingChords.push({
-      chord,
-      accidentalScaleDegreesWithOctaves: accidentals,
-    })
-  }
-  return matchingChords
 }

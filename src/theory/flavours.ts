@@ -1,7 +1,6 @@
-import { memoize, upperBound } from "../util"
-import { ChordAndAccidentals, ExplodedChord, isOverChord } from "./guitar"
-
-type ChordSuffix = string
+import { upperBound } from "../util"
+import { ChordSuffix, isOverChord } from "./guitar"
+import { ChordAndAccidentals } from "./keys"
 
 export type Flavour = {
   name: string
