@@ -98,5 +98,7 @@ export const getRomanNumeral = (keyName: string, chord: ExplodedChord | Chord): 
   if (empty) {
     return "?"
   }
+
+  // TODO: use https://symbl.cc/en/collections/roman-numerals/
   return `${displayAccidentals(acc ?? '')}${roman}${symbol}` 
 }
