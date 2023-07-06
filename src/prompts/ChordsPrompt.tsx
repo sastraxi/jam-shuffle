@@ -162,9 +162,9 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
   // TODO:
   // - add more flavours
-  // - re-introduce source set (later chords only)
   // - add 3rd type of key locking: "same scale" (order: mode) (e.g. "KEYS BASED ON D MAJOR")
   // - constrain to first locked chord, not just the first one IF locked
+  // - finish the "when we change source set we re-roll if it's no longer valid" logic
 
   /**
    * Generate chords for the [from, to) indexes of our chords array.
