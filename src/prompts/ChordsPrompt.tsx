@@ -54,6 +54,18 @@ const VARIANT_NUMBERS = "①②③④⑤⑥⑦⑧⑨⑩"
 
 ///////////////////////////
 
+const SOURCE_SET_CHOICES = [
+  '✨', '🔑'
+] as const
+type SourceSetChoices = typeof SOURCE_SET_CHOICES[number]
+
+const sourceSetExpandedTransform = (keyName: string) => (sourceSet: SourceSetChoices) => {
+  if (sourceSet === '✨') return '✨ All chords'
+  return `🔑 Chords in ${keyName}`
+}
+
+///////////////////////////
+
 const KEY_LOCKING_CHOICES = [
   '✨', '🔒'
 ] as const
@@ -69,7 +81,7 @@ const keyLockingCaption = (keyLocked: boolean, firstChord: ChordChoice) => {
     if (firstChord.locked) {
       return `keys containing ${chordForDisplay(firstChord.chord)}`
     }
-    return 'All keys'
+    return 'all keys'
   }
   return 'chosen key'  // locked to the current key
 }
@@ -80,6 +92,7 @@ type ChordChoice = {
   chord: ExplodedChord,
   locked: boolean,
   variant: number,
+  sourceSet?: SourceSetChoices,
 }
 
 type ChordsPromptChoices = {
@@ -121,7 +134,6 @@ const generateKeyChoices = memoize((
   if (chord) {
     const guitarNotes = getGuitarNotes(chord.chord, 0)
     const candidateKeys = keysIncludingChord(chord.chord, guitarNotes)
-    console.log('key choices', chord.chord, guitarNotes, candidateKeys)
     return candidateKeys
   }
   return KEY_NAMES_BASED_ON_MAJOR
@@ -149,11 +161,10 @@ const ChordsPrompt: React.FunctionComponent = () => {
   const setPromptChoice = useSetPromptChoice<ChordsPromptChoices>()
 
   // TODO:
-  // - constrain to first locked chord, not just the first one IF locked
   // - add more flavours
   // - re-introduce source set (later chords only)
-  // - when key is completely unlocked, order keys alphabetically
   // - add 3rd type of key locking: "same scale" (order: mode) (e.g. "KEYS BASED ON D MAJOR")
+  // - constrain to first locked chord, not just the first one IF locked
 
   /**
    * Generate chords for the [from, to) indexes of our chords array.
@@ -174,10 +185,14 @@ const ChordsPrompt: React.FunctionComponent = () => {
     if (to - from <= 0) throw new Error("Must generate at least one chord")
 
     const chords: Array<ChordChoice> = []
-    const { chooseChord, candidateChords } = generateChordChoices(previous.flavour, keyName)
-
     for (let i = from; i < to; ++i) {
       const previousChord: ChordChoice | undefined = previous.chords[i]
+
+      const ignoreKey = (i > 0 && previousChord?.sourceSet === '✨')
+      const { chooseChord, candidateChords } = generateChordChoices(
+        previous.flavour,
+        ignoreKey ? undefined : keyName,
+      )
 
       if (previousChord?.locked) {
         chords.push(previousChord)
@@ -197,6 +212,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
         chord: chooseChord(),
         locked: false,
         variant: previousChord?.variant ?? 0,
+        sourceSet: previousChord?.sourceSet ?? '🔑',
       })
     }
 
@@ -239,6 +255,8 @@ const ChordsPrompt: React.FunctionComponent = () => {
     }, shouldReplace)
   }
 
+  //////////////////////////////////////////////////////
+
   /**
    * Modifies a chord in the current prompt choice. If the first chord is
    * changed while it is influencing the key, we also modify the subsequent
@@ -255,11 +273,25 @@ const ChordsPrompt: React.FunctionComponent = () => {
       }
     }
 
+    // re-roll this chord if we are changing the source set
+    // and our new set doesn't include this chord
+    // if (changes.sourceSet === '🔑') {
+    //   const modifiedChord = { 
+    //     ...(chords[chordIndex] ?? {}),
+    //     ...changes,
+    //   }
+    //   console.log('bruhaha')
+    //   if (!inKeyChords.find(x => modifiedChord.chord.root === x.root && modifiedChord.chord.suffix === x.suffix)) {
+    //     console.log('yadda yadda yadda')
+    //     changes['chord'] = generateChords(1, NUM_CHORDS, current.keyName, current, false)[0].chord
+    //   }
+    // }
+
     if ('chord' in changes && chordIndex === 0 && !current.keyLocked) {
       // we are changing the chord which determines the key, which,
       // in turn, changes the set of potential chords after the first.
       // as such we potentially need to re-generate the chords after this one
-      const firstChord: ChordChoice = { ...chords[0], ...changes }
+      const firstChord: ChordChoice = { ...current.chords[0], ...changes }
       const keyChoices = generateKeyChoices(firstChord)
       newKeyName = keyChoices.includes(current.keyName) ? current.keyName : randomChoice(keyChoices)
       newChords = [
@@ -268,9 +300,10 @@ const ChordsPrompt: React.FunctionComponent = () => {
       ]
     } else {
       // changing this chord does not affect the other chords
+      // console.log('setting new chords')
       newKeyName = current.keyName
-      newChords = withReplacement(chords, chordIndex, {
-        ...chords[chordIndex],
+      newChords = withReplacement(current.chords, chordIndex, {
+        ...current.chords[chordIndex],
         ...changes,
       })
     }
@@ -359,6 +392,17 @@ const ChordsPrompt: React.FunctionComponent = () => {
                 displayTransform={dimmedIf('🔓')}
                 tapToChange
               />
+              { chordIndex > 0 && 
+                <Choice
+                  help="Restrict to key?"
+                  setChoice={sourceSet => modifyChord(chordIndex, { sourceSet })}
+                  current={chords[chordIndex].sourceSet!}
+                  allChoices={SOURCE_SET_CHOICES}
+                  displayTransform={dimmedIf('')}
+                  expandedDisplayTransform={sourceSetExpandedTransform(keyName)}
+                  tapToChange
+                />
+              }
               <Choice
                 help="Variant"
                 setChoice={variant => modifyChord(chordIndex, { variant })}
@@ -380,12 +424,15 @@ const ChordsPrompt: React.FunctionComponent = () => {
               )}
             />
             <h2>
-              {/* TODO: restrict first chord to those that we can build keys off of; would let us remove weird loop as well */}
               <Choice
                 alignItems="center"
                 current={chords[chordIndex].chord}
                 displayTransform={chord => chordForDisplay(chord, { keyName })}
-                allChoices={chordIndex === 0 ? ALL_GUITAR_CHORDS : inKeyChords}
+                allChoices={
+                  chordIndex === 0
+                    ? GUITAR_CHORDS_IN_MAJOR_KEYS
+                    : (chords[chordIndex].sourceSet === '🔑' ? inKeyChords : ALL_GUITAR_CHORDS)
+                }
                 setChoice={chord => modifyChord(chordIndex, { chord })}
               />
               <span>({getRomanNumeral(keyName, chords[chordIndex].chord)})</span>
