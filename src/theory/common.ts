@@ -79,6 +79,9 @@ export const MAJOR_SCALES: Record<Note, Note[]> = {}
 export const KEY_NAMES_BASED_ON_MAJOR: string[] = []
 
 ROOT_NOTES.forEach(rootNote => {
+  // TODO: generate the right ones, e.g. Bb minor instead of A# minor.
+  // whatever has fewer accidentals. Prefer minor if equivalent (i.e. Eb minor instead of D# major)
+  // Probably just hardcode it...
   MAJOR_SCALES[rootNote] = keynameToNotes(`${rootNote} major`)
   MAJOR_SCALES[rootNote].forEach((note, degree) => {
     const mode = MAJOR_MODES_BY_DEGREE[degree]
@@ -96,8 +99,6 @@ ROOT_NOTES.forEach(rootNote => {
  */
 export const ENHARMONIC_DISPLAY_FOR_KEYNAME: Record<string, Record<Note, Note>> = {}
 // TODO: ROOT_NOTES.forEach(...)
-// FIXME: What about the enharmonic equivalents of key names...
-//        How should we support e.g. Bb Major vs A# Major?
 
 /**
  * Replaces # and b with the actual sharp / flat unicode symbols.

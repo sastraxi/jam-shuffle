@@ -151,6 +151,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
   // - re-introduce source set (later chords only)
   // - when key is completely unlocked, order keys alphabetically
   // - add 3rd type of key locking: "same scale" (order: mode) (e.g. "KEYS BASED ON D MAJOR")
+  // - don't shuffle key if we just changed first chord to a compatible one with previous key (even if not locked)
 
   /**
    * Generate chords for the [from, to) indexes of our chords array.

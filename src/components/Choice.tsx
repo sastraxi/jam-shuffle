@@ -50,6 +50,11 @@ function Choice<ChoiceType,>({
     alignItems = 'start',
 }: Props<ChoiceType>) {
     
+    // TODO:
+    // - add the ability to focus on a <Choice>
+    // - forget pending when we cancel out
+    // - type to choose pending
+
     const rootRef = useRef<HTMLDivElement>(null)
     const unexpandedAnchorRef = useRef<HTMLAnchorElement>(null)
     const [expanded, setExpanded] = useState<boolean>(false)

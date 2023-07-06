@@ -1,6 +1,6 @@
 import { Interval, PcSet } from "tonal"
 import { DEFAULT_RESTRICTED_MODES, MAJOR_MODES_BY_DEGREE, MAJOR_SCALES, Note, ScaleName, noteNameEquals } from "./common"
-import { ALL_GUITAR_CHORDS, ExplodedChord, chordForDisplay, getGuitarNotes } from "./guitar"
+import { ALL_GUITAR_CHORDS, ExplodedChord, getGuitarNotes } from "./guitar"
 import { getTriadNotes } from "./triads"
 
 export type ChordSearchParams = {
