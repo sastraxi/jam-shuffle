@@ -78,7 +78,7 @@ type ChordChoice = {
 
 type ChordsPromptChoices = {
   chords: Array<ChordChoice>
-  flavour: string
+  flavour: Flavour
   keyName: string
 
   /**
@@ -95,7 +95,7 @@ type ChordsPromptChoices = {
  * quickly change it.
  */
 const DEFAULT_PROMPT_CHOICES_CONTEXT: ChordsPromptChoices = {
-  flavour: "Balanced",
+  flavour: Balanced,
   keyName: 'C major',
   keyLocked: false,
   chords: [],
@@ -141,11 +141,9 @@ const dimmedIf = (exactlyMatches: string) =>
 const ChordsPrompt: React.FunctionComponent = () => {
   const current = usePromptChoices<ChordsPromptChoices>()
   const setPromptChoice = useSetPromptChoice<ChordsPromptChoices>()
-  const flavour = FLAVOUR_CHOICES.find(f => f.name === current.flavour) ?? Balanced
 
   // TODO:
   // - constrain to first locked chord, not just the first one IF locked
-  // - visual indication if base triad is out-of-scale (e.g. due to locking)
   // - add more flavours
   // - re-introduce source set (later chords only)
   // - when key is completely unlocked, order keys alphabetically
@@ -171,7 +169,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
     if (to - from <= 0) throw new Error("Must generate at least one chord")
 
     const chords: Array<ChordChoice> = []
-    const { chooseChord, candidateChords } = generateChordChoices(flavour, keyName)
+    const { chooseChord, candidateChords } = generateChordChoices(previous.flavour, keyName)
 
     for (let i = from; i < to; ++i) {
       const previousChord: ChordChoice | undefined = previous.chords[i]
@@ -305,6 +303,14 @@ const ChordsPrompt: React.FunctionComponent = () => {
     }
   }
 
+  const setFlavour = (flavour: Flavour) => {
+    if (flavour.name === current.flavour.name) return
+    shuffle({
+      ...current,
+      flavour,
+    })
+  }
+
   //////////////////////////////////////////////////////
   // initial setting
 
@@ -316,7 +322,8 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
   //////////////////////////////////////////////////////
 
-  const { chords, keyLocked, keyName } = current
+  const { chords, keyLocked, keyName, flavour } = current
+
   const frettingsByChordIndex = useMemo(
     () => chords?.map(chord => getFrettings(chord.chord)),
     [chords]
@@ -326,7 +333,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
     [chords, keyLocked]
   )
   const inKeyChords = useMemo(
-    () => generateChordChoices(flavour, keyName).candidateChords.map(c => c.chord),
+    () => flavour ? generateChordChoices(flavour, keyName).candidateChords.map(c => c.chord) : [],
     [flavour, keyName]
   )
 
@@ -409,7 +416,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
             alignItems="center"
             allChoices={FLAVOUR_CHOICES}
             displayTransform={f => f.name}
-            setChoice={({ name }) => setPromptChoice({ flavour: name })}
+            setChoice={setFlavour}
           />
         </ChoiceContainer>
       </div>
