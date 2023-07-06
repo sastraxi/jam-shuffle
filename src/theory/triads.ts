@@ -75,12 +75,28 @@ export const getTriadNotes = (chord: ExplodedChord): Note[] | undefined => {
   return buildTriad(chord.root, triad)
 }
 
+const NUMERAL_MAP: Record<string, string> = {
+  "I": "Ⅰ",
+  "II": "Ⅱ",
+  "III": "Ⅲ",
+  "IV": "Ⅳ",
+  "V": "Ⅴ",
+  "VI":	"Ⅵ",
+  "VII": "Ⅶ",
+  "i": "ⅰ",
+  "ii": "ⅱ",
+  "iii": "ⅲ",
+  "iv": "ⅳ",
+  "v": "ⅴ",
+  "vi":	"ⅵ",
+  "vii": "ⅶ"
+}
+
 export const getRomanNumeral = (keyName: string, chord: ExplodedChord | Chord): string => {
-  const { suffix } = (typeof chord === 'string' ? explodeChord(chord) : chord)
-  const chordName = (typeof chord === 'string' ? chord : combineChord(chord))
+  const { root, suffix } = (typeof chord === 'string' ? explodeChord(chord) : chord)
   
   const keyTonic = keyName.split(' ')[0]  // XXX: not great Bob
-  // FIXME: we should pass the simplified triad in and do the accoutrements ourselves
+
   // FIXME: need to pass in correct enharmonics to prevent double flats
 
   const triad = SUFFIX_TO_TRIAD[suffix]
@@ -91,14 +107,31 @@ export const getRomanNumeral = (keyName: string, chord: ExplodedChord | Chord): 
     symbol = '⁺'
   }
 
+  // this is a hacky, very bad function.
+  // I just kinda kept adding things until it looked correct
+  // TODO: fix this garbage, probably write our own roman conversion from scratch
+  let chordName
+  if (suffix.startsWith('min') || suffix.startsWith('madd') || suffix.startsWith('m/') || suffix.startsWith('mmaj')) {
+    chordName = `${root} m`
+  } else if (suffix.startsWith('alt')) {
+    // this is crazy!
+    chordName = `${root} major`
+  } else if (suffix.startsWith('dim')) {
+    // this is crazy!
+    chordName = `${root} alt`
+  } else {
+    chordName = `${root} ${suffix}`
+  }
+
   const rawNumeral = Progression.toRomanNumerals(keyTonic, [chordName])[0]
   const ret = RomanNumeral.get(rawNumeral)
-  console.log(`${chordName} -> ${rawNumeral} -> ${JSON.stringify(ret)}`)
-  const { acc, roman, empty } = ret
+  const { acc, roman, empty, chordType } = ret
+  console.info(`roman numeral: ${chordName} -> ${rawNumeral} -> ${JSON.stringify(ret)}`)
   if (empty) {
     return "?"
   }
 
-  // TODO: use https://symbl.cc/en/collections/roman-numerals/
-  return `${displayAccidentals(acc ?? '')}${roman}${symbol}` 
+  // this is hacky
+  const numeral = (chordType === 'm' || chordType === 'alt') ? NUMERAL_MAP[roman.toLowerCase()] : NUMERAL_MAP[roman]
+  return `${displayAccidentals(acc ?? '')}${numeral}${symbol}` 
 }
