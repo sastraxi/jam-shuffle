@@ -36,11 +36,17 @@ import { getRomanNumeral } from '../theory/triads'
 
 ///////////////////////////
 
+const SUFFIXES_WE_CANT_MAKE_KEYS_FROM = ['aug', 'aug7', 'aug9']
+
+const GUITAR_CHORDS_IN_MAJOR_KEYS =
+  ALL_GUITAR_CHORDS
+    .filter(x => !SUFFIXES_WE_CANT_MAKE_KEYS_FROM.includes(x.suffix))
+
 const ALL_GUITAR_CHORDS_WITH_BLANK_ACCIDENTALS: Array<ChordAndAccidentals> =
-  ALL_GUITAR_CHORDS.map(chord => ({
-    chord,
-    accidentalScaleDegreesWithOctaves: [],
-  }))
+  GUITAR_CHORDS_IN_MAJOR_KEYS.map(chord => ({
+      chord,
+      accidentalScaleDegreesWithOctaves: [],
+    }))
 
 ///////////////////////////
 
@@ -148,7 +154,6 @@ const ChordsPrompt: React.FunctionComponent = () => {
   // - re-introduce source set (later chords only)
   // - when key is completely unlocked, order keys alphabetically
   // - add 3rd type of key locking: "same scale" (order: mode) (e.g. "KEYS BASED ON D MAJOR")
-  // - don't shuffle key if we just changed first chord to a compatible one with previous key (even if not locked)
 
   /**
    * Generate chords for the [from, to) indexes of our chords array.
@@ -256,7 +261,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
       // as such we potentially need to re-generate the chords after this one
       const firstChord: ChordChoice = { ...chords[0], ...changes }
       const keyChoices = generateKeyChoices(firstChord)
-      newKeyName = randomChoice(keyChoices)
+      newKeyName = keyChoices.includes(current.keyName) ? current.keyName : randomChoice(keyChoices)
       newChords = [
         firstChord,
         ...generateChords(1, NUM_CHORDS, newKeyName, current, false),
