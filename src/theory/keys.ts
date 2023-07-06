@@ -1,7 +1,7 @@
 import { Interval, PcSet } from "tonal"
 import { DEFAULT_RESTRICTED_MODES, MAJOR_MODES_BY_DEGREE, MAJOR_SCALES, Note, ScaleName, noteNameEquals } from "./common"
-import { ALL_GUITAR_CHORDS, ExplodedChord, getGuitarNotes } from "./guitar"
-import { getChordTriad } from "./triads"
+import { ALL_GUITAR_CHORDS, ExplodedChord, chordForDisplay, getGuitarNotes } from "./guitar"
+import { getTriadNotes } from "./triads"
 
 export type ChordSearchParams = {
     /**
@@ -31,45 +31,40 @@ export type ChordSearchParams = {
  */
 export const chordsMatchingCondition = ({
     scaleNotes,
-    maxAccidentals,
   }: ChordSearchParams): Array<ChordAndAccidentals> => {
     const inScale = PcSet.isNoteIncludedIn(scaleNotes)
   
     const matchingChords: Array<ChordAndAccidentals> = []
     for (const chord of ALL_GUITAR_CHORDS) {
-      const notes = getGuitarNotes(chord, 0)  // XXX: is first chord most indicative?
-  
-      // skip chords that don't have the root and bass note in scale
-      const bassNote = notes[0]
-      const rootNote = notes.find(n => noteNameEquals(n, chord.root))
-      if (!rootNote) {
-        // this indicates an incorrect chord in guitar.json
-        console.error(`Could not find root note in chord ${chord.root} ${chord.suffix} (${notes})`)
-        continue
-      }
-      if (!inScale(bassNote) || !inScale(rootNote)) {
-        continue
-      }
-  
-      const accidentals = notes
-        .filter(note => !inScale(note))
-        .map(note => semitoneDistance(rootNote, note))
-  
-      // move onto the next chord if there are too many accidentals;
-      // i.e. notes that are not in the scale that we're looking at
-      // TODO: we might want to remove this altogether and just have
-      // the flavour have this logic
-      if (maxAccidentals !== undefined && accidentals.length > maxAccidentals) {
-        // console.warn(
-        //   `${chordName} (${notes}): ${accidentals.length} accidentals (max ${maxAccidentals}) in ${scaleNotes}`
-        // )
-        continue
-      }
-  
-      matchingChords.push({
-        chord,
-        accidentalScaleDegreesWithOctaves: accidentals,
-      })
+			const notes = getGuitarNotes(chord, 0)  // XXX: is first chord most indicative?
+			const triad = getTriadNotes(chord)
+			if (!triad || !triad.every(inScale)) {
+				// can't fit this note into any major scale (or our specific one)
+				continue
+			}
+
+			// skip chords that don't have the root and bass note in scale
+			// TODO: should we look at all notes below root?
+			const bassNote = notes[0]
+			const rootNote = notes.find(n => noteNameEquals(n, chord.root))
+			if (!rootNote) {
+				// this indicates an incorrect chord in guitar.json
+				console.error(`Incorrect chord in guitar.json: ${chord.root} ${chord.suffix}, but ${notes}`)
+				continue
+			}
+			if (!inScale(bassNote)) {
+				continue
+			}
+	
+			// how many accidentals overall in the chord?
+			const accidentals = notes
+				.filter(note => !inScale(note))
+				.map(note => semitoneDistance(rootNote, note))
+	
+			matchingChords.push({
+				chord,
+				accidentalScaleDegreesWithOctaves: accidentals,
+			})
     }
     return matchingChords
   }
@@ -94,14 +89,12 @@ export const chordsMatchingCondition = ({
   
     // we can optionally skip all the non-core notes (outside the base triad)
     // this is helpful if we want to allow extensions on the chord we're basing
-    // key selection around (and is in fact why this code exists...)
-    let consideredNotes: Note[]
-    if (onlyBaseTriad) {
-      consideredNotes = getChordTriad(chord)
-    } else {
-      consideredNotes = notes
-    }
-  
+    // key selection around (and is in fact why this code exists...)		
+		// if we don't have a triad, fall back to the notes
+    const consideredNotes = onlyBaseTriad
+			? (getTriadNotes(chord) ?? notes)
+			: notes
+
     // find all scales that contain all the given scale notes,
     // with a "slop" factor given by numAccidentals.
     // TODO: remove numAccidentals? We aren't using it (always 0).

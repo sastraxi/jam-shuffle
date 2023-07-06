@@ -32,6 +32,7 @@ import {
 } from '../theory/common'
 
 import { Balanced, FLAVOUR_CHOICES, Flavour, getMakeFlavourChoice } from '../theory/flavours'
+import { getRomanNumeral } from '../theory/triads'
 
 ///////////////////////////
 
@@ -144,10 +145,12 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
   // TODO:
   // - constrain to first locked chord, not just the first one IF locked
-  // - change triad code in keysIncludingChord: turn { root, suffix } into array of 3 notes
-  //   - show I / ii / bIII / vi°, etc.
-  // - use that triad code in chordsMatchingCondition as well
+  // - fix roman numerals
+  // - visual indication if base triad is out-of-scale (e.g. due to locking)
   // - add more flavours
+  // - re-introduce source set (later chords only)
+  // - when key is completely unlocked, order keys alphabetically
+  // - add 3rd type of key locking: "same scale" (order: mode) (e.g. "KEYS BASED ON D MAJOR")
 
   /**
    * Generate chords for the [from, to) indexes of our chords array.
@@ -372,6 +375,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
                 allChoices={chordIndex === 0 ? ALL_GUITAR_CHORDS : inKeyChords}
                 setChoice={chord => modifyChord(chordIndex, { chord })}
               />
+              <span>({getRomanNumeral(keyName, chords[chordIndex].chord)})</span>
             </h2>
           </div>
         ))}
