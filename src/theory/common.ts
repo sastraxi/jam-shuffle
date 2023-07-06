@@ -46,7 +46,6 @@ export const noteNameEquals = (a: Note, b: Note, ignoreOctave = true) => {
   if (!ignoreOctave) return normalizedNoteName(a) === normalizedNoteName(b)
   return normalizedNoteName(explodeNote(a).name) === normalizedNoteName(explodeNote(b).name)
 }
-  
 
 export const MAJOR_MODES_BY_DEGREE = [
   "major",
@@ -74,15 +73,28 @@ export const DEFAULT_RESTRICTED_MODES = ["locrian"]
 export const MAJOR_SCALES: Record<Note, Note[]> = {}
 
 /**
- * e.g. ["C major", "D dorian", ...]
+ * Circle of fifths, baby!
  */
-export const KEY_NAMES_BASED_ON_MAJOR: string[] = []
+export const MAJOR_KEY_NAMES: Array<string> = [
+  "C major",
+  "G major",
+  "D major",
+  "A major",
+  "E major",
+  "B major",
+  "Gb major",  // chosen over F# major for reasons: https://music.stackexchange.com/a/23170
+  "Db major",
+  "Ab major",
+  "Eb major",
+  "Bb major",
+  "F major",
+]
 
-ROOT_NOTES.forEach(rootNote => {
-  // TODO: generate the right ones, e.g. Bb minor instead of A# minor.
-  // whatever has fewer accidentals. Prefer minor if equivalent (i.e. Eb minor instead of D# major)
-  // Probably just hardcode it...
-  MAJOR_SCALES[rootNote] = keynameToNotes(`${rootNote} major`)
+export const KEY_NAMES_BASED_ON_MAJOR: Array<string> = []
+
+MAJOR_KEY_NAMES.forEach((keyName) => {
+  const [rootNote, ] = keyName.split(' ')
+  MAJOR_SCALES[rootNote] = keynameToNotes(keyName)
   MAJOR_SCALES[rootNote].forEach((note, degree) => {
     const mode = MAJOR_MODES_BY_DEGREE[degree]
     if (!DEFAULT_RESTRICTED_MODES.includes(mode)) {
@@ -98,7 +110,37 @@ ROOT_NOTES.forEach(rootNote => {
  * probably consider double-sharps / double-flats as well...
  */
 export const ENHARMONIC_DISPLAY_FOR_KEYNAME: Record<string, Record<Note, Note>> = {}
-// TODO: ROOT_NOTES.forEach(...)
+{
+  const CONSIDERED_NOTE_NAMES = [
+    'Ab', 'A', 'A#', 'Bb', 'B', 'B#', 'Cb', 'C', 'C#',
+    'Db', 'D', 'D#', 'Eb', 'E', 'E#', 'Fb', 'F', 'F#',
+    'Gb', 'G', 'G#',
+  ]
+
+  KEY_NAMES_BASED_ON_MAJOR.forEach((keyName) => {
+    const mapping: Record<Note, Note> = {}
+
+    const keyNotes = keynameToNotes(keyName)
+    const keyChromas = keyNotes.map(TonalNote.chroma)
+
+    CONSIDERED_NOTE_NAMES.forEach((noteName) => {
+      const noteChroma = TonalNote.chroma(noteName)
+      const foundIndex = keyChromas.indexOf(noteChroma)
+      if (foundIndex === -1) {
+        // out-of-key; mapping is identity
+        // TODO: should we let it fail and deal with it outside?
+        mapping[noteName] = noteName
+      } else {
+        // in key; map to the "official" name for this note in this key
+        mapping[noteName] = keyNotes[foundIndex]
+      }
+    })
+
+    ENHARMONIC_DISPLAY_FOR_KEYNAME[keyName] = mapping
+  })
+
+  // TODO: precompute?
+}
 
 /**
  * Replaces # and b with the actual sharp / flat unicode symbols.

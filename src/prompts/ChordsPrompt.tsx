@@ -145,7 +145,6 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
   // TODO:
   // - constrain to first locked chord, not just the first one IF locked
-  // - fix roman numerals
   // - visual indication if base triad is out-of-scale (e.g. due to locking)
   // - add more flavours
   // - re-introduce source set (later chords only)
@@ -362,9 +361,10 @@ const ChordsPrompt: React.FunctionComponent = () => {
               height={400}
               {...frettingToVexChord(
                 frettings[Math.min(chords[chordIndex].variant, frettings.length - 1)],
-                /* TODO: populate ENHARMONIC_DISPLAY_FOR_KEYNAME */
-                { showOctave: false }
-                /* { keyName: current.keyName } */
+                {
+                  showOctave: false,
+                  keyName,
+                }
               )}
             />
             <h2>
@@ -372,7 +372,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
               <Choice
                 alignItems="center"
                 current={chords[chordIndex].chord}
-                displayTransform={chordForDisplay}
+                displayTransform={chord => chordForDisplay(chord, { keyName })}
                 allChoices={chordIndex === 0 ? ALL_GUITAR_CHORDS : inKeyChords}
                 setChoice={chord => modifyChord(chordIndex, { chord })}
               />
