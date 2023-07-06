@@ -97,6 +97,8 @@ export const getMakeFlavourChoice = (
     candidates = chords
   }
   
+  // calculate each chord weight; maintain a cumulative weight array
+  // alongside the candidate chords
   const cumulativeWeight: Array<number> = []
   for (let i = 0; i < candidates.length; ++i) {
     const lastWeight = i === 0 ? 0 : cumulativeWeight[i - 1]
@@ -109,7 +111,7 @@ export const getMakeFlavourChoice = (
     candidateChords: candidates,
     chooseChord: () => {
       const needle = Math.random() * max
-      const i = upperBound(cumulativeWeight, needle)
+      const i = upperBound(cumulativeWeight, needle)  // binary search the weight
       return candidates[i].chord
     },
   }

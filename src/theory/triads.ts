@@ -1,6 +1,6 @@
 import { Interval, Progression, RomanNumeral, transpose } from "tonal"
 import { ALL_GUITAR_CHORDS, Chord, ChordSuffix, ExplodedChord, combineChord, explodeChord } from "./guitar"
-import { Note, displayAccidentals } from "./common"
+import { ENHARMONIC_DISPLAY_FOR_KEYNAME, Note, displayAccidentals, noteForDisplay } from "./common"
 
 /**
  * Number of semitones in the two nonoverlapping sub-intervals that make up a triad.
@@ -93,8 +93,10 @@ const NUMERAL_MAP: Record<string, string> = {
 }
 
 export const getRomanNumeral = (keyName: string, chord: ExplodedChord | Chord): string => {
-  const { root, suffix } = (typeof chord === 'string' ? explodeChord(chord) : chord)
-  
+  const explodedChord = (typeof chord === 'string' ? explodeChord(chord) : chord)
+  const { suffix } = explodedChord
+  const root = ENHARMONIC_DISPLAY_FOR_KEYNAME[keyName][explodedChord.root]
+
   const keyTonic = keyName.split(' ')[0]  // XXX: not great Bob
 
   // FIXME: need to pass in correct enharmonics to prevent double flats
