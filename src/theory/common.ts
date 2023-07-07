@@ -148,6 +148,10 @@ export const ENHARMONIC_DISPLAY_FOR_KEYNAME: Record<string, Record<Note, Note>> 
 export const displayAccidentals = (s: string) =>
   s.replace('#', '♯').replace('b', '♭')
 
+export const untransformAccidentals = (s: string) =>
+  s.replace('♯', '#').replace('♭', 'b')
+
+
 /**
  * We require notes to be uppercase, and they can have an ocatve.
  */

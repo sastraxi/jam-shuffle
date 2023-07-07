@@ -40,6 +40,11 @@ div.choice {
             cursor: pointer;
         }
 
+        div.choice > .select-container input[type=text] {
+            position: absolute;
+            opacity: 0;
+        }
+
         div.choice div.positioner {
             position: absolute;
             overflow: visible;
@@ -47,7 +52,21 @@ div.choice {
         }
 
 
-    div.choice > a {
+    button.choice-button {
+        border-radius: initial;
+        border: initial;
+        padding: initial;
+        font-size: inherit;
+        font-weight: 500;
+        font-family: inherit;
+        background-color: transparent;
+        z-index: auto;
+    }
+          
+
+    div.choice > .choice-button {
+        font-weight: 500;
+        color: white;
         cursor: pointer;
         transition: padding 0.2s, margin 0.2s, background-color 0.2s, color 0.2s;
         /* transition: all 0.2s; */
@@ -60,11 +79,11 @@ div.choice {
     }
 
 
-        div.choice.expanded > a {
+        div.choice.expanded > .choice-button {
             opacity: 0;
         }
 
-        div.choice:hover > a {
+        div.choice:hover > .choice-button {
           padding: 0.15em 0.4em;
           margin: -0.15em -0.4em;
           background-color: white;

@@ -27,7 +27,7 @@ div.chords {
 
         }
 
-            div.chords .choice > a:not(:hover) > span.dimmed {
+            div.chords .choice > :not(:hover) > span.dimmed {
                 opacity: 0.5;
                 filter: grayscale()
             }

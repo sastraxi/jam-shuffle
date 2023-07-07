@@ -29,6 +29,7 @@ import {
   KEY_NAMES_BASED_ON_MAJOR,
   keynameToNotes,
   noteForDisplay,
+  untransformAccidentals,
 } from '../theory/common'
 
 import { Balanced, FLAVOUR_CHOICES, Flavour, getMakeFlavourChoice } from '../theory/flavours'
@@ -398,7 +399,6 @@ const ChordsPrompt: React.FunctionComponent = () => {
                   setChoice={sourceSet => modifyChord(chordIndex, { sourceSet })}
                   current={chords[chordIndex].sourceSet!}
                   allChoices={SOURCE_SET_CHOICES}
-                  displayTransform={dimmedIf('')}
                   expandedDisplayTransform={sourceSetExpandedTransform(keyName)}
                   tapToChange
                 />
@@ -434,6 +434,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
                     : (chords[chordIndex].sourceSet === '🔑' ? inKeyChords : ALL_GUITAR_CHORDS)
                 }
                 setChoice={chord => modifyChord(chordIndex, { chord })}
+                searchTransform={chord => untransformAccidentals(`${chord.root}${chord.suffix}`)}
               />
               <span>({getRomanNumeral(keyName, chords[chordIndex].chord)})</span>
             </h2>
@@ -448,6 +449,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
               current={keyName}
               allChoices={possibleKeys}
               setChoice={(keyName) => setKey(keyName)}
+              searchTransform={keyName => untransformAccidentals(keyName.replace(' ', ''))}
             />
           }
           {/* FIXME: better way to space these out */}

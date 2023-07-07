@@ -99,7 +99,7 @@ export const getRomanNumeral = (keyName: string, chord: ExplodedChord | Chord): 
 
   const keyTonic = keyName.split(' ')[0]  // XXX: not great Bob
 
-  // FIXME: need to pass in correct enharmonics to prevent double flats
+  // FIXME: I still saw one sharp somewhere I didn't expect. Maybe a bad chord?
 
   const triad = SUFFIX_TO_TRIAD[suffix]
   let symbol = ''
@@ -128,7 +128,7 @@ export const getRomanNumeral = (keyName: string, chord: ExplodedChord | Chord): 
   const rawNumeral = Progression.toRomanNumerals(keyTonic, [chordName])[0]
   const ret = RomanNumeral.get(rawNumeral)
   const { acc, roman, empty, chordType } = ret
-  console.info(`roman numeral: ${chordName} -> ${rawNumeral} -> ${JSON.stringify(ret)}`)
+  // console.info(`roman numeral: ${chordName} -> ${rawNumeral} -> ${JSON.stringify(ret)}`)
   if (empty) {
     return "?"
   }
