@@ -430,7 +430,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
                 displayTransform={chord => chordForDisplay(chord, { keyName })}
                 allChoices={
                   chordIndex === 0
-                    ? GUITAR_CHORDS_IN_MAJOR_KEYS
+                    ? (keyLocked ? inKeyChords : GUITAR_CHORDS_IN_MAJOR_KEYS)
                     : (chords[chordIndex].sourceSet === '🔑' ? inKeyChords : ALL_GUITAR_CHORDS)
                 }
                 setChoice={chord => modifyChord(chordIndex, { chord })}
