@@ -165,7 +165,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
   const setPromptChoice = useSetPromptChoice<ChordsPromptChoices>()
 
   // TODO:
-  // - add more flavours
+  // - help text for key choice is current roman numers (e.g. )
   // - add 3rd type of key locking: "same scale" (order: mode) (e.g. "KEYS BASED ON D MAJOR")
   // - constrain to first locked chord, not just the first one IF locked
   // - finish the "when we change source set we re-roll if it's no longer valid" logic
