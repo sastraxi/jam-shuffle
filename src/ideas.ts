@@ -12,6 +12,7 @@ export const SINGLE_IDEAS = [
     "Palm-muted guitar",
     "Walking bassline",
     "Something your past self would love",
+    "Slow guitar riff",
 ].sort()
 
 export const CONTRAST_IDEAS = [
@@ -41,4 +42,6 @@ export const CONTRAST_IDEAS = [
     "Anti-capitalist lyrics",
     "70s rock vibes",
     "Top 40 vibes",
+    "Slow strum pattern",
+    "Slow finger picking",
 ].sort()
