@@ -6,6 +6,8 @@ import ChordDiagram from '../components/ChordDiagram'
 import ChoiceContainer from '../components/ChoiceContainer'
 import './ChordsPrompt.css'
 
+import MIDISounds from 'midi-sounds-react'
+
 import { usePromptChoices, useSetPromptChoice } from '../state/app'
 import { firstNDigits, memoize, randomChoice, withReplacement } from '../util'
 
@@ -34,6 +36,7 @@ import {
 
 import { Balanced, FLAVOUR_CHOICES, Flavour, getMakeFlavourChoice } from '../theory/flavours'
 import { getRomanNumeral } from '../theory/triads'
+import AudioPlayer from '../theory/AudioPlayer'
 
 ///////////////////////////
 
@@ -380,6 +383,9 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
   return (
     <BasePrompt>
+      <div>
+        <AudioPlayer />
+      </div>
       <div className="chords">
         {/* TODO: de-dupe some things in here by making each chord its own component */}
         {frettingsByChordIndex?.map((frettings, chordIndex) => (
