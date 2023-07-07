@@ -80,10 +80,10 @@ const keyLockingExpandedTransform = (keyLocking: KeyLockingChoices) => {
   return '🔒 Locked to key'
 }
 
-const keyLockingCaption = (keyLocked: boolean, firstChord: ChordChoice) => {
+const keyLockingCaption = (keyName: string, keyLocked: boolean, firstChord: ChordChoice) => {
   if (!keyLocked) {
     if (firstChord.locked) {
-      return `keys containing ${chordForDisplay(firstChord.chord)}`
+      return `keys containing ${chordForDisplay(firstChord.chord, { keyName })}`
     }
     return 'all keys'
   }
@@ -449,7 +449,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
       </div>
 
       <div className="buttons fixed">
-        <ChoiceContainer caption={keyLockingCaption(keyLocked, chords[0])}>
+        <ChoiceContainer caption={keyLockingCaption(keyName, keyLocked, chords[0])}>
           {current.keyName &&
             <Choice
               current={keyName}
