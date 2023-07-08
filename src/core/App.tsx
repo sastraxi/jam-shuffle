@@ -1,23 +1,23 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState, lazy } from 'react'
 
 import { Auth } from '@supabase/auth-ui-react'
 import { createClient } from '@supabase/supabase-js'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
-
 import { useQuery } from "@tanstack/react-query";
 
 import './App.css'
 import CategorySelector from './CategorySelector'
 import { SpotifyMe } from '../types/spotify';
-import SingleIdea from '../prompts/SingleIdea';
-import ContrastPrompt from '../prompts/ContrastPrompt';
 import Settings from '../settings/Settings';
 import { useCategory, useSession, useSetSession } from '../state/app';
-import PlaylistPrompt from '../prompts/PlaylistPrompt';
 import Spinner from '../components/Spinner';
 
 import BackgroundVideo from '../assets/smoke-1080p-30fps.mp4'
-import ChordsPrompt from '../prompts/ChordsPrompt';
+
+const SingleIdea = lazy(() => import('../prompts/SingleIdea'));
+const ContrastPrompt = lazy(() => import('../prompts/ContrastPrompt'));
+const PlaylistPrompt = lazy(() => import('../prompts/PlaylistPrompt'));
+const ChordsPrompt = lazy(() => import('../prompts/ChordsPrompt'));
 
 // Create a single supabase client for interacting with your database
 const PUBLIC_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtYmhjZ2ZueWtwdHZpZHJ6em9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODYxMTM1NDQsImV4cCI6MjAwMTY4OTU0NH0.wli6p3Lx-99RAvTUz5qCD23JM1OTMB6NUiUAFlk2TkU"
@@ -77,8 +77,10 @@ const App = () => {
     />)
   }
 
+  const LOADING_SPINNER = (<Spinner size="40px" />)
+
   if (!data) {
-    return (<Spinner size="40px" />)
+    return LOADING_SPINNER
   }
 
   const backgroundVideo = <video
@@ -96,10 +98,12 @@ const App = () => {
         <CategorySelector />
         <Settings name={data?.display_name} onLogout={signout} session={session} />
       </div>
-      { category.type === "single idea" && <SingleIdea /> }
-      { category.type === "contrast" && <ContrastPrompt /> }
-      { category.type === "playlist" && <PlaylistPrompt /> }
-      { category.type === "chords" && <ChordsPrompt /> }
+      <React.Suspense fallback={LOADING_SPINNER}>
+        { category.type === "single idea" && <SingleIdea /> }
+        { category.type === "contrast" && <ContrastPrompt /> }
+        { category.type === "playlist" && <PlaylistPrompt /> }
+        { category.type === "chords" && <ChordsPrompt /> }
+      </React.Suspense>
     </>
   )
 }
