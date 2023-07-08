@@ -2,14 +2,12 @@ import React, { useEffect, useMemo } from 'react'
 import BasePrompt from '../core/BasePrompt'
 import IconButton from '../components/IconButton'
 import Choice from '../components/Choice'
-import ChordDiagram from '../components/ChordDiagram'
 import ChoiceContainer from '../components/ChoiceContainer'
+import ChordInput, { ChordChoice } from './ChordInput'
 import './ChordsPrompt.css'
 
-import MIDISounds from 'midi-sounds-react'
-
 import { usePromptChoices, useSetPromptChoice } from '../state/app'
-import { firstNDigits, memoize, randomChoice, withReplacement } from '../util'
+import { memoize, randomChoice, withReplacement } from '../util'
 
 import {
   chordsMatchingCondition,
@@ -19,8 +17,6 @@ import {
 
 import {
   ALL_GUITAR_CHORDS,
-  frettingToVexChord,
-  getFrettings,
   getGuitarNotes,
   chordForDisplay,
   ExplodedChord,
@@ -30,13 +26,11 @@ import {
 import {
   KEY_NAMES_BASED_ON_MAJOR,
   keynameToNotes,
-  noteForDisplay,
   untransformAccidentals,
 } from '../theory/common'
 
 import { Balanced, FLAVOUR_CHOICES, Flavour, getMakeFlavourChoice } from '../theory/flavours'
-import { getRomanNumeral } from '../theory/triads'
-import AudioPlayer from '../theory/AudioPlayer'
+
 
 ///////////////////////////
 
@@ -48,25 +42,9 @@ const GUITAR_CHORDS_IN_MAJOR_KEYS =
 
 const ALL_GUITAR_CHORDS_WITH_BLANK_ACCIDENTALS: Array<ChordAndAccidentals> =
   GUITAR_CHORDS_IN_MAJOR_KEYS.map(chord => ({
-      chord,
-      accidentalScaleDegreesWithOctaves: [],
-    }))
-
-///////////////////////////
-
-const VARIANT_NUMBERS = "①②③④⑤⑥⑦⑧⑨⑩"
-
-///////////////////////////
-
-const SOURCE_SET_CHOICES = [
-  '✨', '🔑'
-] as const
-type SourceSetChoices = typeof SOURCE_SET_CHOICES[number]
-
-const sourceSetExpandedTransform = (keyName: string) => (sourceSet: SourceSetChoices) => {
-  if (sourceSet === '✨') return '✨ All chords'
-  return `🔑 Chords in ${keyName}`
-}
+    chord,
+    accidentalScaleDegreesWithOctaves: [],
+  }))
 
 ///////////////////////////
 
@@ -91,13 +69,6 @@ const keyLockingCaption = (keyName: string, keyLocked: boolean, firstChord: Chor
 }
 
 ///////////////////////////
-
-type ChordChoice = {
-  chord: ExplodedChord,
-  locked: boolean,
-  variant: number,
-  sourceSet?: SourceSetChoices,
-}
 
 type ChordsPromptChoices = {
   chords: Array<ChordChoice>
@@ -151,14 +122,11 @@ const generateChordChoices = memoize((
   const candidateChords = !scaleNotes
     ? ALL_GUITAR_CHORDS_WITH_BLANK_ACCIDENTALS
     : chordsMatchingCondition({ scaleNotes })
-  
+
   return getMakeFlavourChoice(flavour, candidateChords)
 })
 
 ///////////////////////////////
-
-const dimmedIf = (exactlyMatches: string) =>
-  (x: string) => <span className={x === exactlyMatches ? 'dimmed' : ''}>{x}</span>
 
 const ChordsPrompt: React.FunctionComponent = () => {
   const current = usePromptChoices<ChordsPromptChoices>()
@@ -366,10 +334,6 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
   const { chords, keyLocked, keyName, flavour } = current
 
-  const frettingsByChordIndex = useMemo(
-    () => chords?.map(chord => getFrettings(chord.chord)),
-    [chords]
-  )
   const possibleKeys = useMemo(
     () => generateKeyChoices(keyLocked ? chords?.[0] : undefined),
     [chords, keyLocked]
@@ -383,68 +347,20 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
   return (
     <BasePrompt>
-      <div>
-        <AudioPlayer />
-      </div>
+
       <div className="chords">
-        {/* TODO: de-dupe some things in here by making each chord its own component */}
-        {frettingsByChordIndex?.map((frettings, chordIndex) => (
-          <div key={chordIndex}>
-            <div className="buttons">
-              <Choice
-                help="Locked? (prevents shuffle)"
-                setChoice={icon => modifyChord(chordIndex, { locked: icon === '🔒' })}
-                current={chords[chordIndex].locked ? '🔒' : '🔓'}
-                allChoices={['🔓', '🔒']}
-                displayTransform={dimmedIf('🔓')}
-                tapToChange
-              />
-              { chordIndex > 0 && 
-                <Choice
-                  help="Restrict to key?"
-                  setChoice={sourceSet => modifyChord(chordIndex, { sourceSet })}
-                  current={chords[chordIndex].sourceSet!}
-                  allChoices={SOURCE_SET_CHOICES}
-                  expandedDisplayTransform={sourceSetExpandedTransform(keyName)}
-                  tapToChange
-                />
-              }
-              <Choice
-                help="Variant"
-                setChoice={variant => modifyChord(chordIndex, { variant })}
-                current={Math.min(chords[chordIndex].variant, frettings.length - 1)}
-                allChoices={firstNDigits(frettings.length)}
-                displayTransform={x => VARIANT_NUMBERS[x]}
-                tapToChange
-              />
-            </div>
-            <ChordDiagram
-              width={320}
-              height={400}
-              {...frettingToVexChord(
-                frettings[Math.min(chords[chordIndex].variant, frettings.length - 1)],
-                {
-                  showOctave: false,
-                  keyName,
-                }
-              )}
-            />
-            <h2>
-              <Choice
-                alignItems="center"
-                current={chords[chordIndex].chord}
-                displayTransform={chord => chordForDisplay(chord, { keyName })}
-                allChoices={
-                  chordIndex === 0
-                    ? (keyLocked ? inKeyChords : GUITAR_CHORDS_IN_MAJOR_KEYS)
-                    : (chords[chordIndex].sourceSet === '🔑' ? inKeyChords : ALL_GUITAR_CHORDS)
-                }
-                setChoice={chord => modifyChord(chordIndex, { chord })}
-                searchTransform={chord => untransformAccidentals(`${chord.root}${chord.suffix}`)}
-              />
-              <span>({getRomanNumeral(keyName, chords[chordIndex].chord)})</span>
-            </h2>
-          </div>
+        {chords.map((chord, chordIndex) => (
+          <ChordInput
+            key={chordIndex}
+            keyName={keyName}
+            selectableChords={chordIndex === 0
+              ? (keyLocked ? inKeyChords : GUITAR_CHORDS_IN_MAJOR_KEYS)
+              : (chords[chordIndex].sourceSet === '🔑' ? inKeyChords : ALL_GUITAR_CHORDS)
+            }
+            choice={chord}
+            showSourceSet={chordIndex > 0}
+            modifyChord={changes => modifyChord(chordIndex, changes)}
+          />
         ))}
       </div>
 

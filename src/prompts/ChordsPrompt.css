@@ -4,34 +4,6 @@ div.chords {
     margin-bottom: 4rem;
 }
 
-    div.chords h2 {
-        margin-top: 0;
-        font-size: 28px;
-    }
-
-    div.chords > * > .buttons {
-        display: flex;
-        flex-direction: row;
-        margin: 0 auto;            
-        font-size: 28px;
-        place-content: center;
-    }
-
-        div.chords > * > .buttons > :nth-child(0) {
-            
-        }
-    
-        div.chords > * > .buttons > * {
-            margin-left: 0.4em;
-            margin-right: 0.4em;
-
-        }
-
-            div.chords .choice > :not(:hover) > span.dimmed {
-                opacity: 0.5;
-                filter: grayscale()
-            }
-
 .buttons.fixed {
     position: fixed;
     left: 3rem;

@@ -9,7 +9,7 @@ type ChordLibraryEntry = {
   positions: Array<Fretting>
 }
 
-type Fretting = {
+export type Fretting = {
   frets: number[],  // -1 for "x"
   fingers: number[],
   baseFret: number,

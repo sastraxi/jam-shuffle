@@ -1,0 +1,45 @@
+div.chord h2 {
+    margin-top: 0;
+    font-size: 28px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+    div.chord > h2 > .choice {
+        margin-left: 14px;
+        margin-right: 14px;
+    }
+
+    div.chord > h2 > .numeral {
+        font-size: 20px;
+        line-height: 26px;            
+        display: inline-block;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 0 8px;
+        border-radius: 4px;
+    }
+
+div.chord > .buttons {
+    display: flex;
+    flex-direction: row;
+    margin: 0 auto;            
+    font-size: 28px;
+    place-content: center;
+}
+
+    div.chord > .buttons > :nth-child(0) {
+        
+    }
+
+    div.chord > .buttons > * {
+        margin-left: 0.4em;
+        margin-right: 0.4em;
+
+    }
+
+        div.chord .choice > :not(:hover) > span.dimmed {
+            opacity: 0.5;
+            filter: grayscale()
+        }
