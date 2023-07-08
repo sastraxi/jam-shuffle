@@ -61,7 +61,6 @@ function Choice<ChoiceType,>({
 
     const goToExpandedMode = useCallback(() => {
         if (expanded) return
-        console.log('go to')
         if (rootRef.current) {
             const { offsetWidth, offsetHeight } = rootRef.current 
             const { top, left } = cumulativeOffset(rootRef.current)
@@ -99,7 +98,6 @@ function Choice<ChoiceType,>({
 
     const onTap = useCallback(() => {
         if (expanded) return
-        console.log('onTap')
         return tapToChange
             ? setChoice?.(getRelativeChoice(current, 1))
             : goToExpandedMode();
