@@ -117,7 +117,7 @@ export const getGuitarNotes = (
   return notes
 }
 
-type ChordDefinition = VexChordDefinition & {
+export type ChordDefinition = VexChordDefinition & {
   notes: Note[],
 }
 
