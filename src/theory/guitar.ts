@@ -1,5 +1,5 @@
 import GuitarChords from './guitar.json'  // see README.md
-import { ChordDefinition } from 'vexchords'
+import { VexChordDefinition } from 'vexchords'
 import { transpose, Interval, } from 'tonal'
 import { Note, NoteDisplayContext, displayAccidentals, normalizedNoteName, noteForDisplay } from './common'
 
@@ -117,21 +117,29 @@ export const getGuitarNotes = (
   return notes
 }
 
+type ChordDefinition = VexChordDefinition & {
+  notes: Note[],
+}
+
 export const frettingToVexChord = (
   f: Fretting,
   displayContext: NoteDisplayContext = {}
 ): ChordDefinition => {
+
+  const notes = STANDARD_TUNING.map((stringRootNote, i) => {
+    if (f.frets[i] === -1) return undefined
+    if (f.frets[i] === 0) return stringRootNote
+    return transpose(stringRootNote, Interval.fromSemitones(f.frets[i] + f.baseFret - 1))
+  })
+
   return {
     chord: f.frets.map((n, fretIndex) => [6 - fretIndex, (n === -1 ? 'x' : n)]),
     position: f.baseFret,
-    tuning: STANDARD_TUNING.map((stringRootNote, i) => {
-      if (f.frets[i] === -1) return ''
-      if (f.frets[i] === 0) return noteForDisplay(stringRootNote, displayContext)
-      return noteForDisplay(
-        transpose(stringRootNote, Interval.fromSemitones(f.frets[i] + f.baseFret - 1)),
-        displayContext,
-      )
-    })
+    tuning: notes.map((note) => {
+      if (note === undefined) return ''
+      return noteForDisplay(note, displayContext)
+    }),
+    notes: notes.filter(x => x !== undefined) as Note[],
     // TODO: barres
   }
 }

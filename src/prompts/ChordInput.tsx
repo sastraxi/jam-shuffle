@@ -7,6 +7,7 @@ import { firstNDigits } from '../util'
 import { ExplodedChord, chordForDisplay, frettingToVexChord, getFrettings } from '../theory/guitar'
 import { getRomanNumeral } from '../theory/triads'
 import { untransformAccidentals } from '../theory/common'
+import PlayButton from '../audio/PlayButton'
 
 ///////////////////////////
 
@@ -36,9 +37,10 @@ export type ChordChoice = {
 type Props = {
     keyName: string
     choice: ChordChoice
-    showSourceSet: boolean
     selectableChords: ExplodedChord[]
     modifyChord: (changes: Partial<ChordChoice>) => void
+    showSourceSet: boolean
+    showPlayButton?: boolean
 }
 
 const dimmedIf = (exactlyMatches: string) =>
@@ -50,9 +52,19 @@ const ChordInput = ({
     showSourceSet,
     selectableChords,
     modifyChord,
+    showPlayButton = true
 }: Props) => {
 
     const frettings = useMemo(() => getFrettings(choice.chord), [choice])
+    const vexChord = useMemo(() => frettingToVexChord(
+        frettings[Math.min(choice.variant, frettings.length - 1)],
+        {
+            showOctave: false,
+            keyName,
+        }
+    ), [keyName, choice, frettings])
+
+    console.log(vexChord?.notes)
 
     return (
         <div className="chord">
@@ -87,15 +99,19 @@ const ChordInput = ({
             <ChordDiagram
                 width={320}
                 height={400}
-                {...frettingToVexChord(
-                    frettings[Math.min(choice.variant, frettings.length - 1)],
-                    {
-                        showOctave: false,
-                        keyName,
-                    }
-                )}
+                {...vexChord}
             />
             <h2>
+                {showPlayButton && vexChord.tuning && (
+                    <PlayButton
+                        instrument={276}
+                        notes={vexChord.notes}
+                        strumDurationMs={500}
+                        strumDown={true}
+                        activeDurationMs={1500}
+                    />
+                )}
+
                 {/* TODO: playbutton */}
                 <Choice
                     alignItems="center"

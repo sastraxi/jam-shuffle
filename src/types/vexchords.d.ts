@@ -54,7 +54,7 @@ declare module "vexchords" {
 
     export type GuitarString = [StringNumber, FretNumber, Label?] | [StringNumber, 'x']
 
-    export interface ChordDefinition {
+    export interface VexChordDefinition {
         /**
          * position marker
          */
@@ -78,8 +78,8 @@ declare module "vexchords" {
     export class ChordBox
     {
         constructor(selector: string|Element, options?: ChordBoxOptions);
-        draw(options: ChordDefinition);
+        draw(options: VexChordDefinition);
     }
 
-    export function draw(selector: string|Element, options: ChordDefinition, chordBoxOptions?: ChordBoxOptions);
+    export function draw(selector: string|Element, options: VexChordDefinition, chordBoxOptions?: ChordBoxOptions);
 }

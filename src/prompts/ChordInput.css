@@ -19,6 +19,10 @@ div.chord h2 {
         background-color: rgba(0, 0, 0, 0.5);
         padding: 0 8px;
         border-radius: 4px;
+
+        /* slight visual fixup */
+        position: relative;
+        top: 2px;
     }
 
 div.chord > .buttons {

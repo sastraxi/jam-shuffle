@@ -171,6 +171,11 @@ export const explodeNote = (note: Note): ExplodedNote => {
 
 export const combineNote = ({ name, octave }: ExplodedNote): Note => `${name}${octave ?? ''}`
 
+export const stripOctave = (note: Note | ExplodedNote) => {
+  const explodedNote = (typeof note === 'string' ? explodeNote(note) : note)
+  return explodedNote.name
+}
+
 export const noteForDisplay = (
   note: Note | ExplodedNote,
   { keyName, scale, showOctave }: NoteDisplayContext = {},
