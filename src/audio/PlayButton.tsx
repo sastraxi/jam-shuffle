@@ -65,13 +65,13 @@ const PlayButton = ({
 	useEffect(() => {
 		if (isPlaying) {
 			playSound()
-			return () => player?.cancelQueue()
 		}
 	}, [isPlaying, playSound])
 
 	return (<>
 		<IconButton
-			type="external link"
+			type="volume"
+			active={isPlaying}
 			onClick={() => setIsPlaying(!isPlaying)}
 		/>
 	</>)

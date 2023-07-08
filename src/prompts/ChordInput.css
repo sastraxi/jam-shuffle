@@ -7,9 +7,13 @@ div.chord h2 {
     align-items: center;
 }
 
+    div.chord > h2 .iconButton {
+        margin: 0;
+    }
+
     div.chord > h2 > .choice {
         margin-left: 14px;
-        margin-right: 14px;
+        margin-right: 18px;
     }
 
     div.chord > h2 > .numeral {
