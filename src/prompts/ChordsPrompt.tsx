@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import BasePrompt from '../core/BasePrompt'
 import IconButton from '../components/IconButton'
 import Choice from '../components/Choice'
@@ -30,6 +30,7 @@ import {
 } from '../theory/common'
 
 import { Balanced, FLAVOUR_CHOICES, Flavour, getMakeFlavourChoice } from '../theory/flavours'
+import MIDISounds, { MIDISoundPlayer } from 'midi-sounds-react'
 
 
 ///////////////////////////
@@ -343,10 +344,15 @@ const ChordsPrompt: React.FunctionComponent = () => {
     [flavour, keyName]
   )
 
+  const midiSounds = useRef<MIDISoundPlayer>()
+
   if (!chords) return []
 
   return (
     <BasePrompt>
+      <div style={{ display: "none "}}>
+        <MIDISounds ref={midiSounds} />
+      </div>
 
       <div className="chords">
         {chords.map((chord, chordIndex) => (
@@ -360,6 +366,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
             choice={chord}
             showSourceSet={chordIndex > 0}
             modifyChord={changes => modifyChord(chordIndex, changes)}
+            player={midiSounds.current}
           />
         ))}
       </div>

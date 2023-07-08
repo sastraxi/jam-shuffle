@@ -8,6 +8,7 @@ import { ExplodedChord, chordForDisplay, frettingToVexChord, getFrettings } from
 import { getRomanNumeral } from '../theory/triads'
 import { untransformAccidentals } from '../theory/common'
 import PlayButton from '../audio/PlayButton'
+import { MIDISoundPlayer } from 'midi-sounds-react'
 
 ///////////////////////////
 
@@ -40,7 +41,7 @@ type Props = {
     selectableChords: ExplodedChord[]
     modifyChord: (changes: Partial<ChordChoice>) => void
     showSourceSet: boolean
-    showPlayButton?: boolean
+    player?: MIDISoundPlayer
 }
 
 const dimmedIf = (exactlyMatches: string) =>
@@ -52,7 +53,7 @@ const ChordInput = ({
     showSourceSet,
     selectableChords,
     modifyChord,
-    showPlayButton = true
+    player,
 }: Props) => {
 
     const frettings = useMemo(() => getFrettings(choice.chord), [choice])
@@ -63,8 +64,6 @@ const ChordInput = ({
             keyName,
         }
     ), [keyName, choice, frettings])
-
-    console.log(vexChord?.notes)
 
     return (
         <div className="chord">
@@ -102,8 +101,9 @@ const ChordInput = ({
                 {...vexChord}
             />
             <h2>
-                {showPlayButton && vexChord.tuning && (
+                {player && vexChord.tuning && (
                     <PlayButton
+                        player={player}
                         instrument={276}
                         notes={vexChord.notes}
                         strumDurationMs={500}

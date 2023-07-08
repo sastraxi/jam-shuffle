@@ -5,6 +5,9 @@ import './PlayButton.css';
 import IconButton from '../components/IconButton';
 
 type Props = {
+
+	player: MIDISoundPlayer
+
 	/**
 	 * Which MIDI instrument bank should we use?
 	 */
@@ -24,6 +27,7 @@ type Props = {
 const MS_TO_SEC = 0.001
 
 const PlayButton = ({
+	player,
 	instrument,
 	notes,
 	activeDurationMs = 1000,
@@ -31,21 +35,17 @@ const PlayButton = ({
 	strumDurationMs = 300,
 	noteDurationMs = 500,
 }: Props) => {
-	const midiSounds = useRef<MIDISoundPlayer>()
 	const [isPlaying, setIsPlaying] = useState(false)
 
 	useEffect(() => {
-		const player = midiSounds.current
 		if (player) {
 			player.setEchoLevel(0.1)
 			player.setMasterVolume(0.3)
 			player.cacheInstrument(instrument)
 		}
-	}, [midiSounds, instrument])
+	}, [player, instrument])
 
 	const playSound = useCallback(() => {
-		const player = midiSounds?.current
-		console.log('playng', notes, notes.map(Midi.toMidi))
 		if (!player) return
 
 		const offsetSec = MS_TO_SEC * (strumDurationMs / notes.length)
@@ -60,19 +60,16 @@ const PlayButton = ({
 		})
 
 		setTimeout(() => setIsPlaying(false), activeDurationMs)
-	}, [instrument, noteDurationMs, strumDown, strumDurationMs, midiSounds, notes, activeDurationMs])
+	}, [instrument, noteDurationMs, strumDown, strumDurationMs, player, notes, activeDurationMs])
 
 	useEffect(() => {
 		if (isPlaying) {
 			playSound()
-			return () => midiSounds.current?.cancelQueue()
+			return () => player?.cancelQueue()
 		}
 	}, [isPlaying, playSound])
 
 	return (<>
-		<div style={{ display: "none "}}>
-			<MIDISounds ref={midiSounds} />
-		</div>
 		<IconButton
 			type="external link"
 			onClick={() => setIsPlaying(!isPlaying)}
