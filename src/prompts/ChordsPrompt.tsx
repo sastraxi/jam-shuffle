@@ -350,7 +350,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
   return (
     <BasePrompt>
-      <div style={{ display: "none "}}>
+      <div style={{ display: "none" }}>
         <MIDISounds ref={midiSounds} />
       </div>
 
