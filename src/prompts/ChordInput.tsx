@@ -101,7 +101,7 @@ const ChordInput = ({
                 {...vexChord}
             />
             <h2>
-                {player && vexChord.tuning && (
+                {player && (
                     <PlayButton
                         player={player}
                         instrument={276}
@@ -111,15 +111,13 @@ const ChordInput = ({
                         activeDurationMs={1500}
                     />
                 )}
-
-                {/* TODO: playbutton */}
                 <Choice
                     alignItems="center"
                     current={choice.chord}
                     displayTransform={chord => chordForDisplay(chord, { keyName })}
                     allChoices={selectableChords}
                     setChoice={chord => modifyChord({ chord })}
-                    searchTransform={chord => untransformAccidentals(`${chord.root}${chord.suffix}`)}
+                    searchTransform={chord => untransformAccidentals(chordForDisplay(chord, { keyName })).replace(' ', '')}
                 />
                 <span className="numeral">
                     {getRomanNumeral(keyName, choice.chord)}
