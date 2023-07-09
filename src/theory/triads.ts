@@ -1,6 +1,7 @@
 import { Interval, Progression, RomanNumeral, transpose } from "tonal"
 import { ALL_GUITAR_CHORDS, Chord, ChordSuffix, ExplodedChord, combineChord, explodeChord } from "./guitar"
 import { ENHARMONIC_DISPLAY_FOR_KEYNAME, Note, displayAccidentals, noteForDisplay } from "./common"
+import { memoize } from "../util"
 
 /**
  * Number of semitones in the two nonoverlapping sub-intervals that make up a triad.
@@ -92,7 +93,7 @@ const NUMERAL_MAP: Record<string, string> = {
   "vii": "ⅶ"
 }
 
-export const getRomanNumeral = (keyName: string, chord: ExplodedChord | Chord): string => {
+export const getRomanNumeral = memoize((keyName: string, chord: ExplodedChord | Chord): string => {
   const explodedChord = (typeof chord === 'string' ? explodeChord(chord) : chord)
   const { suffix } = explodedChord
   const root = ENHARMONIC_DISPLAY_FOR_KEYNAME[keyName][explodedChord.root]
@@ -116,8 +117,9 @@ export const getRomanNumeral = (keyName: string, chord: ExplodedChord | Chord): 
   // I just kinda kept adding things until it looked correct
   // TODO: fix this garbage, probably write our own roman conversion from scratch
   let chordName
-  if (suffix.startsWith('min') || suffix.startsWith('madd') || suffix.startsWith('m/') || suffix.startsWith('mmaj')) {
+  if (suffix.match(/^m(in|add|[/]|maj|\d+)/)) {
     chordName = `${root} m`
+    console.log('AHGDAHDHWA', chordName)    
   } else if (suffix.startsWith('alt')) {
     // this is crazy!
     chordName = `${root} major`
@@ -139,4 +141,4 @@ export const getRomanNumeral = (keyName: string, chord: ExplodedChord | Chord): 
   // this is hacky
   const numeral = (chordType === 'm' || chordType === 'alt') ? NUMERAL_MAP[roman.toLowerCase()] : NUMERAL_MAP[roman]
   return `${displayAccidentals(acc ?? '')}${numeral}${symbol}` 
-}
+})

@@ -88,7 +88,7 @@ type ChordsPromptChoices = {
  * We need a starting point so that we don't have to throw in
  * a bunch of logic to deal with undefineds everywhere. Even though
  * each prompt is initialized with {} (see goToCategory) we will
- * quickly change it.
+ * quickly change it. TODO: allow prompts to set a default in some registry.
  */
 const DEFAULT_PROMPT_CHOICES_CONTEXT: ChordsPromptChoices = {
   flavour: Balanced,
@@ -150,7 +150,10 @@ const generateChordChoices = memoize((
 
     if (sameNumeralChords.length === 0) {
       // FIXME: is this because the numerals are expressed differently? Only affects aug chords right now.
-      console.warn(`Could not find any chords for ${romanNumeral} in ${workingKeyName}. Quietly dropping constraint.`)
+      console.warn(
+        `Could not find any chords for ${romanNumeral} in
+        ${workingKeyName}. Quietly dropping constraint.`
+      )
     } else {
       candidateChords = sameNumeralChords
     }
