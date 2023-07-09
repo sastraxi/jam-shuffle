@@ -119,7 +119,6 @@ export const getRomanNumeral = memoize((keyName: string, chord: ExplodedChord | 
   let chordName
   if (suffix.match(/^m(in|add|[/]|maj|\d+)/)) {
     chordName = `${root} m`
-    console.log('AHGDAHDHWA', chordName)    
   } else if (suffix.startsWith('alt')) {
     // this is crazy!
     chordName = `${root} major`
