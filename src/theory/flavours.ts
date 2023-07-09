@@ -96,6 +96,10 @@ export const getMakeFlavourChoice = (
   } else {
     candidates = chords
   }
+
+  if (candidates.length === 0) {
+    throw new Error("No chords!")
+  }
   
   // calculate each chord weight; maintain a cumulative weight array
   // alongside the candidate chords

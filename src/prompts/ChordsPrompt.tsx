@@ -3,7 +3,7 @@ import BasePrompt from '../core/BasePrompt'
 import IconButton from '../components/IconButton'
 import Choice from '../components/Choice'
 import ChoiceContainer from '../components/ChoiceContainer'
-import ChordInput, { ChordChoice } from './ChordInput'
+import ChordInput, { ChordChoice, SourceSetChoices } from './ChordInput'
 import './ChordsPrompt.css'
 
 import { usePromptChoices, useSetPromptChoice } from '../state/app'
@@ -19,7 +19,6 @@ import {
   ALL_GUITAR_CHORDS,
   getGuitarNotes,
   chordForDisplay,
-  ExplodedChord,
   chordEquals,
 } from '../theory/guitar'
 
@@ -31,6 +30,7 @@ import {
 
 import { Balanced, FLAVOUR_CHOICES, Flavour, getMakeFlavourChoice } from '../theory/flavours'
 import MIDISounds, { MIDISoundPlayer } from 'midi-sounds-react'
+import { getRomanNumeral } from '../theory/triads'
 
 
 ///////////////////////////
@@ -117,12 +117,34 @@ const generateKeyChoices = memoize((
 
 const generateChordChoices = memoize((
   flavour: Flavour,
-  keyName: string | undefined,
+  {
+    keyName,
+    romanNumeral,
+  }: {
+    keyName?: string
+    /**
+     * Only return chords that match a given roman numeral, e.g. iii or bIV.
+     */
+    romanNumeral?: string
+  }
 ) => {
-  const scaleNotes = keyName ? keynameToNotes(keyName) : undefined
-  const candidateChords = !scaleNotes
+  // TODO: could parameterize differently once we have a richer way of expressing
+  // chords. It's OK to want all "C major"-y chords and not have a key when we want
+  // to just explore different extensions for the same base triad.
+  // for now, we ignore the key when generating candidates so we can be sure to have
+  // some that are of the same degree in the candidate chords before we filter down
+  // the logic is a little awkward, which is why this is a note.
+
+  const scaleNotes = (keyName && !romanNumeral) ? keynameToNotes(keyName) : undefined
+  let candidateChords = !scaleNotes
     ? ALL_GUITAR_CHORDS_WITH_BLANK_ACCIDENTALS
     : chordsMatchingCondition({ scaleNotes })
+
+  if (keyName && romanNumeral) {
+    console.log(romanNumeral)
+    candidateChords = candidateChords.filter(c =>
+      romanNumeral === getRomanNumeral(keyName, c.chord))
+  }
 
   return getMakeFlavourChoice(flavour, candidateChords)
 })
@@ -161,16 +183,26 @@ const ChordsPrompt: React.FunctionComponent = () => {
     for (let i = from; i < to; ++i) {
       const previousChord: ChordChoice | undefined = previous.chords[i]
 
-      const ignoreKey = (i > 0 && previousChord?.sourceSet === '✨')
-      const { chooseChord, candidateChords } = generateChordChoices(
-        previous.flavour,
-        ignoreKey ? undefined : keyName,
-      )
-
       if (previousChord?.locked) {
         chords.push(previousChord)
         continue
       }
+
+      // how should we restrict the set of chords?
+      // XXX: same base triad (🏛️) respects key as well. Is that what we want?
+      const ignoreKey = (i > 0 && previousChord?.sourceSet === '✨')
+      const romanNumeral = (keyName && i > 0 && previousChord?.sourceSet === '🧲'
+        ? getRomanNumeral(keyName, previousChord.chord)
+        : undefined)
+
+      // actually generate some chords
+      const { chooseChord, candidateChords } = generateChordChoices(
+        previous.flavour,
+        {
+          keyName: ignoreKey ? undefined : keyName,
+          romanNumeral,
+        },
+      )
 
       if (!shuffle && previousChord !== undefined) {
         // we can keep the previous chord in this position if it's compatible with the new key
@@ -340,7 +372,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
     [chords, keyLocked]
   )
   const inKeyChords = useMemo(
-    () => flavour ? generateChordChoices(flavour, keyName).candidateChords.map(c => c.chord) : [],
+    () => flavour ? generateChordChoices(flavour, { keyName }).candidateChords.map(c => c.chord) : [],
     [flavour, keyName]
   )
 
@@ -355,20 +387,30 @@ const ChordsPrompt: React.FunctionComponent = () => {
       </div>
 
       <div className="chords">
-        {chords.map((chord, chordIndex) => (
-          <ChordInput
-            key={chordIndex}
-            keyName={keyName}
-            selectableChords={chordIndex === 0
-              ? (keyLocked ? inKeyChords : GUITAR_CHORDS_IN_MAJOR_KEYS)
-              : (chords[chordIndex].sourceSet === '🔑' ? inKeyChords : ALL_GUITAR_CHORDS)
-            }
-            choice={chord}
-            showSourceSet={chordIndex > 0}
-            modifyChord={changes => modifyChord(chordIndex, changes)}
-            player={midiSounds.current}
-          />
-        ))}
+        {chords.map((chord, chordIndex) => {
+          let sourceSetOptions: Array<SourceSetChoices>
+          if (chordIndex === 0) {
+            // TODO: support 🧲 for first chord
+            sourceSetOptions = keyLocked ? ['🔑'] : ['✨']
+          } else {
+            sourceSetOptions = ['🔑', '🧲', '✨']
+          }
+
+          return (
+            <ChordInput
+              key={chordIndex}
+              keyName={keyName}
+              selectableChords={chordIndex === 0
+                ? (keyLocked ? inKeyChords : GUITAR_CHORDS_IN_MAJOR_KEYS)
+                : (chords[chordIndex].sourceSet === '🔑' ? inKeyChords : ALL_GUITAR_CHORDS)
+              }
+              choice={chord}
+              sourceSetOptions={sourceSetOptions}
+              modifyChord={changes => modifyChord(chordIndex, changes)}
+              player={midiSounds.current}
+            />
+          )
+        })}
       </div>
 
       <div className="buttons fixed">
