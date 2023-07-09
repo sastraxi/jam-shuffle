@@ -17,7 +17,7 @@ const VARIANT_NUMBERS = "①②③④⑤⑥⑦⑧⑨⑩"
 
 ///////////////////////////
 
-const SOURCE_SET_CHOICES = [
+export const SOURCE_SET_CHOICES = [
   '✨', '🔑', '🧲'
 ] as const
 export type SourceSetChoices = typeof SOURCE_SET_CHOICES[number]

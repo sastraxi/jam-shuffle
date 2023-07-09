@@ -3,7 +3,7 @@ import BasePrompt from '../core/BasePrompt'
 import IconButton from '../components/IconButton'
 import Choice from '../components/Choice'
 import ChoiceContainer from '../components/ChoiceContainer'
-import ChordInput, { ChordChoice, SourceSetChoices } from './ChordInput'
+import ChordInput, { ChordChoice, SOURCE_SET_CHOICES, SourceSetChoices } from './ChordInput'
 import './ChordsPrompt.css'
 
 import { usePromptChoices, useSetPromptChoice } from '../state/app'
@@ -20,6 +20,7 @@ import {
   getGuitarNotes,
   chordForDisplay,
   chordEquals,
+  ExplodedChord,
 } from '../theory/guitar'
 
 import {
@@ -119,13 +120,13 @@ const generateChordChoices = memoize((
   flavour: Flavour,
   {
     keyName,
-    romanNumeral,
+    sameBaseTriadAs,
   }: {
     keyName?: string
     /**
-     * Only return chords that match a given roman numeral, e.g. iii or bIV.
+     * Only return chords that have the same base triad?
      */
-    romanNumeral?: string
+    sameBaseTriadAs?: ExplodedChord
   }
 ) => {
   // TODO: could parameterize differently once we have a richer way of expressing
@@ -135,31 +136,39 @@ const generateChordChoices = memoize((
   // some that are of the same degree in the candidate chords before we filter down
   // the logic is a little awkward, which is why this is a note.
 
-  const scaleNotes = (keyName && !romanNumeral) ? keynameToNotes(keyName) : undefined
+  const scaleNotes = (keyName && !sameBaseTriadAs) ? keynameToNotes(keyName) : undefined
   let candidateChords = !scaleNotes
     ? ALL_GUITAR_CHORDS_WITH_BLANK_ACCIDENTALS
     : chordsMatchingCondition({ scaleNotes })
 
-  if (keyName && romanNumeral) {
-    console.log(romanNumeral)
+  if (sameBaseTriadAs) {
+    // XXX: need a key name as we compare in context of a key, but it doesn't matter what we choose
+    const workingKeyName = keyName ?? 'C major'
+    const romanNumeral = getRomanNumeral(workingKeyName, sameBaseTriadAs)
     candidateChords = candidateChords.filter(c =>
-      romanNumeral === getRomanNumeral(keyName, c.chord))
+      romanNumeral === getRomanNumeral(workingKeyName, c.chord))
   }
 
   return getMakeFlavourChoice(flavour, candidateChords)
 })
 
 ///////////////////////////////
+// Next steps...
+///////////////////////////////
+// - help text for key choice is current roman numerals (e.g. I ii iii iV V vi vii*)
+// - add 3rd type of key locking: "same scale" (order: mode) (e.g. "KEYS BASED ON D MAJOR")
+// - constrain to first locked chord, not just the first one IF locked
+// - finish the "when we change source set we re-roll if it's no longer valid" logic
+// - add piano mode + instrument
+// - figure out UI of having a 4th chord on the screen
+// - fix the flavour <Choice> having wonky visuals in expanded mode
+// - add a play button for all chords
+// - "movement" source sets
+///////////////////////////////
 
 const ChordsPrompt: React.FunctionComponent = () => {
   const current = usePromptChoices<ChordsPromptChoices>()
   const setPromptChoice = useSetPromptChoice<ChordsPromptChoices>()
-
-  // TODO:
-  // - help text for key choice is current roman numers (e.g. )
-  // - add 3rd type of key locking: "same scale" (order: mode) (e.g. "KEYS BASED ON D MAJOR")
-  // - constrain to first locked chord, not just the first one IF locked
-  // - finish the "when we change source set we re-roll if it's no longer valid" logic
 
   /**
    * Generate chords for the [from, to) indexes of our chords array.
@@ -189,10 +198,9 @@ const ChordsPrompt: React.FunctionComponent = () => {
       }
 
       // how should we restrict the set of chords?
-      // XXX: same base triad (🏛️) respects key as well. Is that what we want?
       const ignoreKey = (i > 0 && previousChord?.sourceSet === '✨')
-      const romanNumeral = (keyName && i > 0 && previousChord?.sourceSet === '🧲'
-        ? getRomanNumeral(keyName, previousChord.chord)
+      const sameBaseTriadAs = (previousChord?.sourceSet === '🧲'
+        ? previousChord.chord
         : undefined)
 
       // actually generate some chords
@@ -200,7 +208,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
         previous.flavour,
         {
           keyName: ignoreKey ? undefined : keyName,
-          romanNumeral,
+          sameBaseTriadAs,
         },
       )
 
@@ -213,11 +221,12 @@ const ChordsPrompt: React.FunctionComponent = () => {
       }
 
       // generate a new chord
+      const defaultSourceSet = i === 0 && !previous.keyLocked ? '✨' : '🔑'  // see "fix up choices" below.
       chords.push({
         chord: chooseChord(),
         locked: false,
         variant: previousChord?.variant ?? 0,
-        sourceSet: previousChord?.sourceSet ?? '🔑',
+        sourceSet: previousChord?.sourceSet ?? defaultSourceSet,
       })
     }
 
@@ -233,8 +242,8 @@ const ChordsPrompt: React.FunctionComponent = () => {
     let firstChord: ChordChoice
     let keyName: string | undefined = undefined
     if (!context.keyLocked) {
-      // key unlocked --> chord chosen, then key that fits
-      // some (guitar) chords do not have a base triad that fits neatly
+      // key unlocked --> chord chosen, then key that fits.
+      // N.B. some (guitar) chords do not have a base triad that fits neatly
       // into a key. TODO: fix this by looking up idealized triad based
       // on exploded chord name, rather than depending on guitar chord
       // as the fingering can cause the triad to be spread / under-represented
@@ -364,6 +373,20 @@ const ChordsPrompt: React.FunctionComponent = () => {
   })
 
   //////////////////////////////////////////////////////
+  // fix up choices that become illegal when things change,
+  // rather than having to make these fixes imperatively everywhere.
+  // TODO: find all the other fix-up code and centralize here
+
+  useEffect(() => {
+    if (!current.keyLocked && current?.chords?.[0]?.sourceSet === '🔑') {
+      // when the key is unlocked, the first chord is generated and then the key
+      // is set based on it. So it is impossible to choose from the key in this case
+      // as the direction of causality is opposite
+      modifyChord(0, { sourceSet: '✨' })
+    }
+  }, [current])
+
+  //////////////////////////////////////////////////////
 
   const { chords, keyLocked, keyName, flavour } = current
 
@@ -378,7 +401,7 @@ const ChordsPrompt: React.FunctionComponent = () => {
 
   const midiSounds = useRef<MIDISoundPlayer>()
 
-  if (!chords) return []
+  if (!chords) return null
 
   return (
     <BasePrompt>
@@ -389,11 +412,10 @@ const ChordsPrompt: React.FunctionComponent = () => {
       <div className="chords">
         {chords.map((chord, chordIndex) => {
           let sourceSetOptions: Array<SourceSetChoices>
-          if (chordIndex === 0) {
-            // TODO: support 🧲 for first chord
-            sourceSetOptions = keyLocked ? ['🔑'] : ['✨']
+          if (chordIndex === 0 && !keyLocked) {
+            sourceSetOptions = ['✨', '🧲']
           } else {
-            sourceSetOptions = ['🔑', '🧲', '✨']
+            sourceSetOptions = [...SOURCE_SET_CHOICES]
           }
 
           return (
