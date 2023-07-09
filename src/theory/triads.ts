@@ -108,6 +108,7 @@ export const getRomanNumeral = (keyName: string, chord: ExplodedChord | Chord): 
   } else if (AUGMENTED_TRIAD === triad) {
     symbol = '⁺'
   } else if (suffix.includes('sus')) {
+    // this is crazy!
     symbol = 'ₛᵤₛ'
   }
 

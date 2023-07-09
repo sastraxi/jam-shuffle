@@ -145,8 +145,15 @@ const generateChordChoices = memoize((
     // XXX: need a key name as we compare in context of a key, but it doesn't matter what we choose
     const workingKeyName = keyName ?? 'C major'
     const romanNumeral = getRomanNumeral(workingKeyName, sameBaseTriadAs)
-    candidateChords = candidateChords.filter(c =>
-      romanNumeral === getRomanNumeral(workingKeyName, c.chord))
+    const sameNumeralChords = candidateChords.filter(c =>
+        romanNumeral === getRomanNumeral(workingKeyName, c.chord))
+
+    if (sameNumeralChords.length === 0) {
+      // FIXME: is this because the numerals are expressed differently? Only affects aug chords right now.
+      console.warn(`Could not find any chords for ${romanNumeral} in ${workingKeyName}. Quietly dropping constraint.`)
+    } else {
+      candidateChords = sameNumeralChords
+    }
   }
 
   return getMakeFlavourChoice(flavour, candidateChords)
