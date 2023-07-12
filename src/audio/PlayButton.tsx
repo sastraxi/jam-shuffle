@@ -40,7 +40,7 @@ const PlayButton = ({
 	useEffect(() => {
 		if (player) {
 			player.setEchoLevel(0.1)
-			player.setMasterVolume(0.3)
+			player.setMasterVolume(0.45)
 			player.cacheInstrument(instrument)
 		}
 	}, [player, instrument])
