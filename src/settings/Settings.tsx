@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import MenuContainer from "./MenuContainer"
 import PlaylistSelector from "./PlaylistSelector"
 import './Settings.css'
@@ -14,7 +14,7 @@ const Settings = () => {
     const menuIcon = isActive ? 'close' : 'settings'
     const session = useSession()
     const setSession = useSetSession()
-
+    
     // FIXME: why does app re-render (once) when we click somewhere?
     const { isLoading, error, data, isFetching, isError, refetch } = useQuery<SpotifyMe>({
         queryKey: ["userProfile"],
@@ -44,7 +44,6 @@ const Settings = () => {
         })
         return () => subscription.unsubscribe()
     }, [])
-
 
     const onClickMenuButton = () => {
         if (!isActive) {
@@ -77,6 +76,7 @@ const Settings = () => {
             <div className="settingsContainer">
                 {data && session && <span className="user">{data.display_name}</span>}
                 {session && <IconButton type="logout" onClick={() => { signout(); setSession(null) }} />}
+                <IconButton type="github" href="https://github.com/sastraxi/jam-shuffle" target="_blank" title="View project on Github" />
                 <IconButton type={menuIcon} onClick={onClickMenuButton} />
             </div>
         </>

@@ -7,6 +7,8 @@ import { useCategory } from '../state/app';
 import Spinner from '../components/Spinner';
 
 import BackgroundVideo from '../assets/smoke-1080p-30fps.mp4'
+import { hasDismissedSplash, setDismissedSplash } from '../state/local';
+import SplashScreen from '../components/SplashScreen';
 
 const SingleIdea = lazy(() => import('../prompts/SingleIdea'));
 const ContrastPrompt = lazy(() => import('../prompts/ContrastPrompt'));
@@ -15,6 +17,7 @@ const ChordsPrompt = lazy(() => import('../prompts/ChordsPrompt'));
 
 const App = () => {
   const category = useCategory()
+  const [dismissedSplash, setLocalDismissed] = useState<boolean>(hasDismissedSplash() ?? false)
 
   /////////////////////////////////////////////
   const [videoLoaded, setVideoLoaded] = useState(false)
@@ -28,6 +31,18 @@ const App = () => {
     onLoadedData={() => setVideoLoaded(true)}
     autoPlay loop muted
   />
+
+  const dismissSplash = () => {
+      setLocalDismissed(true)
+      setDismissedSplash(true)
+  }
+
+  if (!dismissedSplash) return (
+    <>
+      { backgroundVideo }
+      <SplashScreen onDismiss={dismissSplash} />
+    </>  
+  )
 
   return (
     <>

@@ -1,0 +1,37 @@
+.splash-screen {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 70vw;
+    height: 40vh;
+}
+
+    .splash-screen > .logo {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .splash-screen > .logo > h1 {
+            font-weight: normal;
+            letter-spacing: 3px;
+            font-size: 50px;
+            margin-left: 16px;
+            margin-right: 30px;
+        }
+
+    .splash-screen p {
+        font-size: 24px;
+        line-height: 40px;
+    }
+
+    .splash-screen .buttons {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        margin: 40px;
+    }
